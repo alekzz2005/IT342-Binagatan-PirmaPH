@@ -1,0 +1,12 @@
+# Docker ignore file for backend
+target/
+.mvn/
+mvnw
+mvnw.cmd
+*.log
+.git/
+.gitignore
+README.md
+*.md
+.env
+.DS_Store

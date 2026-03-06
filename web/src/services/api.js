@@ -1,5 +1,6 @@
-// API Base URL
-const API_BASE_URL = 'http://localhost:8080/api';
+// API Base URL - Use environment variable with fallback
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const OAUTH2_URL = import.meta.env.VITE_OAUTH2_URL || 'http://localhost:8080/oauth2/authorization/google';
 
 // API Service for making HTTP requests
 class ApiService {
@@ -60,4 +61,7 @@ class ApiService {
   }
 }
 
-export default new ApiService();
+const apiService = new ApiService();
+
+export default apiService;
+export { API_BASE_URL, OAUTH2_URL };

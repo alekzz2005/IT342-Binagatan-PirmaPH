@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import locationService from '../services/locationService';
 import './Auth.css';
 
 const AuthPage = () => {
@@ -29,12 +30,135 @@ const AuthPage = () => {
     sex: '',
     phoneNumber: '',
     street: '',
-    barangay: '',
-    city: '',
+    regionCode: '',
+    region: '',
+    provinceCode: '',
     province: '',
+    cityMunCode: '',
+    city: '',
+    barangayCode: '',
+    barangay: '',
     zipCode: '',
     role: 'RESIDENT',
   });
+
+  // Location dropdown data
+  const [regions, setRegions] = useState([]);
+  const [provinces, setProvinces] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [barangays, setBarangays] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(false);
+
+  // Load regions on component mount
+  useEffect(() => {
+    const loadRegions = async () => {
+      setLoadingLocations(true);
+      const data = await locationService.fetchRegions();
+      setRegions(data);
+      setLoadingLocations(false);
+    };
+    loadRegions();
+  }, []);
+
+  // Handle region selection
+  const handleRegionChange = async (e) => {
+    const selectedRegion = regions.find(r => r.code === e.target.value);
+    
+    setRegisterData({
+      ...registerData,
+      regionCode: e.target.value,
+      region: selectedRegion?.name || '',
+      provinceCode: '',
+      province: '',
+      cityMunCode: '',
+      city: '',
+      barangayCode: '',
+      barangay: '',
+    });
+
+    // Reset dependent dropdowns
+    setProvinces([]);
+    setCities([]);
+    setBarangays([]);
+
+    if (e.target.value) {
+      setLoadingLocations(true);
+      
+      // Try to fetch provinces first
+      const provincesData = await locationService.fetchProvincesByRegion(e.target.value);
+      
+      if (provincesData && provincesData.length > 0) {
+        // Region has provinces
+        setProvinces(provincesData);
+      } else {
+        // No provinces - fetch cities directly (e.g., NCR)
+        const citiesData = await locationService.fetchCitiesByRegion(e.target.value);
+        setCities(citiesData);
+      }
+      
+      setLoadingLocations(false);
+    }
+  };
+
+  // Handle province selection
+  const handleProvinceChange = async (e) => {
+    const selectedProvince = provinces.find(p => p.code === e.target.value);
+    
+    setRegisterData({
+      ...registerData,
+      provinceCode: e.target.value,
+      province: selectedProvince?.name || '',
+      cityMunCode: '',
+      city: '',
+      barangayCode: '',
+      barangay: '',
+    });
+
+    // Reset dependent dropdowns
+    setCities([]);
+    setBarangays([]);
+
+    if (e.target.value) {
+      setLoadingLocations(true);
+      const citiesData = await locationService.fetchCitiesByProvince(e.target.value);
+      setCities(citiesData);
+      setLoadingLocations(false);
+    }
+  };
+
+  // Handle city/municipality selection
+  const handleCityChange = async (e) => {
+    const selectedCity = cities.find(c => c.code === e.target.value);
+    
+    setRegisterData({
+      ...registerData,
+      cityMunCode: e.target.value,
+      city: selectedCity?.name || '',
+      barangayCode: '',
+      barangay: '',
+    });
+
+    // Reset dependent dropdown
+    setBarangays([]);
+
+    if (e.target.value) {
+      setLoadingLocations(true);
+      const barangaysData = await locationService.fetchBarangaysByCity(e.target.value);
+      setBarangays(barangaysData);
+      setLoadingLocations(false);
+    }
+  };
+
+  // Handle barangay selection
+  const handleBarangayChange = (e) => {
+    const selectedBarangay = barangays.find(b => b.code === e.target.value);
+    
+    setRegisterData({
+      ...registerData,
+      barangayCode: e.target.value,
+      barangay: selectedBarangay?.name || '',
+    });
+  };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -457,64 +581,110 @@ const AuthPage = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">
-                      Barangay <span className="required">*</span>
+                      Region <span className="required">*</span>
                     </label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      placeholder="e.g. Poblacion"
-                      value={registerData.barangay}
-                      onChange={(e) =>
-                        setRegisterData({ ...registerData, barangay: e.target.value })
-                      }
-                      required
-                    />
+                    <div className="select-wrap">
+                      <select
+                        className="form-select"
+                        value={registerData.regionCode}
+                        onChange={handleRegionChange}
+                        required
+                        disabled={loadingLocations}
+                      >
+                        <option value="">— Select Region —</option>
+                        {regions.map((region) => (
+                          <option key={region.code} value={region.code}>
+                            {region.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      City / Municipality <span className="required">*</span>
-                    </label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      placeholder="e.g. Quezon City"
-                      value={registerData.city}
-                      onChange={(e) =>
-                        setRegisterData({ ...registerData, city: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
+                  {provinces.length > 0 && (
+                    <div className="form-group">
+                      <label className="form-label">
+                        Province <span className="required">*</span>
+                      </label>
+                      <div className="select-wrap">
+                        <select
+                          className="form-select"
+                          value={registerData.provinceCode}
+                          onChange={handleProvinceChange}
+                          required
+                          disabled={!registerData.regionCode || loadingLocations}
+                        >
+                          <option value="">— Select Province —</option>
+                          {provinces.map((province) => (
+                            <option key={province.code} value={province.code}>
+                              {province.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
                     <label className="form-label">
-                      Province <span className="required">*</span>
+                      City / Municipality <span className="required">*</span>
                     </label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      placeholder="e.g. Metro Manila"
-                      value={registerData.province}
-                      onChange={(e) =>
-                        setRegisterData({ ...registerData, province: e.target.value })
-                      }
-                      required
-                    />
+                    <div className="select-wrap">
+                      <select
+                        className="form-select"
+                        value={registerData.cityMunCode}
+                        onChange={handleCityChange}
+                        required
+                        disabled={
+                          (!registerData.regionCode || 
+                           (provinces.length > 0 && !registerData.provinceCode)) ||
+                          loadingLocations
+                        }
+                      >
+                        <option value="">— Select City/Municipality —</option>
+                        {cities.map((city) => (
+                          <option key={city.code} value={city.code}>
+                            {city.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">ZIP Code</label>
-                    <input
-                      className="form-input"
-                      type="text"
-                      placeholder="e.g. 1100"
-                      value={registerData.zipCode}
-                      onChange={(e) =>
-                        setRegisterData({ ...registerData, zipCode: e.target.value })
-                      }
-                    />
+                    <label className="form-label">
+                      Barangay <span className="required">*</span>
+                    </label>
+                    <div className="select-wrap">
+                      <select
+                        className="form-select"
+                        value={registerData.barangayCode}
+                        onChange={handleBarangayChange}
+                        required
+                        disabled={!registerData.cityMunCode || loadingLocations}
+                      >
+                        <option value="">— Select Barangay —</option>
+                        {barangays.map((barangay) => (
+                          <option key={barangay.code} value={barangay.code}>
+                            {barangay.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">ZIP Code</label>
+                  <input
+                    className="form-input"
+                    type="text"
+                    placeholder="e.g. 1100"
+                    value={registerData.zipCode}
+                    onChange={(e) =>
+                      setRegisterData({ ...registerData, zipCode: e.target.value })
+                    }
+                  />
                 </div>
 
                 {/* Section 4: Terms & Submit */}

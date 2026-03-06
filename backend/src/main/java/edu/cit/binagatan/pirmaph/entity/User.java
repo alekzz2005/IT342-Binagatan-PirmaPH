@@ -49,6 +49,20 @@ public class User {
     @Column(length = 200)
     private String street;
 
+    // PSGC Location Codes
+    @Column(length = 20)
+    private String regionCode;
+
+    @Column(length = 20)
+    private String provinceCode;
+
+    @Column(length = 20)
+    private String cityMunCode;
+
+    @Column(length = 20)
+    private String barangayCode;
+
+    // Location Display Names
     @Column(length = 100)
     private String barangay;
 
@@ -57,6 +71,9 @@ public class User {
 
     @Column(length = 100)
     private String province;
+
+    @Column(length = 100)
+    private String region;
 
     @Column(length = 20)
     private String zipCode;
@@ -245,6 +262,46 @@ public class User {
 
     public void setZipCode(String zipCode) {
         this.zipCode = zipCode;
+    }
+
+    public String getRegionCode() {
+        return regionCode;
+    }
+
+    public void setRegionCode(String regionCode) {
+        this.regionCode = regionCode;
+    }
+
+    public String getProvinceCode() {
+        return provinceCode;
+    }
+
+    public void setProvinceCode(String provinceCode) {
+        this.provinceCode = provinceCode;
+    }
+
+    public String getCityMunCode() {
+        return cityMunCode;
+    }
+
+    public void setCityMunCode(String cityMunCode) {
+        this.cityMunCode = cityMunCode;
+    }
+
+    public String getBarangayCode() {
+        return barangayCode;
+    }
+
+    public void setBarangayCode(String barangayCode) {
+        this.barangayCode = barangayCode;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public UserRole getRole() {

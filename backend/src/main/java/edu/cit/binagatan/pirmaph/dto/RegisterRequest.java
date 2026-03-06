@@ -49,17 +49,33 @@ public class RegisterRequest {
     @Size(max = 200, message = "Street address must not exceed 200 characters")
     private String street;
 
-    @NotBlank(message = "Barangay is required")
-    @Size(max = 100, message = "Barangay must not exceed 100 characters")
-    private String barangay;
+    // PSGC Location Codes
+    @NotBlank(message = "Region is required")
+    private String regionCode;
 
-    @NotBlank(message = "City is required")
+    private String provinceCode; // Optional for regions without provinces (e.g., NCR)
+
+    @NotBlank(message = "City/Municipality is required")
+    private String cityMunCode;
+
+    @NotBlank(message = "Barangay is required")
+    private String barangayCode;
+
+    // Location Display Names
+    @NotBlank(message = "Region name is required")
+    @Size(max = 100, message = "Region name must not exceed 100 characters")
+    private String region;
+
+    @Size(max = 100, message = "Province must not exceed 100 characters")
+    private String province; // Optional for regions without provinces
+
+    @NotBlank(message = "City/Municipality name is required")
     @Size(max = 100, message = "City must not exceed 100 characters")
     private String city;
 
-    @NotBlank(message = "Province is required")
-    @Size(max = 100, message = "Province must not exceed 100 characters")
-    private String province;
+    @NotBlank(message = "Barangay name is required")
+    @Size(max = 100, message = "Barangay must not exceed 100 characters")
+    private String barangay;
 
     @Size(max = 20, message = "ZIP code must not exceed 20 characters")
     private String zipCode;
@@ -189,6 +205,46 @@ public class RegisterRequest {
 
     public void setZipCode(String zipCode) {
         this.zipCode = zipCode;
+    }
+
+    public String getRegionCode() {
+        return regionCode;
+    }
+
+    public void setRegionCode(String regionCode) {
+        this.regionCode = regionCode;
+    }
+
+    public String getProvinceCode() {
+        return provinceCode;
+    }
+
+    public void setProvinceCode(String provinceCode) {
+        this.provinceCode = provinceCode;
+    }
+
+    public String getCityMunCode() {
+        return cityMunCode;
+    }
+
+    public void setCityMunCode(String cityMunCode) {
+        this.cityMunCode = cityMunCode;
+    }
+
+    public String getBarangayCode() {
+        return barangayCode;
+    }
+
+    public void setBarangayCode(String barangayCode) {
+        this.barangayCode = barangayCode;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public UserRole getRole() {

@@ -172,18 +172,13 @@ nbdist/
 .history/
 
 # ================================
-# Documentation Workflow Files
+# Documentation Files
 # ================================
 
-# Keep these documentation files
-!backend/API_DOCUMENTATION.md
-!backend/SETUP_GUIDE.md
-!backend/IMPLEMENTATION_SUMMARY.md
-!TESTING_GUIDE.md
-!FRONTEND_IMPLEMENTATION.md
-!PROJECT_STATUS.md
-!QUICKSTART.md
+# Ignore all markdown files except README.md
+*.md
 !README.md
+!readme.md
 
 # Java upgrade workflow (if you use the upgrade agent)
 .github/java-upgrade/*/
@@ -198,6 +193,34 @@ nbdist/
 *.p12
 *.jks
 secrets/
+
+# ================================
+# Docker
+# ================================
+
+# Docker environment files
+.env.docker
+docker-compose.override.yml
+
+# Docker volumes
+mysql_data/
+
+# ================================
+# Application Logs
+# ================================
+
+# Application log directory
+logs/
+*.log
+
+# ================================
+# Backup Files
+# ================================
+
+# Backup files
+*.bak
+*.backup
+backup/
 credentials/
 
 # API keys

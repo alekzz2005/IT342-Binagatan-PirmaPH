@@ -51,9 +51,18 @@ public class AuthService {
         user.setSex(request.getSex());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setStreet(request.getStreet());
-        user.setBarangay(request.getBarangay());
-        user.setCity(request.getCity());
+        
+        // Set PSGC location codes
+        user.setRegionCode(request.getRegionCode());
+        user.setProvinceCode(request.getProvinceCode());
+        user.setCityMunCode(request.getCityMunCode());
+        user.setBarangayCode(request.getBarangayCode());
+        
+        // Set location display names
+        user.setRegion(request.getRegion());
         user.setProvince(request.getProvince());
+        user.setCity(request.getCity());
+        user.setBarangay(request.getBarangay());
         user.setZipCode(request.getZipCode());
         user.setRole(request.getRole());
 
