@@ -1,0 +1,106 @@
+### Test Registration Endpoint
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "juan123",
+  "email": "juan@email.com",
+  "password": "SecurePass123!",
+  "confirmPassword": "SecurePass123!",
+  "firstName": "Juan",
+  "middleName": "Santos",
+  "lastName": "Dela Cruz",
+  "birthDate": "1990-05-15",
+  "sex": "Male",
+  "phoneNumber": "+63 912 345 6789",
+  "street": "123 Rizal Street, Poblacion",
+  "barangay": "Poblacion",
+  "city": "Quezon City",
+  "province": "Metro Manila",
+  "zipCode": "1100",
+  "role": "RESIDENT"
+}
+
+###
+
+### Test Login Endpoint
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "juan@email.com",
+  "password": "SecurePass123!"
+}
+
+###
+
+### Test Registration with Officer Role
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "officer_maria",
+  "email": "maria.officer@barangay.gov.ph",
+  "password": "OfficerPass123!",
+  "confirmPassword": "OfficerPass123!",
+  "firstName": "Maria",
+  "middleName": "Teresa",
+  "lastName": "Santos",
+  "birthDate": "1985-08-20",
+  "sex": "Female",
+  "phoneNumber": "+63 917 888 9999",
+  "street": "456 Luna Street",
+  "barangay": "Barangay Hall",
+  "city": "Quezon City",
+  "province": "Metro Manila",
+  "zipCode": "1100",
+  "role": "OFFICER"
+}
+
+###
+
+### Test Registration - Missing Required Fields (Should Fail)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "email": "invalid-email",
+  "password": "short"
+}
+
+###
+
+### Test Registration - Passwords Don't Match (Should Fail)
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "pedro456",
+  "email": "pedro@email.com",
+  "password": "SecurePass123!",
+  "confirmPassword": "DifferentPass123!",
+  "firstName": "Pedro",
+  "lastName": "Garcia",
+  "birthDate": "1992-03-10",
+  "sex": "Male",
+  "phoneNumber": "+63 915 123 4567",
+  "street": "789 Bonifacio Street",
+  "barangay": "San Antonio",
+  "city": "Makati",
+  "province": "Metro Manila",
+  "role": "RESIDENT"
+}
+
+###
+
+### Test Login - Invalid Credentials (Should Fail)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "nonexistent@email.com",
+  "password": "WrongPassword123!"
+}
+
+###
