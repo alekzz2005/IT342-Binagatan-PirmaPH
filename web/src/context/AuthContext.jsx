@@ -69,6 +69,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const completeOAuthLogin = async (authToken) => {
+    try {
+      localStorage.setItem('token', authToken);
+      setToken(authToken);
+
+      const userData = await apiService.getCurrentUser();
+
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      return { success: true };
+    } catch (error) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setToken(null);
+      setUser(null);
+
+      return {
+        success: false,
+        message: error.message || 'OAuth login failed',
+      };
+    }
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -82,6 +106,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     register,
+    completeOAuthLogin,
     logout,
     isAuthenticated: !!token,
   };

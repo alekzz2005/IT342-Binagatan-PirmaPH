@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/AuthContext';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
+import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -14,6 +15,10 @@ function AppRoutes() {
       <Route 
         path="/" 
         element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <AuthPage />} 
+      />
+      <Route 
+        path="/oauth2/redirect" 
+        element={<OAuth2RedirectHandler />} 
       />
       <Route
         path="/dashboard"

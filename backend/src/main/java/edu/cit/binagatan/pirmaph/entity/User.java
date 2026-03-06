@@ -19,8 +19,14 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String passwordHash;
+
+    @Column(length = 20)
+    private String authProvider; // "LOCAL" or "GOOGLE"
+
+    @Column(unique = true)
+    private String googleId; // Google OAuth ID
 
     @Column(nullable = false, length = 50)
     private String firstName;
@@ -31,25 +37,25 @@ public class User {
     @Column(nullable = false, length = 50)
     private String lastName;
 
-    @Column(nullable = false)
+    @Column
     private LocalDate birthDate;
 
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private String sex;
 
-    @Column(nullable = false, length = 20)
+    @Column(length = 20)
     private String phoneNumber;
 
-    @Column(nullable = false, length = 200)
+    @Column(length = 200)
     private String street;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String barangay;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String city;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String province;
 
     @Column(length = 20)
@@ -135,6 +141,22 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getAuthProvider() {
+        return authProvider;
+    }
+
+    public void setAuthProvider(String authProvider) {
+        this.authProvider = authProvider;
+    }
+
+    public String getGoogleId() {
+        return googleId;
+    }
+
+    public void setGoogleId(String googleId) {
+        this.googleId = googleId;
     }
 
     public String getFirstName() {
