@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Temporarily ignore backend and project documentation files
+backend/API_DOCUMENTATION.md
+backend/IMPLEMENTATION_SUMMARY.md
+backend/SETUP_GUIDE.md
+FRONTEND_IMPLEMENTATION.md
+GOOGLE_OAUTH_QUICKSTART.md
+GOOGLE_OAUTH_SETUP.md
+PROJECT_STATUS.md
+QUICKSTART.md
+TESTING_GUIDE.md

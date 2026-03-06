@@ -1,8 +1,6 @@
 # IT342 Phase 1 – User Registration and Login
 
-**Student Name:** [Your Name]  
-**Course:** IT342  
-**Project Name:** PirmaPH - Barangay Digital Services Platform  
+**Student Name:** Alexander Jr B. Binagatan
 **Submission Date:** March 6, 2026
 
 ---
@@ -34,17 +32,16 @@
 
 **Commit Message:**
 ```
-IT342 Phase 1 – User Registration and Login Completed
+User Registration and Login (Google OAuth Added)
 ```
 
-**Commit Hash:** [Insert commit hash after final commit]
+**Commit Hash:** `638c82e`
 
-**Command to create final commit:**
-```bash
-git add .
-git commit -m "IT342 Phase 1 – User Registration and Login Completed"
-git push origin main
-```
+**Branch:** `main`
+
+**Repository Status:** ✅ All changes pushed successfully
+
+**Note:** This submission includes core Phase 1 features (user registration and login) plus an extended implementation of Google OAuth 2.0 authentication as a value-add enhancement.
 
 ---
 
@@ -530,18 +527,65 @@ Content-Type: application/json
 8. ✅ Protected route access control
 9. ✅ Form validation (client and server)
 10. ✅ Database record creation
+11. ✅ Google OAuth login flow
+12. ✅ Automatic Google user account creation
+13. ✅ Google account linking to existing users
+14. ✅ OAuth token exchange and JWT generation
 
 ### Test Results:
-All tests passed successfully. The system correctly handles user registration, login, authentication, and authorization.
+All tests passed successfully. The system correctly handles user registration, login, authentication, authorization, and Google OAuth 2.0 social authentication.
 
 ---
 
-## 7. Conclusion
+## 7. Google OAuth 2.0 Enhancement (Extended Implementation)
 
-Phase 1 of the PirmaPH project has been successfully completed with a fully functional user registration and login system. The implementation follows industry best practices for security, including BCrypt password hashing and JWT-based authentication. The system is ready for Phase 2 development, which will include additional features such as document request management and barangay announcements.
+### Overview
+Beyond the core Phase 1 requirements, Google OAuth 2.0 social authentication has been implemented to provide users with an alternative login method while maintaining the existing JWT-based security architecture.
+
+### Key Features
+- **Social Authentication:** Users can authenticate using their Google account
+- **Seamless Integration:** OAuth flow integrated with existing Spring Security + JWT architecture
+- **Smart Account Linking:** Automatically detects existing users by email and links Google account
+- **Unified JWT System:** All users (OAuth and traditional) use the same JWT tokens for API access
+- **User Account Creation:** New Google users automatically get accounts with default values
+- **Mobile Compatible:** API-driven design supports future mobile app integration
+
+### Implementation Components
+1. **Backend:**
+   - `CustomOAuth2UserService` – Handles Google user data and account creation/linking
+   - `OAuth2AuthenticationSuccessHandler` – Generates JWT tokens after OAuth authentication
+   - `UserController` – Added `/api/users/me` endpoint for getting authenticated user
+   - Updated `SecurityConfig` – Integrated OAuth2 flow with existing security
+   - User Entity updates – Added `authProvider` and `googleId` fields
+
+2. **Frontend:**
+   - "Continue with Google" button on login page
+   - `OAuth2RedirectHandler` component – Handles OAuth callback
+   - `AuthContext` enhancement – Added `completeOAuthLogin` method
+   - Proper error handling and redirects
+
+### Security Considerations
+- OAuth credentials stored in environment variables (not in version control)
+- System generates its own JWT tokens (not relying on Google tokens)
+- Same security filter chain applies to both authentication methods
+- Protected endpoints work identically for all users
+
+### Configuration Files
+- `GOOGLE_OAUTH_SETUP.md` – Comprehensive setup and configuration guide
+- `GOOGLE_OAUTH_QUICKSTART.md` – Quick reference for OAuth implementation
+
+---
+
+## 8. Conclusion
+
+Phase 1 of the PirmaPH project has been successfully completed with a fully functional user registration and login system. The core implementation includes email/password authentication with BCrypt hashing and JWT-based authorization. As an extended enhancement, Google OAuth 2.0 has been integrated, allowing users to authenticate using their Google accounts while maintaining the same JWT security architecture.
+
+The implementation follows industry best practices for security, scalability, and user experience. The system is ready for Phase 2 development, which will include additional features such as document request management and barangay announcements.
 
 ---
 
 **Submitted by:** Alexander Jr B. Binagatan  
 **Date:** March 6, 2026  
-**Repository:** https://github.com/alekzz2005/IT342-Binagatan-PirmaPH
+**Commit Hash:** 638c82e  
+**Repository:** https://github.com/alekzz2005/IT342-Binagatan-PirmaPH  
+**Status:** ✅ Complete with Google OAuth 2.0 Enhancement
