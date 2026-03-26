@@ -1,11 +1,13 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 
 const OAuth2RedirectHandler = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { setAuthData } = useAuth();
+  const { showModal } = useModal();
 
   useEffect(() => {
     let isMounted = true;
@@ -44,19 +46,55 @@ const OAuth2RedirectHandler = () => {
             setAuthData(token, userData);
           }
 
-          // Navigate to dashboard
-          navigate('/dashboard', { replace: true });
+          // Show success modal and navigate to dashboard
+          showModal({
+            context: 'success',
+            title: 'Google Sign In Successful! 🎉',
+            message: `Welcome to PirmaPH, ${userData?.firstName || 'User'}! Your Google account has been successfully linked. You can now access all barangay digital services.`,
+            confirmText: 'Go to Dashboard',
+            showCancel: false,
+            onConfirm: () => {
+              navigate('/dashboard', { replace: true });
+            }
+          });
         } else if (error) {
           console.error('OAuth2 error:', error);
-          navigate('/?error=oauth_failed', { replace: true });
+          showModal({
+            context: 'error',
+            title: 'Google Sign In Failed',
+            message: 'We encountered an issue while signing you in with Google. Please try again or use the regular login form.',
+            confirmText: 'Back to Login',
+            showCancel: false,
+            onConfirm: () => {
+              navigate('/', { replace: true });
+            }
+          });
         } else {
           console.error('No token received from OAuth2 redirect');
-          navigate('/?error=no_token', { replace: true });
+          showModal({
+            context: 'error',
+            title: 'Sign In Error',
+            message: 'We could not complete your sign-in. Please try again.',
+            confirmText: 'Back to Login',
+            showCancel: false,
+            onConfirm: () => {
+              navigate('/', { replace: true });
+            }
+          });
         }
       } catch (err) {
         console.error('OAuth redirect handler error:', err);
         if (isMounted) {
-          navigate('/?error=redirect_failed', { replace: true });
+          showModal({
+            context: 'error',
+            title: 'Sign In Error',
+            message: 'An unexpected error occurred. Please try again.',
+            confirmText: 'Back to Login',
+            showCancel: false,
+            onConfirm: () => {
+              navigate('/', { replace: true });
+            }
+          });
         }
       }
     };
