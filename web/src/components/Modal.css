@@ -1,0 +1,301 @@
+/*
+ * Modal Component Styles - Based on PirmaPH Design System
+ */
+
+:root {
+  --blue: #0038A8;
+  --red: #CE1126;
+  --gold: #FCD116;
+  --white: #FFFFFF;
+  --blue-light: #EEF2FC;
+  --blue-mid: #1a50c8;
+  --text-dark: #0a1a3a;
+  --text-muted: #5a6a8a;
+  --border: #d0d8f0;
+  --shadow: 0 8px 48px rgba(0, 56, 168, 0.18);
+}
+
+/* Overlay */
+.pirma-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 26, 58, 0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.pirma-modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Modal Card */
+.pirma-modal {
+  background: var(--white);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+
+  transform: translateY(28px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+  opacity: 0;
+}
+
+.pirma-modal-overlay.open .pirma-modal {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Tricolor stripe */
+.modal-stripe {
+  height: 4px;
+  width: 100%;
+  display: flex;
+}
+
+.flag-blue {
+  flex: 1;
+  background: var(--blue);
+}
+
+.flag-red {
+  flex: 1;
+  background: var(--red);
+}
+
+.flag-gold {
+  flex: 1;
+  background: var(--gold);
+}
+
+/* Header band */
+.modal-header-band {
+  padding: 28px 28px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  position: relative;
+}
+
+.modal-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.modal-icon-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 18px;
+  border: 1.5px solid currentColor;
+  opacity: 0.2;
+}
+
+.modal-title-block {
+  flex: 1;
+  padding-top: 4px;
+}
+
+.modal-context-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.modal-title {
+  font-family: 'Playfair Display', 'Playfair', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-dark);
+  line-height: 1.25;
+  margin: 0;
+}
+
+/* Close button */
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+  padding: 0;
+}
+
+.modal-close:hover {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+/* Body */
+.modal-body {
+  padding: 0 28px 24px;
+}
+
+.modal-message {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0;
+}
+
+.modal-detail-box {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+  border-left: 3px solid;
+  display: none;
+}
+
+.modal-detail-box.visible {
+  display: block;
+}
+
+/* Footer */
+.modal-footer {
+  padding: 0 28px 24px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.18s, transform 0.12s;
+  letter-spacing: 0.3px;
+}
+
+.modal-btn:active {
+  transform: scale(0.97);
+}
+
+.modal-btn-secondary {
+  background: var(--blue-light);
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+}
+
+.modal-btn-secondary:hover {
+  background: #dde5f8;
+}
+
+.modal-btn-primary {
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-btn-primary::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* Sun decoration */
+.modal-sun-deco {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  opacity: 0.06;
+  pointer-events: none;
+  color: var(--blue);
+}
+
+.modal-sun-deco svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Context-specific styles */
+.modal-ctx-confirmation .modal-header-band {
+  background: #EEF2FC;
+}
+
+.modal-ctx-success .modal-header-band {
+  background: #EDFAF3;
+}
+
+.modal-ctx-error .modal-header-band {
+  background: #FEF0F2;
+}
+
+.modal-ctx-warning .modal-header-band {
+  background: #FFFBEA;
+}
+
+.modal-ctx-info .modal-header-band {
+  background: #F0F7FF;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .pirma-modal {
+    max-width: 90vw;
+  }
+
+  .modal-header-band {
+    padding: 24px 20px 16px;
+  }
+
+  .modal-body {
+    padding: 0 20px 20px;
+  }
+
+  .modal-footer {
+    padding: 0 20px 20px;
+    flex-direction: column;
+  }
+
+  .modal-btn {
+    width: 100%;
+  }
+
+  .modal-title {
+    font-size: 18px;
+  }
+}
