@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 import locationService from '../services/locationService';
 import { OAUTH2_URL } from '../services/api';
 import './Auth.css';
@@ -11,6 +12,7 @@ const AuthPage = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login, register } = useAuth();
+  const { showModal } = useModal();
 
   // Login form state
   const [loginData, setLoginData] = useState({
@@ -169,7 +171,16 @@ const AuthPage = () => {
     const result = await login(loginData.email, loginData.password);
     
     if (result.success) {
-      navigate('/dashboard');
+      showModal({
+        context: 'success',
+        title: 'Login Successful!',
+        message: `Welcome back, ${loginData.email}! You have been successfully logged in.`,
+        confirmText: 'Go to Dashboard',
+        showCancel: false,
+        onConfirm: () => {
+          navigate('/dashboard');
+        }
+      });
     } else {
       setError(result.message);
     }
@@ -195,7 +206,17 @@ const AuthPage = () => {
     const result = await register(registerData);
     
     if (result.success) {
-      navigate('/dashboard');
+      showModal({
+        context: 'success',
+        title: 'Registration Successful! 🎉',
+        message: `Welcome to PirmaPH, ${registerData.firstName}! Your account has been created successfully. You can now access all barangay digital services.`,
+        detail: `Email: ${registerData.email}\nAddress: ${registerData.barangay}, ${registerData.city}`,
+        confirmText: 'Go to Dashboard',
+        showCancel: false,
+        onConfirm: () => {
+          navigate('/dashboard');
+        }
+      });
     } else {
       setError(result.message);
     }

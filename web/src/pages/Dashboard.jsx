@@ -1,14 +1,34 @@
 import { useAuth } from '../context/AuthContext';
+import { useModal } from '../context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { showModal } = useModal();
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    showModal({
+      context: 'confirmation',
+      title: 'Confirm Logout',
+      message: 'Are you sure you want to log out? You will need to log in again to access your account.',
+      confirmText: 'Yes, Logout',
+      cancelText: 'Stay Logged In',
+      onConfirm: () => {
+        logout();
+        showModal({
+          context: 'success',
+          title: 'Logged Out Successfully',
+          message: 'You have been successfully logged out. Thank you for using PirmaPH!',
+          confirmText: 'Back to Login',
+          showCancel: false,
+          onConfirm: () => {
+            navigate('/');
+          }
+        });
+      }
+    });
   };
 
   const getInitials = () => {
