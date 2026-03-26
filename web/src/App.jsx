@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import { ModalProvider } from './context/ModalContext';
 import { useAuth } from './context/AuthContext';
+import Modal from './components/Modal';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
@@ -37,7 +39,10 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppRoutes />
+        <ModalProvider>
+          <Modal />
+          <AppRoutes />
+        </ModalProvider>
       </AuthProvider>
     </Router>
   );
