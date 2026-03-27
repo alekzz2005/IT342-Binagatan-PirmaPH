@@ -35,6 +35,20 @@ public class SecurityAuditService {
         );
     }
 
+    public void logRegistrationEvent(String email, String event) {
+        logger.info("AUDIT registration_event email={} event={}", sanitize(email), sanitize(event));
+    }
+
+    public void logFileAccess(String actorEmail, String targetUserId, String action, String result) {
+        logger.info(
+                "AUDIT file_access actorEmail={} targetUserId={} action={} result={}",
+                sanitize(actorEmail),
+                sanitize(targetUserId),
+                sanitize(action),
+                sanitize(result)
+        );
+    }
+
     private String sanitize(String value) {
         if (value == null) {
             return "n/a";

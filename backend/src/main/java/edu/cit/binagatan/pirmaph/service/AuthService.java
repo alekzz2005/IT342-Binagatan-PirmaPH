@@ -34,6 +34,9 @@ public class AuthService {
     private SecurityAuditService securityAuditService;
 
     @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
     private HttpServletRequest request;
 
     public AuthResponse register(RegisterRequest request) {
@@ -84,6 +87,18 @@ public class AuthService {
         // Save user
         User savedUser = userRepository.save(user);
 
+        try {
+            securityAuditService.logRegistrationEvent(savedUser.getEmail(), "registration_submitted");
+        } catch (Exception ignored) {
+            // Audit failure should not block successful registration.
+        }
+
+        try {
+            notificationService.sendRegistrationReceived(savedUser);
+        } catch (Exception ignored) {
+            // Notification failure should not block successful registration.
+        }
+
         // Registration does not auto-login until account is approved
         return new AuthResponse(savedUser, null);
     }
@@ -105,12 +120,12 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        if (user.getStatus() == UserStatus.PENDING_VERIFICATION) {
+        if (user.getStatus() == UserStatus.PENDING_VERIFICATION && user.getRole() != UserRole.RESIDENT) {
             securityAuditService.logFailedLogin(request.getEmail(), "pending_verification", this.request);
             throw new IllegalArgumentException("Your account is pending verification. Please wait for approval.");
         }
 
-        if (user.getStatus() == UserStatus.REJECTED) {
+        if (user.getStatus() == UserStatus.REJECTED && user.getRole() != UserRole.RESIDENT) {
             securityAuditService.logFailedLogin(request.getEmail(), "account_rejected", this.request);
             throw new IllegalArgumentException("Your account has been rejected. Contact your barangay administrator.");
         }
