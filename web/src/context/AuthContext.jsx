@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import apiService from '../services/api';
+import { getDashboardPathByRole } from '../utils/rbac';
 
 const AuthContext = createContext(null);
 
@@ -35,7 +36,11 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', authToken);
       localStorage.setItem('user', JSON.stringify(userData));
       
-      return { success: true };
+      return {
+        success: true,
+        user: userData,
+        redirectPath: getDashboardPathByRole(userData.role),
+      };
     } catch (error) {
       return { 
         success: false, 
@@ -50,16 +55,19 @@ export const AuthProvider = ({ children }) => {
       
       // Extract token and user data
       const { token: authToken, ...userInfo } = data;
+
+      if (authToken) {
+        setToken(authToken);
+        setUser(userInfo);
+        localStorage.setItem('token', authToken);
+        localStorage.setItem('user', JSON.stringify(userInfo));
+      }
       
-      // Save to state
-      setToken(authToken);
-      setUser(userInfo);
-      
-      // Save to localStorage
-      localStorage.setItem('token', authToken);
-      localStorage.setItem('user', JSON.stringify(userInfo));
-      
-      return { success: true };
+      return {
+        success: true,
+        user: userInfo,
+        requiresApproval: !authToken,
+      };
     } catch (error) {
       return { 
         success: false, 
@@ -94,10 +102,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = () => {
+    apiService.logout().catch(() => {
+      // Stateless JWT logout is best-effort; client state is still cleared below.
+    });
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+  };
+
+  const forgotPassword = async (email) => {
+    try {
+      const data = await apiService.forgotPassword(email);
+      return { success: true, message: data.message };
+    } catch (error) {
+      return { success: false, message: error.message || 'Unable to process password reset request' };
+    }
   };
 
   const setAuthData = useCallback((authToken, userData) => {
@@ -115,6 +135,7 @@ export const AuthProvider = ({ children }) => {
     register,
     completeOAuthLogin,
     setAuthData,
+    forgotPassword,
     logout,
     isAuthenticated: !!token,
   };

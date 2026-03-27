@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 import { useNavigate } from 'react-router-dom';
+import { USER_ROLES } from '../utils/rbac';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -50,6 +51,51 @@ const Dashboard = () => {
     return 'Good evening';
   };
 
+  const currentRole = user?.role || USER_ROLES.RESIDENT;
+
+  const roleLabel = {
+    [USER_ROLES.RESIDENT]: 'Resident',
+    [USER_ROLES.OFFICER]: 'Officer',
+    [USER_ROLES.BARANGAY_ADMIN]: 'Barangay Admin',
+    [USER_ROLES.SUPER_ADMIN]: 'Super Admin',
+  }[currentRole] || 'Resident';
+
+  const navItemsByRole = {
+    [USER_ROLES.RESIDENT]: [
+      { label: 'Dashboard', icon: '🏠', active: true },
+      { label: 'Submit Request', icon: '📋' },
+      { label: 'My Requests', icon: '🕐' },
+      { label: 'Announcements', icon: '📢' },
+    ],
+    [USER_ROLES.OFFICER]: [
+      { label: 'Dashboard', icon: '🏠', active: true },
+      { label: 'Process Requests', icon: '📂' },
+      { label: 'Upload Official Docs', icon: '🗂️' },
+      { label: 'Resident Queue', icon: '👥' },
+    ],
+    [USER_ROLES.BARANGAY_ADMIN]: [
+      { label: 'Dashboard', icon: '🏠', active: true },
+      { label: 'User Approvals', icon: '✅' },
+      { label: 'Role Management', icon: '🛡️' },
+      { label: 'Barangay Settings', icon: '⚙️' },
+    ],
+    [USER_ROLES.SUPER_ADMIN]: [
+      { label: 'Dashboard', icon: '🏠', active: true },
+      { label: 'Nationwide Overview', icon: '🌐' },
+      { label: 'Barangay Participation', icon: '🏛️' },
+      { label: 'Override Decisions', icon: '⚖️' },
+    ],
+  };
+
+  const navItems = navItemsByRole[currentRole] || navItemsByRole[USER_ROLES.RESIDENT];
+
+  const roleActionLabel = {
+    [USER_ROLES.RESIDENT]: '+ New Request',
+    [USER_ROLES.OFFICER]: '+ Review Queue',
+    [USER_ROLES.BARANGAY_ADMIN]: '+ Review Approvals',
+    [USER_ROLES.SUPER_ADMIN]: '+ Open Control Center',
+  }[currentRole] || '+ New Request';
+
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
@@ -61,19 +107,12 @@ const Dashboard = () => {
           <div className="brand-sub">Barangay Digital Services</div>
         </div>
 
-        <span className="nav-section-label">Resident</span>
-        <a href="#" className="nav-item active">
-          <span className="nav-icon">🏠</span> Dashboard
-        </a>
-        <a href="#" className="nav-item">
-          <span className="nav-icon">📋</span> Submit Request
-        </a>
-        <a href="#" className="nav-item">
-          <span className="nav-icon">🕐</span> My Requests
-        </a>
-        <a href="#" className="nav-item">
-          <span className="nav-icon">📢</span> Announcements
-        </a>
+        <span className="nav-section-label">{roleLabel}</span>
+        {navItems.map((item) => (
+          <a key={item.label} href="#" className={`nav-item ${item.active ? 'active' : ''}`}>
+            <span className="nav-icon">{item.icon}</span> {item.label}
+          </a>
+        ))}
 
         <span className="nav-section-label">Account</span>
         <a href="#" className="nav-item">
@@ -88,7 +127,7 @@ const Dashboard = () => {
             <div className="user-avatar">{getInitials()}</div>
             <div className="user-info">
               <h4>{getFullName()}</h4>
-              <p>{user?.role || 'RESIDENT'}</p>
+              <p>{roleLabel.toUpperCase()}</p>
             </div>
             <button className="logout-btn" onClick={handleLogout} title="Logout">
               →
@@ -124,10 +163,13 @@ const Dashboard = () => {
             <div className="banner-text">
               <h2>{getGreeting()}, {user?.firstName || 'Juan'}! 🌅</h2>
               <p>
-                You have 1 pending request and 2 new announcements from your barangay.
+                {currentRole === USER_ROLES.RESIDENT && 'You have 1 pending request and 2 new announcements from your barangay.'}
+                {currentRole === USER_ROLES.OFFICER && 'You have 8 document requests awaiting officer review in your barangay queue.'}
+                {currentRole === USER_ROLES.BARANGAY_ADMIN && 'You have 5 user accounts pending approval and 2 role escalation requests.'}
+                {currentRole === USER_ROLES.SUPER_ADMIN && 'You have 3 barangay escalations and 12 participation updates pending review.'}
               </p>
             </div>
-            <button className="banner-cta">+ New Request</button>
+            <button className="banner-cta">{roleActionLabel}</button>
           </div>
 
           {/* Stats */}

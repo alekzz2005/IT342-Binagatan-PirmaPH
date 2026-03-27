@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 import locationService from '../services/locationService';
 import { OAUTH2_URL } from '../services/api';
+import { getDashboardPathByRole } from '../utils/rbac';
 import './Auth.css';
 
 const AuthPage = () => {
@@ -11,7 +12,7 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login, register } = useAuth();
+  const { login, register, forgotPassword } = useAuth();
   const { showModal } = useModal();
 
   // Login form state
@@ -171,6 +172,7 @@ const AuthPage = () => {
     const result = await login(loginData.email, loginData.password);
     
     if (result.success) {
+      const redirectPath = result.redirectPath || getDashboardPathByRole(result.user?.role);
       showModal({
         context: 'success',
         title: 'Login Successful!',
@@ -178,7 +180,7 @@ const AuthPage = () => {
         confirmText: 'Go to Dashboard',
         showCancel: false,
         onConfirm: () => {
-          navigate('/dashboard');
+          navigate(redirectPath);
         }
       });
     } else {
@@ -190,6 +192,25 @@ const AuthPage = () => {
   const handleGoogleLogin = () => {
     // Redirect to backend OAuth2 endpoint
     window.location.href = OAUTH2_URL;
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+
+    const email = (loginData.email || '').trim();
+    if (!email) {
+      setError('Please enter your email first, then click Forgot Password.');
+      return;
+    }
+
+    const result = await forgotPassword(email);
+    showModal({
+      context: result.success ? 'info' : 'error',
+      title: result.success ? 'Password Recovery Sent' : 'Password Recovery Failed',
+      message: result.message,
+      confirmText: 'OK',
+      showCancel: false,
+    });
   };
 
   const handleRegisterSubmit = async (e) => {
@@ -206,17 +227,32 @@ const AuthPage = () => {
     const result = await register(registerData);
     
     if (result.success) {
-      showModal({
-        context: 'success',
-        title: 'Registration Successful! 🎉',
-        message: `Welcome to PirmaPH, ${registerData.firstName}! Your account has been created successfully. You can now access all barangay digital services.`,
-        detail: `Email: ${registerData.email}\nAddress: ${registerData.barangay}, ${registerData.city}`,
-        confirmText: 'Go to Dashboard',
-        showCancel: false,
-        onConfirm: () => {
-          navigate('/dashboard');
-        }
-      });
+      if (result.requiresApproval) {
+        showModal({
+          context: 'info',
+          title: 'Registration Submitted',
+          message: `Thank you, ${registerData.firstName}. Your account is pending approval by your barangay administrator.`,
+          detail: 'You will be able to log in once your account status is set to APPROVED.',
+          confirmText: 'Back to Login',
+          showCancel: false,
+          onConfirm: () => {
+            setActiveTab('login');
+          }
+        });
+      } else {
+        const redirectPath = getDashboardPathByRole(result.user?.role);
+        showModal({
+          context: 'success',
+          title: 'Registration Successful! 🎉',
+          message: `Welcome to PirmaPH, ${registerData.firstName}! Your account has been created successfully.`,
+          detail: `Email: ${registerData.email}\nAddress: ${registerData.barangay}, ${registerData.city}`,
+          confirmText: 'Go to Dashboard',
+          showCancel: false,
+          onConfirm: () => {
+            navigate(redirectPath);
+          }
+        });
+      }
     } else {
       setError(result.message);
     }
@@ -357,7 +393,7 @@ const AuthPage = () => {
                   />
                 </div>
 
-                <a href="#" className="forgot-link">
+                <a href="#" className="forgot-link" onClick={handleForgotPassword}>
                   Forgot Password?
                 </a>
 

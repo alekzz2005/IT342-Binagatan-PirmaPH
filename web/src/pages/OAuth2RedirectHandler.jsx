@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
+import { getDashboardPathByRole } from '../utils/rbac';
 
 const OAuth2RedirectHandler = () => {
   const navigate = useNavigate();
@@ -54,15 +55,23 @@ const OAuth2RedirectHandler = () => {
             confirmText: 'Go to Dashboard',
             showCancel: false,
             onConfirm: () => {
-              navigate('/dashboard', { replace: true });
+              navigate(getDashboardPathByRole(userData?.role), { replace: true });
             }
           });
         } else if (error) {
           console.error('OAuth2 error:', error);
+
+          const messageByError = {
+            pending_verification: 'Your account is pending verification. Please wait for barangay admin approval.',
+            account_suspended: 'Your account is suspended. Please contact your barangay administrator.',
+            account_rejected: 'Your account has been rejected. Please contact your barangay administrator.',
+            oauth_failed: 'We encountered an issue while signing you in with Google. Please try again or use the regular login form.',
+          };
+
           showModal({
             context: 'error',
             title: 'Google Sign In Failed',
-            message: 'We encountered an issue while signing you in with Google. Please try again or use the regular login form.',
+            message: messageByError[error] || 'We encountered an issue while signing you in with Google. Please try again or use the regular login form.',
             confirmText: 'Back to Login',
             showCancel: false,
             onConfirm: () => {
