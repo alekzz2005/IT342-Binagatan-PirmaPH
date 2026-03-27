@@ -2,6 +2,7 @@ package edu.cit.binagatan.pirmaph.security;
 
 import edu.cit.binagatan.pirmaph.entity.User;
 import edu.cit.binagatan.pirmaph.entity.UserRole;
+import edu.cit.binagatan.pirmaph.entity.UserStatus;
 import edu.cit.binagatan.pirmaph.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -107,6 +108,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         
         // Set default role
         newUser.setRole(UserRole.RESIDENT);
+        newUser.setStatus(UserStatus.PENDING_VERIFICATION);
 
         newUser.setPasswordHash("OAUTH2_USER");
         newUser.setBirthDate(LocalDate.of(1970, 1, 1));

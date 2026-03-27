@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import edu.cit.binagatan.pirmaph.dto.AuthResponse;
 import edu.cit.binagatan.pirmaph.entity.User;
+import edu.cit.binagatan.pirmaph.entity.UserStatus;
 import edu.cit.binagatan.pirmaph.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -73,6 +74,20 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             
             User user = optionalUser.get();
             System.out.println("User found: " + user.getUsername() + " (ID: " + user.getId() + ")");
+
+                if (user.getStatus() != null && user.getStatus() != UserStatus.APPROVED) {
+                String statusReason = user.getStatus() == UserStatus.SUSPENDED
+                    ? "account_suspended"
+                    : user.getStatus() == UserStatus.REJECTED
+                    ? "account_rejected"
+                    : "pending_verification";
+                String frontendUrl = allowedOrigins.split(",")[0].trim();
+                String redirectUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/redirect")
+                    .queryParam("error", statusReason)
+                    .build().toUriString();
+                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+                return;
+                }
 
             // Generate JWT token
             String token = jwtUtil.generateToken(user.getId(), user.getRole().name());

@@ -2,5 +2,7 @@ package edu.cit.binagatan.pirmaph.entity;
 
 public enum UserRole {
     RESIDENT,
-    OFFICER
+    OFFICER,
+    BARANGAY_ADMIN,
+    SUPER_ADMIN
 }

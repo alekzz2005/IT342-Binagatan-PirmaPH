@@ -1,5 +1,8 @@
 package edu.cit.binagatan.pirmaph.security;
 
+import edu.cit.binagatan.pirmaph.entity.User;
+import edu.cit.binagatan.pirmaph.repository.UserRepository;
+import edu.cit.binagatan.pirmaph.service.SecurityAuditService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +25,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private SecurityAuditService securityAuditService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -33,17 +42,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (jwtUtil.validateToken(token)) {
                 UUID userId = jwtUtil.getUserIdFromToken(token);
-                String role = jwtUtil.getRoleFromToken(token);
-
+            User user = userRepository.findById(userId).orElse(null);
+            if (user != null) {
+                AuthenticatedUser authenticatedUser = new AuthenticatedUser(user.getId(), user.getRole(), user.getStatus());
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userId,
-                                null,
-                                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
-                        );
+                    new UsernamePasswordAuthenticationToken(
+                        authenticatedUser,
+                        null,
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+                    );
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            } else {
+            securityAuditService.logUnauthorizedAccess(request, null, "invalid_jwt_token");
             }
         }
 

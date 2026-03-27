@@ -2,6 +2,7 @@ package edu.cit.binagatan.pirmaph.dto;
 
 import edu.cit.binagatan.pirmaph.entity.User;
 import edu.cit.binagatan.pirmaph.entity.UserRole;
+import edu.cit.binagatan.pirmaph.entity.UserStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,6 +25,7 @@ public class AuthResponse {
     private String province;
     private String zipCode;
     private UserRole role;
+    private UserStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String token;
@@ -48,6 +50,7 @@ public class AuthResponse {
         this.province = user.getProvince();
         this.zipCode = user.getZipCode();
         this.role = user.getRole();
+        this.status = user.getStatus();
         this.createdAt = user.getCreatedAt();
         this.updatedAt = user.getUpdatedAt();
         this.token = token;
@@ -172,6 +175,14 @@ public class AuthResponse {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -82,6 +82,22 @@ public class User {
     @Column(nullable = false, length = 20)
     private UserRole role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private UserStatus status;
+
+    @Column(length = 255)
+    private String passwordResetTokenHash;
+
+    @Column
+    private LocalDateTime passwordResetExpiresAt;
+
+    @Column
+    private Integer failedLoginAttempts;
+
+    @Column
+    private LocalDateTime lastFailedLoginAt;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -94,6 +110,12 @@ public class User {
         updatedAt = LocalDateTime.now();
         if (role == null) {
             role = UserRole.RESIDENT; // Default role
+        }
+        if (status == null) {
+            status = UserStatus.PENDING_VERIFICATION;
+        }
+        if (failedLoginAttempts == null) {
+            failedLoginAttempts = 0;
         }
     }
 
@@ -310,6 +332,46 @@ public class User {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public String getPasswordResetTokenHash() {
+        return passwordResetTokenHash;
+    }
+
+    public void setPasswordResetTokenHash(String passwordResetTokenHash) {
+        this.passwordResetTokenHash = passwordResetTokenHash;
+    }
+
+    public LocalDateTime getPasswordResetExpiresAt() {
+        return passwordResetExpiresAt;
+    }
+
+    public void setPasswordResetExpiresAt(LocalDateTime passwordResetExpiresAt) {
+        this.passwordResetExpiresAt = passwordResetExpiresAt;
+    }
+
+    public Integer getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(Integer failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public LocalDateTime getLastFailedLoginAt() {
+        return lastFailedLoginAt;
+    }
+
+    public void setLastFailedLoginAt(LocalDateTime lastFailedLoginAt) {
+        this.lastFailedLoginAt = lastFailedLoginAt;
     }
 
     public LocalDateTime getCreatedAt() {
