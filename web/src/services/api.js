@@ -2,12 +2,25 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 const OAUTH2_URL = import.meta.env.VITE_OAUTH2_URL || 'http://localhost:8080/oauth2/authorization/google';
 
+import SuccessResponseAdapter from '../adapters/SuccessResponseAdapter';
+import ErrorResponseAdapter from '../adapters/ErrorResponseAdapter';
+
 // API Service for making HTTP requests
 class ApiService {
+  constructor() {
+    this.successAdapter = new SuccessResponseAdapter();
+    this.errorAdapter = new ErrorResponseAdapter();
+  }
+
   // Helper method to make requests
   async request(endpoint, options = {}) {
+    const standard = await this.requestStandard(endpoint, options);
+    return standard.data;
+  }
+
+  async requestStandard(endpoint, options = {}) {
     const token = localStorage.getItem('token');
-    
+
     const config = {
       ...options,
       headers: {
@@ -19,23 +32,78 @@ class ApiService {
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-      const data = await response.json();
+      const data = await this.parseJsonSafely(response);
 
       if (!response.ok) {
+        const adaptedError = this.errorAdapter.adapt(response.status, data, 'An error occurred');
         throw {
-          status: response.status,
-          message: data.message || 'An error occurred',
-          errors: data,
+          status: adaptedError.status,
+          message: adaptedError.message,
+          errors: adaptedError.error,
         };
       }
 
-      return data;
+      return this.successAdapter.adapt(response.status, data);
     } catch (error) {
-      if (error.status) throw error;
+      if (error.status) {
+        throw error;
+      }
+
+      const adaptedNetworkError = this.errorAdapter.adapt(500, null, 'Network error. Please check your connection.');
       throw {
-        status: 500,
-        message: 'Network error. Please check your connection.',
+        status: adaptedNetworkError.status,
+        message: adaptedNetworkError.message,
+        errors: adaptedNetworkError.error,
       };
+    }
+  }
+
+  async requestMultipart(endpoint, formData) {
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: formData,
+      });
+
+      const data = await this.parseJsonSafely(response);
+      if (!response.ok) {
+        const adaptedError = this.errorAdapter.adapt(response.status, data, 'Upload failed');
+        throw {
+          status: adaptedError.status,
+          message: adaptedError.message,
+          errors: adaptedError.error,
+        };
+      }
+
+      return this.successAdapter.adapt(response.status, data).data;
+    } catch (error) {
+      if (error.status) {
+        throw error;
+      }
+      const adaptedNetworkError = this.errorAdapter.adapt(500, null, 'Network error. Please check your connection.');
+      throw {
+        status: adaptedNetworkError.status,
+        message: adaptedNetworkError.message,
+        errors: adaptedNetworkError.error,
+      };
+    }
+  }
+
+  async parseJsonSafely(response) {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return null;
+    }
+
+    try {
+      return await response.json();
+    } catch {
+      return null;
     }
   }
 
@@ -93,52 +161,18 @@ class ApiService {
   }
 
   async uploadResidentFile(category, file) {
-    const token = localStorage.getItem('token');
     const form = new FormData();
     form.append('category', category);
     form.append('file', file);
 
-    const response = await fetch(`${API_BASE_URL}/resident/files/upload`, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: form,
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw {
-        status: response.status,
-        message: data.message || 'Upload failed',
-        errors: data,
-      };
-    }
-    return data;
+    return this.requestMultipart('/resident/files/upload', form);
   }
 
   async uploadOfficerAppointmentProof(file) {
-    const token = localStorage.getItem('token');
     const form = new FormData();
     form.append('file', file);
 
-    const response = await fetch(`${API_BASE_URL}/officer/files/upload`, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: form,
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw {
-        status: response.status,
-        message: data.message || 'Upload failed',
-        errors: data,
-      };
-    }
-    return data;
+    return this.requestMultipart('/officer/files/upload', form);
   }
 
   async getPendingResidents() {
@@ -211,27 +245,10 @@ class ApiService {
   }
 
   async uploadRequestAttachment(requestId, file) {
-    const token = localStorage.getItem('token');
     const form = new FormData();
     form.append('file', file);
 
-    const response = await fetch(`${API_BASE_URL}/requests/resident/${requestId}/attachments`, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: form,
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw {
-        status: response.status,
-        message: data.message || 'Upload failed',
-        errors: data,
-      };
-    }
-    return data;
+    return this.requestMultipart(`/requests/resident/${requestId}/attachments`, form);
   }
 
   async getOfficerRequestQueue(status) {
@@ -251,27 +268,10 @@ class ApiService {
   }
 
   async uploadGeneratedRequestDocument(requestId, file) {
-    const token = localStorage.getItem('token');
     const form = new FormData();
     form.append('file', file);
 
-    const response = await fetch(`${API_BASE_URL}/requests/officer/${requestId}/generated-documents`, {
-      method: 'POST',
-      headers: {
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-      body: form,
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw {
-        status: response.status,
-        message: data.message || 'Upload failed',
-        errors: data,
-      };
-    }
-    return data;
+    return this.requestMultipart(`/requests/officer/${requestId}/generated-documents`, form);
   }
 
   async getAdminRequestQueue(status) {

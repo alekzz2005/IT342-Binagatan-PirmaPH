@@ -9,6 +9,11 @@ import edu.cit.binagatan.pirmaph.repository.DocumentRequestFileRepository;
 import edu.cit.binagatan.pirmaph.repository.DocumentRequestRepository;
 import edu.cit.binagatan.pirmaph.repository.UserRepository;
 import edu.cit.binagatan.pirmaph.security.AuthenticatedUser;
+import edu.cit.binagatan.pirmaph.service.document.DocumentFactory;
+import edu.cit.binagatan.pirmaph.service.document.DocumentHandler;
+import edu.cit.binagatan.pirmaph.service.filter.RequestFilterContext;
+import edu.cit.binagatan.pirmaph.service.observer.RequestStatusEvent;
+import edu.cit.binagatan.pirmaph.service.observer.RequestStatusSubject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -42,19 +47,21 @@ public class DocumentRequestService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private DocumentFactory documentFactory;
+
+    @Autowired
+    private RequestStatusSubject requestStatusSubject;
+
+    @Autowired
+    private RequestFilterContext requestFilterContext;
+
     @Transactional
     public DocumentRequestResponse submitRequest(AuthenticatedUser principal, CreateDocumentRequestRequest request) {
         User resident = requireApprovedRole(principal.getId(), UserRole.RESIDENT);
 
-        DocumentRequest documentRequest = new DocumentRequest();
-        documentRequest.setResidentUserId(resident.getId());
-        documentRequest.setBarangayCode(resident.getBarangayCode());
-        documentRequest.setDocumentType(request.getDocumentType());
-        documentRequest.setPurpose(request.getPurpose().trim());
-        documentRequest.setAdditionalDetails(trimToNull(request.getAdditionalDetails()));
-        documentRequest.setCopies(request.getCopies());
-        documentRequest.setStatus(DocumentRequestStatus.SUBMITTED);
-        documentRequest.setLastUpdatedByUserId(resident.getId());
+        DocumentHandler documentHandler = documentFactory.createDocumentHandler(request.getDocumentType());
+        DocumentRequest documentRequest = documentHandler.createDocumentRequest(resident, request);
 
         DocumentRequest saved = documentRequestRepository.save(documentRequest);
         auditRequestAction(resident, "request_submitted", saved.getId());
@@ -102,12 +109,7 @@ public class DocumentRequestService {
     public List<DocumentRequestResponse> getOfficerQueue(AuthenticatedUser principal, DocumentRequestStatus status) {
         User officer = requireApprovedRole(principal.getId(), UserRole.OFFICER);
 
-        List<DocumentRequest> requests;
-        if (status == null) {
-            requests = documentRequestRepository.findByBarangayCodeOrderByRequestTimestampDesc(officer.getBarangayCode());
-        } else {
-            requests = documentRequestRepository.findByBarangayCodeAndStatusOrderByRequestTimestampAsc(officer.getBarangayCode(), status);
-        }
+        List<DocumentRequest> requests = requestFilterContext.filter(officer, status);
 
         return requests.stream().map(this::toResponse).toList();
     }
@@ -136,8 +138,8 @@ public class DocumentRequestService {
 
         DocumentRequest saved = documentRequestRepository.save(request);
         User resident = requireUser(saved.getResidentUserId());
-        notificationService.sendDocumentRequestStatusUpdate(resident, saved.getId(), saved.getStatus().name());
-        auditRequestAction(officer, "status_updated_to_" + saved.getStatus().name().toLowerCase(Locale.ROOT), saved.getId());
+        publishRequestStatusUpdate(saved, officer, resident,
+                "status_updated_to_" + saved.getStatus().name().toLowerCase(Locale.ROOT));
         return toResponse(saved);
     }
 
@@ -166,16 +168,7 @@ public class DocumentRequestService {
             throw new AccessDeniedException("Only admin roles can monitor requests");
         }
 
-        List<DocumentRequest> requests;
-        if (admin.getRole() == UserRole.SUPER_ADMIN) {
-            requests = status == null
-                    ? documentRequestRepository.findAll().stream().sorted((a, b) -> b.getRequestTimestamp().compareTo(a.getRequestTimestamp())).toList()
-                    : documentRequestRepository.findByStatusOrderByRequestTimestampAsc(status);
-        } else {
-            requests = status == null
-                    ? documentRequestRepository.findByBarangayCodeOrderByRequestTimestampDesc(admin.getBarangayCode())
-                    : documentRequestRepository.findByBarangayCodeAndStatusOrderByRequestTimestampAsc(admin.getBarangayCode(), status);
-        }
+        List<DocumentRequest> requests = requestFilterContext.filter(admin, status);
 
         return requests.stream().map(this::toResponse).toList();
     }
@@ -201,8 +194,8 @@ public class DocumentRequestService {
 
         DocumentRequest saved = documentRequestRepository.save(request);
         User resident = requireUser(saved.getResidentUserId());
-        notificationService.sendDocumentRequestStatusUpdate(resident, saved.getId(), saved.getStatus().name());
-        auditRequestAction(admin, "admin_override_status_to_" + saved.getStatus().name().toLowerCase(Locale.ROOT), saved.getId());
+        publishRequestStatusUpdate(saved, admin, resident,
+                "admin_override_status_to_" + saved.getStatus().name().toLowerCase(Locale.ROOT));
         return toResponse(saved);
     }
 
@@ -332,6 +325,17 @@ public class DocumentRequestService {
         );
     }
 
+    private void publishRequestStatusUpdate(DocumentRequest request, User actor, User resident, String auditAction) {
+        RequestStatusEvent statusEvent = new RequestStatusEvent(
+                request.getId(),
+                request.getStatus().name(),
+                actor,
+                resident,
+                auditAction
+        );
+        requestStatusSubject.notifyStatusUpdated(statusEvent);
+    }
+
     private boolean safeEquals(String a, String b) {
         if (a == null && b == null) {
             return true;
@@ -354,4 +358,5 @@ public class DocumentRequestService {
         String trimmed = value.trim();
         return trimmed.isBlank() ? null : trimmed;
     }
+
 }
