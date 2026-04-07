@@ -11,6 +11,7 @@ import edu.cit.binagatan.pirmaph.repository.UserRepository;
 import edu.cit.binagatan.pirmaph.security.AuthenticatedUser;
 import edu.cit.binagatan.pirmaph.service.document.DocumentFactory;
 import edu.cit.binagatan.pirmaph.service.document.DocumentHandler;
+import edu.cit.binagatan.pirmaph.service.filter.RequestFilterContext;
 import edu.cit.binagatan.pirmaph.service.observer.RequestStatusEvent;
 import edu.cit.binagatan.pirmaph.service.observer.RequestStatusSubject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,9 @@ public class DocumentRequestService {
 
     @Autowired
     private RequestStatusSubject requestStatusSubject;
+
+    @Autowired
+    private RequestFilterContext requestFilterContext;
 
     @Transactional
     public DocumentRequestResponse submitRequest(AuthenticatedUser principal, CreateDocumentRequestRequest request) {
@@ -105,12 +109,7 @@ public class DocumentRequestService {
     public List<DocumentRequestResponse> getOfficerQueue(AuthenticatedUser principal, DocumentRequestStatus status) {
         User officer = requireApprovedRole(principal.getId(), UserRole.OFFICER);
 
-        List<DocumentRequest> requests;
-        if (status == null) {
-            requests = documentRequestRepository.findByBarangayCodeOrderByRequestTimestampDesc(officer.getBarangayCode());
-        } else {
-            requests = documentRequestRepository.findByBarangayCodeAndStatusOrderByRequestTimestampAsc(officer.getBarangayCode(), status);
-        }
+        List<DocumentRequest> requests = requestFilterContext.filter(officer, status);
 
         return requests.stream().map(this::toResponse).toList();
     }
@@ -169,16 +168,7 @@ public class DocumentRequestService {
             throw new AccessDeniedException("Only admin roles can monitor requests");
         }
 
-        List<DocumentRequest> requests;
-        if (admin.getRole() == UserRole.SUPER_ADMIN) {
-            requests = status == null
-                    ? documentRequestRepository.findAll().stream().sorted((a, b) -> b.getRequestTimestamp().compareTo(a.getRequestTimestamp())).toList()
-                    : documentRequestRepository.findByStatusOrderByRequestTimestampAsc(status);
-        } else {
-            requests = status == null
-                    ? documentRequestRepository.findByBarangayCodeOrderByRequestTimestampDesc(admin.getBarangayCode())
-                    : documentRequestRepository.findByBarangayCodeAndStatusOrderByRequestTimestampAsc(admin.getBarangayCode(), status);
-        }
+        List<DocumentRequest> requests = requestFilterContext.filter(admin, status);
 
         return requests.stream().map(this::toResponse).toList();
     }
