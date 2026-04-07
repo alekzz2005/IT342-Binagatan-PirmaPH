@@ -9,6 +9,8 @@ import edu.cit.binagatan.pirmaph.repository.DocumentRequestFileRepository;
 import edu.cit.binagatan.pirmaph.repository.DocumentRequestRepository;
 import edu.cit.binagatan.pirmaph.repository.UserRepository;
 import edu.cit.binagatan.pirmaph.security.AuthenticatedUser;
+import edu.cit.binagatan.pirmaph.service.document.DocumentFactory;
+import edu.cit.binagatan.pirmaph.service.document.DocumentHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -42,19 +44,15 @@ public class DocumentRequestService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private DocumentFactory documentFactory;
+
     @Transactional
     public DocumentRequestResponse submitRequest(AuthenticatedUser principal, CreateDocumentRequestRequest request) {
         User resident = requireApprovedRole(principal.getId(), UserRole.RESIDENT);
 
-        DocumentRequest documentRequest = new DocumentRequest();
-        documentRequest.setResidentUserId(resident.getId());
-        documentRequest.setBarangayCode(resident.getBarangayCode());
-        documentRequest.setDocumentType(request.getDocumentType());
-        documentRequest.setPurpose(request.getPurpose().trim());
-        documentRequest.setAdditionalDetails(trimToNull(request.getAdditionalDetails()));
-        documentRequest.setCopies(request.getCopies());
-        documentRequest.setStatus(DocumentRequestStatus.SUBMITTED);
-        documentRequest.setLastUpdatedByUserId(resident.getId());
+        DocumentHandler documentHandler = documentFactory.createDocumentHandler(request.getDocumentType());
+        DocumentRequest documentRequest = documentHandler.createDocumentRequest(resident, request);
 
         DocumentRequest saved = documentRequestRepository.save(documentRequest);
         auditRequestAction(resident, "request_submitted", saved.getId());
@@ -354,4 +352,5 @@ public class DocumentRequestService {
         String trimmed = value.trim();
         return trimmed.isBlank() ? null : trimmed;
     }
+
 }
