@@ -5,6 +5,7 @@ import edu.cit.binagatan.pirmaph.dto.DocumentRequestFileResponse;
 import edu.cit.binagatan.pirmaph.dto.DocumentRequestResponse;
 import edu.cit.binagatan.pirmaph.security.AuthenticatedUser;
 import edu.cit.binagatan.pirmaph.service.DocumentRequestService;
+import edu.cit.binagatan.pirmaph.service.facade.DocumentRequestFacade;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +24,13 @@ public class ResidentDocumentRequestController {
     @Autowired
     private DocumentRequestService documentRequestService;
 
+    @Autowired
+    private DocumentRequestFacade documentRequestFacade;
+
     @PostMapping
     @PreAuthorize("hasRole('RESIDENT')")
     public ResponseEntity<DocumentRequestResponse> submitRequest(@Valid @RequestBody CreateDocumentRequestRequest request) {
-        AuthenticatedUser principal = (AuthenticatedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ResponseEntity.ok(documentRequestService.submitRequest(principal, request));
+        return ResponseEntity.ok(documentRequestFacade.submitRequest(request));
     }
 
     @GetMapping("/mine")
