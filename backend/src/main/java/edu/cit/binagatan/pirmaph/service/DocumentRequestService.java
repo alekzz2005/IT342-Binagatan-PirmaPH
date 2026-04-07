@@ -11,6 +11,8 @@ import edu.cit.binagatan.pirmaph.repository.UserRepository;
 import edu.cit.binagatan.pirmaph.security.AuthenticatedUser;
 import edu.cit.binagatan.pirmaph.service.document.DocumentFactory;
 import edu.cit.binagatan.pirmaph.service.document.DocumentHandler;
+import edu.cit.binagatan.pirmaph.service.observer.RequestStatusEvent;
+import edu.cit.binagatan.pirmaph.service.observer.RequestStatusSubject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -46,6 +48,9 @@ public class DocumentRequestService {
 
     @Autowired
     private DocumentFactory documentFactory;
+
+    @Autowired
+    private RequestStatusSubject requestStatusSubject;
 
     @Transactional
     public DocumentRequestResponse submitRequest(AuthenticatedUser principal, CreateDocumentRequestRequest request) {
@@ -134,8 +139,8 @@ public class DocumentRequestService {
 
         DocumentRequest saved = documentRequestRepository.save(request);
         User resident = requireUser(saved.getResidentUserId());
-        notificationService.sendDocumentRequestStatusUpdate(resident, saved.getId(), saved.getStatus().name());
-        auditRequestAction(officer, "status_updated_to_" + saved.getStatus().name().toLowerCase(Locale.ROOT), saved.getId());
+        publishRequestStatusUpdate(saved, officer, resident,
+                "status_updated_to_" + saved.getStatus().name().toLowerCase(Locale.ROOT));
         return toResponse(saved);
     }
 
@@ -199,8 +204,8 @@ public class DocumentRequestService {
 
         DocumentRequest saved = documentRequestRepository.save(request);
         User resident = requireUser(saved.getResidentUserId());
-        notificationService.sendDocumentRequestStatusUpdate(resident, saved.getId(), saved.getStatus().name());
-        auditRequestAction(admin, "admin_override_status_to_" + saved.getStatus().name().toLowerCase(Locale.ROOT), saved.getId());
+        publishRequestStatusUpdate(saved, admin, resident,
+                "admin_override_status_to_" + saved.getStatus().name().toLowerCase(Locale.ROOT));
         return toResponse(saved);
     }
 
@@ -328,6 +333,17 @@ public class DocumentRequestService {
                 action,
                 requestId == null ? "n/a" : requestId.toString()
         );
+    }
+
+    private void publishRequestStatusUpdate(DocumentRequest request, User actor, User resident, String auditAction) {
+        RequestStatusEvent statusEvent = new RequestStatusEvent(
+                request.getId(),
+                request.getStatus().name(),
+                actor,
+                resident,
+                auditAction
+        );
+        requestStatusSubject.notifyStatusUpdated(statusEvent);
     }
 
     private boolean safeEquals(String a, String b) {
