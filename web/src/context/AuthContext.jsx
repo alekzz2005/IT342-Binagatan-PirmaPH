@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import apiService from '../services/api';
-import { getDashboardPathByRole } from '../utils/rbac';
+import { getLandingPathForUser } from '../utils/rbac';
 
 const AuthContext = createContext(null);
 
@@ -13,12 +13,30 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    
-    if (storedToken && storedUser) {
+
+    const restoreAuth = async () => {
+      if (!storedToken || !storedUser) {
+        setLoading(false);
+        return;
+      }
+
       setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
+      try {
+        const freshUser = await apiService.getCurrentUser();
+        setUser(freshUser);
+        localStorage.setItem('user', JSON.stringify(freshUser));
+      } catch {
+        // Clear stale or invalid session data if token is no longer usable.
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setToken(null);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    restoreAuth();
   }, []);
 
   const login = async (email, password) => {
@@ -39,7 +57,7 @@ export const AuthProvider = ({ children }) => {
       return {
         success: true,
         user: userData,
-        redirectPath: getDashboardPathByRole(userData.role),
+        redirectPath: getLandingPathForUser(userData),
       };
     } catch (error) {
       return { 

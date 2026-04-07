@@ -49,6 +49,44 @@ public class SecurityAuditService {
         );
     }
 
+    public void logRoleChange(String actorEmail, String targetEmail, String fromRole, String toRole) {
+        logger.info(
+                "AUDIT role_change actorEmail={} targetEmail={} fromRole={} toRole={}",
+                sanitize(actorEmail),
+                sanitize(targetEmail),
+                sanitize(fromRole),
+                sanitize(toRole)
+        );
+    }
+
+    public void logSuspensionAction(String actorEmail, String targetEmail, String action) {
+        logger.info(
+                "AUDIT suspension_action actorEmail={} targetEmail={} action={}",
+                sanitize(actorEmail),
+                sanitize(targetEmail),
+                sanitize(action)
+        );
+    }
+
+    public void logSuperAdminAction(String actorEmail, String action, String targetEmail) {
+        logger.info(
+                "AUDIT super_admin_action actorEmail={} action={} targetEmail={}",
+                sanitize(actorEmail),
+                sanitize(action),
+                sanitize(targetEmail)
+        );
+    }
+
+    public void logDocumentRequestAction(String userId, String role, String action, String requestId) {
+        logger.info(
+                "AUDIT document_request_action userId={} role={} action={} requestId={}",
+                sanitize(userId),
+                sanitize(role),
+                sanitize(action),
+                sanitize(requestId)
+        );
+    }
+
     private String sanitize(String value) {
         if (value == null) {
             return "n/a";

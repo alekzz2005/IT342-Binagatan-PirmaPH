@@ -57,7 +57,7 @@ class ApiService {
 
   // Get current user profile (example for future use)
   async getCurrentUser() {
-    return this.request('/users/me');
+    return this.request('/auth/me');
   }
 
   async logout() {
@@ -77,6 +77,212 @@ class ApiService {
     return this.request('/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify({ token, newPassword, confirmPassword }),
+    });
+  }
+
+  async getResidentVerificationStatus() {
+    return this.request('/resident/verification-status');
+  }
+
+  async getOfficerVerificationStatus() {
+    return this.request('/officer/verification-status');
+  }
+
+  async getResidentFiles() {
+    return this.request('/resident/files');
+  }
+
+  async uploadResidentFile(category, file) {
+    const token = localStorage.getItem('token');
+    const form = new FormData();
+    form.append('category', category);
+    form.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/resident/files/upload`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: form,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw {
+        status: response.status,
+        message: data.message || 'Upload failed',
+        errors: data,
+      };
+    }
+    return data;
+  }
+
+  async uploadOfficerAppointmentProof(file) {
+    const token = localStorage.getItem('token');
+    const form = new FormData();
+    form.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/officer/files/upload`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: form,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw {
+        status: response.status,
+        message: data.message || 'Upload failed',
+        errors: data,
+      };
+    }
+    return data;
+  }
+
+  async getPendingResidents() {
+    return this.request('/admin/residents/pending');
+  }
+
+  async approveResident(userId) {
+    return this.request(`/admin/residents/${userId}/approve`, { method: 'PATCH' });
+  }
+
+  async rejectResident(userId) {
+    return this.request(`/admin/residents/${userId}/reject`, { method: 'PATCH' });
+  }
+
+  async getPendingOfficers() {
+    return this.request('/admin/officers/pending');
+  }
+
+  async approveOfficer(userId) {
+    return this.request(`/admin/officers/${userId}/approve`, { method: 'PATCH' });
+  }
+
+  async rejectOfficer(userId) {
+    return this.request(`/admin/officers/${userId}/reject`, { method: 'PATCH' });
+  }
+
+  async getOfficers() {
+    return this.request('/admin/officers');
+  }
+
+  async updateUserRole(userId, role) {
+    return this.request(`/admin/users/${userId}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
+  }
+
+  async suspendUser(userId) {
+    return this.request(`/admin/users/${userId}/suspend`, { method: 'PATCH' });
+  }
+
+  async reinstateUser(userId) {
+    return this.request(`/admin/users/${userId}/reinstate`, { method: 'PATCH' });
+  }
+
+  async createBarangayAdmin(payload) {
+    return this.request('/admin/barangay-admins', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getResidentFilesForReview(userId) {
+    return this.request(`/resident/files/${userId}`);
+  }
+
+  async submitDocumentRequest(payload) {
+    return this.request('/requests/resident', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getMyDocumentRequests() {
+    return this.request('/requests/resident/mine');
+  }
+
+  async getMyDocumentRequestById(requestId) {
+    return this.request(`/requests/resident/${requestId}`);
+  }
+
+  async uploadRequestAttachment(requestId, file) {
+    const token = localStorage.getItem('token');
+    const form = new FormData();
+    form.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/requests/resident/${requestId}/attachments`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: form,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw {
+        status: response.status,
+        message: data.message || 'Upload failed',
+        errors: data,
+      };
+    }
+    return data;
+  }
+
+  async getOfficerRequestQueue(status) {
+    const suffix = status ? `?status=${encodeURIComponent(status)}` : '';
+    return this.request(`/requests/officer/queue${suffix}`);
+  }
+
+  async getOfficerRequestById(requestId) {
+    return this.request(`/requests/officer/${requestId}`);
+  }
+
+  async updateOfficerRequestStatus(requestId, payload) {
+    return this.request(`/requests/officer/${requestId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async uploadGeneratedRequestDocument(requestId, file) {
+    const token = localStorage.getItem('token');
+    const form = new FormData();
+    form.append('file', file);
+
+    const response = await fetch(`${API_BASE_URL}/requests/officer/${requestId}/generated-documents`, {
+      method: 'POST',
+      headers: {
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
+      body: form,
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw {
+        status: response.status,
+        message: data.message || 'Upload failed',
+        errors: data,
+      };
+    }
+    return data;
+  }
+
+  async getAdminRequestQueue(status) {
+    const suffix = status ? `?status=${encodeURIComponent(status)}` : '';
+    return this.request(`/requests/admin/queue${suffix}`);
+  }
+
+  async overrideAdminRequestStatus(requestId, payload) {
+    return this.request(`/requests/admin/${requestId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
     });
   }
 }

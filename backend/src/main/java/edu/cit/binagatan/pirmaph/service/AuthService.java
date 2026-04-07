@@ -7,6 +7,7 @@ import edu.cit.binagatan.pirmaph.entity.User;
 import edu.cit.binagatan.pirmaph.entity.UserRole;
 import edu.cit.binagatan.pirmaph.entity.UserStatus;
 import edu.cit.binagatan.pirmaph.repository.UserRepository;
+import edu.cit.binagatan.pirmaph.security.AuthenticatedUser;
 import edu.cit.binagatan.pirmaph.security.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,10 @@ public class AuthService {
             throw new IllegalArgumentException("Username already taken");
         }
 
-        // Create new user as Resident only (no self-role escalation)
+        // Allow self-registration for resident and officer only.
+        UserRole requestedRole = request.getRole() == UserRole.OFFICER ? UserRole.OFFICER : UserRole.RESIDENT;
+
+        // Create new user (no self-role escalation to admin roles)
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
@@ -81,7 +85,7 @@ public class AuthService {
         user.setCity(request.getCity());
         user.setBarangay(request.getBarangay());
         user.setZipCode(request.getZipCode());
-        user.setRole(UserRole.RESIDENT);
+        user.setRole(requestedRole);
         user.setStatus(UserStatus.PENDING_VERIFICATION);
 
         // Save user
@@ -94,7 +98,11 @@ public class AuthService {
         }
 
         try {
-            notificationService.sendRegistrationReceived(savedUser);
+            if (savedUser.getRole() == UserRole.OFFICER) {
+                notificationService.sendOfficerRegistrationReceived(savedUser);
+            } else {
+                notificationService.sendRegistrationReceived(savedUser);
+            }
         } catch (Exception ignored) {
             // Notification failure should not block successful registration.
         }
@@ -120,12 +128,14 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        if (user.getStatus() == UserStatus.PENDING_VERIFICATION && user.getRole() != UserRole.RESIDENT) {
+        boolean onboardingRole = user.getRole() == UserRole.RESIDENT || user.getRole() == UserRole.OFFICER;
+
+        if (user.getStatus() == UserStatus.PENDING_VERIFICATION && !onboardingRole) {
             securityAuditService.logFailedLogin(request.getEmail(), "pending_verification", this.request);
             throw new IllegalArgumentException("Your account is pending verification. Please wait for approval.");
         }
 
-        if (user.getStatus() == UserStatus.REJECTED && user.getRole() != UserRole.RESIDENT) {
+        if (user.getStatus() == UserStatus.REJECTED && !onboardingRole) {
             securityAuditService.logFailedLogin(request.getEmail(), "account_rejected", this.request);
             throw new IllegalArgumentException("Your account has been rejected. Contact your barangay administrator.");
         }
@@ -147,6 +157,12 @@ public class AuthService {
 
         // Return response with user data and token
         return new AuthResponse(user, token);
+    }
+
+    public AuthResponse getCurrentUser(AuthenticatedUser principal) {
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return new AuthResponse(user, null);
     }
 
     public void requestPasswordReset(String email) {

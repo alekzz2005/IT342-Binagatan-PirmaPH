@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
-import { getDashboardPathByRole } from '../utils/rbac';
+import { getLandingPathForUser } from '../utils/rbac';
 
 const OAuth2RedirectHandler = () => {
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const OAuth2RedirectHandler = () => {
             confirmText: 'Go to Dashboard',
             showCancel: false,
             onConfirm: () => {
-              navigate(getDashboardPathByRole(userData?.role), { replace: true });
+              navigate(getLandingPathForUser(userData), { replace: true });
             }
           });
         } else if (error) {

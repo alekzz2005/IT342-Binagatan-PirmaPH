@@ -20,8 +20,13 @@ public class SupabaseStorageService {
 
     private static final Logger logger = LoggerFactory.getLogger(SupabaseStorageService.class);
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+
+    public SupabaseStorageService(RestTemplate restTemplate, ObjectMapper objectMapper) {
+        this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
+    }
 
     @Value("${supabase.url:}")
     private String supabaseUrl;
