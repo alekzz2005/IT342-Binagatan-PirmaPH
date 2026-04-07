@@ -1,0 +1,86 @@
+.request-history-page {
+  min-height: 100vh;
+  background: #f4f6fb;
+  padding: 24px;
+}
+
+.request-history-page header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.request-history-page h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+}
+
+.request-history-page p {
+  color: #5a6a8a;
+}
+
+.request-history-page button,
+.request-history-page .new-btn {
+  border: 1px solid #d0d8f0;
+  border-radius: 9px;
+  background: #fff;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.request-history-page .new-btn {
+  background: #0038a8;
+  color: #fff;
+  border: 0;
+}
+
+.table-wrap {
+  background: #fff;
+  border: 1.5px solid #d0d8f0;
+  border-radius: 14px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 12px;
+  border-bottom: 1px solid #eef2fc;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  font-size: 12px;
+  color: #5a6a8a;
+  text-transform: uppercase;
+}
+
+.status-pill {
+  font-weight: 700;
+}
+
+.file-list {
+  display: grid;
+  gap: 5px;
+}
+
+.file-list a {
+  color: #1d4ed8;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.error-text {
+  color: #b91c1c;
+}
+
+.state-text {
+  color: #475569;
+}

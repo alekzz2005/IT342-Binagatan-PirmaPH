@@ -6,6 +6,7 @@ import edu.cit.binagatan.pirmaph.dto.ForgotPasswordRequest;
 import edu.cit.binagatan.pirmaph.dto.LoginRequest;
 import edu.cit.binagatan.pirmaph.dto.RegisterRequest;
 import edu.cit.binagatan.pirmaph.dto.ResetPasswordRequest;
+import edu.cit.binagatan.pirmaph.security.AuthenticatedUser;
 import edu.cit.binagatan.pirmaph.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,6 +62,17 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Logged out successfully");
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser() {
+        try {
+            AuthenticatedUser principal = (AuthenticatedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok(authService.getCurrentUser(principal));
+        } catch (IllegalArgumentException e) {
+            ErrorResponse error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        }
     }
 
     @PostMapping("/forgot-password")

@@ -30,11 +30,65 @@ public class NotificationService {
         sendEmail(user.getEmail(), subject, body);
     }
 
+    public void sendOfficerRegistrationReceived(User user) {
+        String subject = "PirmaPH Officer Registration Received";
+        String body = "Hello " + user.getFirstName() + ",\n\n"
+                + "Your officer onboarding request has been submitted and is pending Barangay Admin verification.\n"
+                + "Please log in to upload or update your proof of appointment if needed.\n\n"
+                + "Current status: PENDING_VERIFICATION";
+        sendEmail(user.getEmail(), subject, body);
+    }
+
     public void sendStatusUpdate(User user, UserStatus newStatus) {
         String subject = "PirmaPH Registration Status Update";
         String body = "Hello " + user.getFirstName() + ",\n\n"
                 + "Your verification status has been updated to: " + newStatus.name() + ".\n\n"
                 + statusInstruction(newStatus);
+        sendEmail(user.getEmail(), subject, body);
+    }
+
+    public void sendRoleUpdated(User user) {
+        String subject = "PirmaPH Role Assignment Updated";
+        String body = "Hello " + user.getFirstName() + ",\n\n"
+                + "Your account role has been updated to: " + user.getRole().name() + ".\n"
+                + "Please log in to access your updated dashboard and permissions.";
+        sendEmail(user.getEmail(), subject, body);
+    }
+
+    public void sendSuspensionUpdate(User user, boolean suspended) {
+        String subject = suspended ? "PirmaPH Account Suspended" : "PirmaPH Account Reinstated";
+        String body = "Hello " + user.getFirstName() + ",\n\n"
+                + (suspended
+                ? "Your account has been suspended by an administrator. Contact your barangay office for details."
+                : "Your account has been reinstated. You may now continue using the system according to your role.");
+        sendEmail(user.getEmail(), subject, body);
+    }
+
+    public void sendInitialBarangayAdminCredentials(User user, String temporaryPassword) {
+        String subject = "PirmaPH Barangay Admin Account Created";
+        String body = "Hello " + user.getFirstName() + ",\n\n"
+                + "A Super Admin created your initial Barangay Admin account.\n"
+                + "Temporary password: " + temporaryPassword + "\n"
+                + "Please log in and change your password immediately.";
+        sendEmail(user.getEmail(), subject, body);
+    }
+
+    public void sendDocumentRequestSubmitted(User user, java.util.UUID requestId, String documentType) {
+        String subject = "PirmaPH Request Submitted";
+        String body = "Hello " + user.getFirstName() + ",\n\n"
+                + "Your document request has been submitted successfully.\n"
+                + "Request ID: " + requestId + "\n"
+                + "Document Type: " + documentType + "\n"
+                + "Current status: SUBMITTED";
+        sendEmail(user.getEmail(), subject, body);
+    }
+
+    public void sendDocumentRequestStatusUpdate(User user, java.util.UUID requestId, String status) {
+        String subject = "PirmaPH Request Status Updated";
+        String body = "Hello " + user.getFirstName() + ",\n\n"
+                + "Your document request status has been updated.\n"
+                + "Request ID: " + requestId + "\n"
+                + "New status: " + status;
         sendEmail(user.getEmail(), subject, body);
     }
 

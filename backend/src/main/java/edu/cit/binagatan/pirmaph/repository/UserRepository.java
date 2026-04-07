@@ -26,4 +26,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByRoleAndStatusOrderByCreatedAtAsc(UserRole role, UserStatus status);
 
     List<User> findByRoleAndStatusAndBarangayCodeOrderByCreatedAtAsc(UserRole role, UserStatus status, String barangayCode);
+
+    List<User> findByRoleOrderByCreatedAtAsc(UserRole role);
+
+    List<User> findByRoleAndBarangayCodeOrderByCreatedAtAsc(UserRole role, String barangayCode);
 }

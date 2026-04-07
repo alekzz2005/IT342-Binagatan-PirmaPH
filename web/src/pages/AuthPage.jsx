@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 import locationService from '../services/locationService';
 import { OAUTH2_URL } from '../services/api';
-import { getDashboardPathByRole } from '../utils/rbac';
+import { getLandingPathForUser } from '../utils/rbac';
 import './Auth.css';
 
 const AuthPage = () => {
@@ -172,7 +172,7 @@ const AuthPage = () => {
     const result = await login(loginData.email, loginData.password);
     
     if (result.success) {
-      const redirectPath = result.redirectPath || getDashboardPathByRole(result.user?.role);
+      const redirectPath = result.redirectPath || getLandingPathForUser(result.user);
       showModal({
         context: 'success',
         title: 'Login Successful!',
@@ -225,14 +225,19 @@ const AuthPage = () => {
 
     setLoading(true);
     const result = await register(registerData);
+    const isOfficerRegistration = registerData.role === 'OFFICER';
     
     if (result.success) {
       if (result.requiresApproval) {
         showModal({
           context: 'info',
-          title: 'Registration Submitted',
-          message: `Thank you, ${registerData.firstName}. Your account is pending approval by your barangay administrator.`,
-          detail: 'You will be able to log in once your account status is set to APPROVED.',
+          title: isOfficerRegistration ? 'Officer Registration Submitted' : 'Registration Submitted',
+          message: isOfficerRegistration
+            ? `Thank you, ${registerData.firstName}. Your officer onboarding request is pending barangay admin verification.`
+            : `Thank you, ${registerData.firstName}. Your account is pending approval by your barangay administrator.`,
+          detail: isOfficerRegistration
+            ? 'You can log in while pending to upload your appointment proof under the Officer dashboard.'
+            : 'You can log in once your account status is set to APPROVED.',
           confirmText: 'Back to Login',
           showCancel: false,
           onConfirm: () => {
@@ -240,7 +245,7 @@ const AuthPage = () => {
           }
         });
       } else {
-        const redirectPath = getDashboardPathByRole(result.user?.role);
+        const redirectPath = getLandingPathForUser(result.user);
         showModal({
           context: 'success',
           title: 'Registration Successful! 🎉',
@@ -443,6 +448,28 @@ const AuthPage = () => {
               <form onSubmit={handleRegisterSubmit}>
                 {/* Section 1: Account Credentials */}
                 <div className="form-section">Account Credentials</div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      Account Type <span className="required">*</span>
+                    </label>
+                    <div className="select-wrap">
+                      <select
+                        className="form-select"
+                        value={registerData.role}
+                        onChange={(e) =>
+                          setRegisterData({ ...registerData, role: e.target.value })
+                        }
+                        required
+                      >
+                        <option value="RESIDENT">Resident</option>
+                        <option value="OFFICER">Barangay Officer</option>
+                      </select>
+                    </div>
+                    <div className="field-note">
+                      Officer accounts require appointment proof upload and barangay admin verification.
+                    </div>
+                  </div>
 
                 <div className="form-group">
                   <label className="form-label">

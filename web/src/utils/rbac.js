@@ -23,6 +23,18 @@ export function getDashboardPathByRole(role) {
   return ROLE_TO_DASHBOARD_PATH[role] || '/dashboard/resident';
 }
 
+export function getLandingPathForUser(user) {
+  if (!user) {
+    return '/';
+  }
+
+  if (user.role === USER_ROLES.RESIDENT && (user.status === USER_STATUS.PENDING_VERIFICATION || user.status === USER_STATUS.REJECTED)) {
+    return '/dashboard/pending';
+  }
+
+  return getDashboardPathByRole(user.role);
+}
+
 export function isApprovedUser(user) {
   return user?.status === USER_STATUS.APPROVED;
 }

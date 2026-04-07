@@ -7,13 +7,17 @@ import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
 import OAuth2RedirectHandler from './pages/OAuth2RedirectHandler';
 import ProtectedRoute from './components/ProtectedRoute';
-import { getDashboardPathByRole, USER_ROLES } from './utils/rbac';
+import { getLandingPathForUser, USER_ROLES } from './utils/rbac';
+import AdminVerificationPage from './pages/AdminVerificationPage';
+import SubmitRequestPage from './pages/SubmitRequestPage';
+import RequestHistoryPage from './pages/RequestHistoryPage';
+import OfficerRequestQueuePage from './pages/OfficerRequestQueuePage';
 import './App.css';
 
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
 
-  const defaultDashboardPath = getDashboardPathByRole(user?.role);
+  const defaultDashboardPath = getLandingPathForUser(user);
 
   return (
     <Routes>
@@ -32,7 +36,18 @@ function AppRoutes() {
       <Route
         path="/dashboard/resident"
         element={
-          <ProtectedRoute allowedRoles={[USER_ROLES.RESIDENT]}>
+          <ProtectedRoute allowedRoles={[USER_ROLES.RESIDENT]} allowedStatuses={['APPROVED']}>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/pending"
+        element={
+          <ProtectedRoute
+            allowedRoles={[USER_ROLES.RESIDENT]}
+            allowedStatuses={['PENDING_VERIFICATION', 'REJECTED', 'APPROVED']}
+          >
             <Dashboard />
           </ProtectedRoute>
         }
@@ -40,24 +55,48 @@ function AppRoutes() {
       <Route
         path="/dashboard/officer"
         element={
-          <ProtectedRoute allowedRoles={[USER_ROLES.OFFICER]}>
+          <ProtectedRoute allowedRoles={[USER_ROLES.OFFICER]} allowedStatuses={['PENDING_VERIFICATION', 'REJECTED', 'APPROVED']}>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/requests/submit"
+        element={
+          <ProtectedRoute allowedRoles={[USER_ROLES.RESIDENT]} allowedStatuses={['APPROVED']}>
+            <SubmitRequestPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/requests/mine"
+        element={
+          <ProtectedRoute allowedRoles={[USER_ROLES.RESIDENT]} allowedStatuses={['APPROVED']}>
+            <RequestHistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/officer/requests"
+        element={
+          <ProtectedRoute allowedRoles={[USER_ROLES.OFFICER]} allowedStatuses={['APPROVED']}>
+            <OfficerRequestQueuePage />
           </ProtectedRoute>
         }
       />
       <Route
         path="/dashboard/barangay-admin"
         element={
-          <ProtectedRoute allowedRoles={[USER_ROLES.BARANGAY_ADMIN]}>
-            <Dashboard />
+          <ProtectedRoute allowedRoles={[USER_ROLES.BARANGAY_ADMIN]} allowedStatuses={['APPROVED']}>
+            <AdminVerificationPage />
           </ProtectedRoute>
         }
       />
       <Route
         path="/dashboard/super-admin"
         element={
-          <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN]}>
-            <Dashboard />
+          <ProtectedRoute allowedRoles={[USER_ROLES.SUPER_ADMIN]} allowedStatuses={['APPROVED']}>
+            <AdminVerificationPage />
           </ProtectedRoute>
         }
       />

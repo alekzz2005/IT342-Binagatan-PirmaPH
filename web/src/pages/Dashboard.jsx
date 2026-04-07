@@ -2,6 +2,8 @@ import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 import { useNavigate } from 'react-router-dom';
 import { USER_ROLES } from '../utils/rbac';
+import ResidentVerificationPanel from '../components/ResidentVerificationPanel';
+import OfficerVerificationPanel from '../components/OfficerVerificationPanel';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -62,28 +64,28 @@ const Dashboard = () => {
 
   const navItemsByRole = {
     [USER_ROLES.RESIDENT]: [
-      { label: 'Dashboard', icon: '🏠', active: true },
-      { label: 'Submit Request', icon: '📋' },
-      { label: 'My Requests', icon: '🕐' },
-      { label: 'Announcements', icon: '📢' },
+      { label: 'Dashboard', icon: '🏠', active: true, path: '/dashboard/resident' },
+      { label: 'Submit Request', icon: '📋', path: '/requests/submit' },
+      { label: 'My Requests', icon: '🕐', path: '/requests/mine' },
+      { label: 'Announcements', icon: '📢', path: '/dashboard/resident' },
     ],
     [USER_ROLES.OFFICER]: [
-      { label: 'Dashboard', icon: '🏠', active: true },
-      { label: 'Process Requests', icon: '📂' },
-      { label: 'Upload Official Docs', icon: '🗂️' },
-      { label: 'Resident Queue', icon: '👥' },
+      { label: 'Dashboard', icon: '🏠', active: true, path: '/dashboard/officer' },
+      { label: 'Process Requests', icon: '📂', path: '/officer/requests' },
+      { label: 'Upload Official Docs', icon: '🗂️', path: '/officer/requests' },
+      { label: 'Resident Queue', icon: '👥', path: '/officer/requests' },
     ],
     [USER_ROLES.BARANGAY_ADMIN]: [
-      { label: 'Dashboard', icon: '🏠', active: true },
-      { label: 'User Approvals', icon: '✅' },
-      { label: 'Role Management', icon: '🛡️' },
-      { label: 'Barangay Settings', icon: '⚙️' },
+      { label: 'Dashboard', icon: '🏠', active: true, path: '/dashboard/barangay-admin' },
+      { label: 'User Approvals', icon: '✅', path: '/dashboard/barangay-admin' },
+      { label: 'Role Management', icon: '🛡️', path: '/dashboard/barangay-admin' },
+      { label: 'Barangay Settings', icon: '⚙️', path: '/dashboard/barangay-admin' },
     ],
     [USER_ROLES.SUPER_ADMIN]: [
-      { label: 'Dashboard', icon: '🏠', active: true },
-      { label: 'Nationwide Overview', icon: '🌐' },
-      { label: 'Barangay Participation', icon: '🏛️' },
-      { label: 'Override Decisions', icon: '⚖️' },
+      { label: 'Dashboard', icon: '🏠', active: true, path: '/dashboard/super-admin' },
+      { label: 'Nationwide Overview', icon: '🌐', path: '/dashboard/super-admin' },
+      { label: 'Barangay Participation', icon: '🏛️', path: '/dashboard/super-admin' },
+      { label: 'Override Decisions', icon: '⚖️', path: '/dashboard/super-admin' },
     ],
   };
 
@@ -109,7 +111,17 @@ const Dashboard = () => {
 
         <span className="nav-section-label">{roleLabel}</span>
         {navItems.map((item) => (
-          <a key={item.label} href="#" className={`nav-item ${item.active ? 'active' : ''}`}>
+          <a
+            key={item.label}
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              if (item.path) {
+                navigate(item.path);
+              }
+            }}
+            className={`nav-item ${item.active ? 'active' : ''}`}
+          >
             <span className="nav-icon">{item.icon}</span> {item.label}
           </a>
         ))}
@@ -289,6 +301,9 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
+
+          {currentRole === USER_ROLES.RESIDENT && <ResidentVerificationPanel user={user} />}
+          {currentRole === USER_ROLES.OFFICER && <OfficerVerificationPanel user={user} />}
         </div>
       </div>
     </div>

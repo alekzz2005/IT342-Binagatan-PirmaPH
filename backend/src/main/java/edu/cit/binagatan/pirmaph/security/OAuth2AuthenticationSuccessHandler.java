@@ -1,8 +1,6 @@
 package edu.cit.binagatan.pirmaph.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import edu.cit.binagatan.pirmaph.dto.AuthResponse;
 import edu.cit.binagatan.pirmaph.entity.User;
@@ -11,7 +9,7 @@ import edu.cit.binagatan.pirmaph.repository.UserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -26,14 +24,21 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+    private final ObjectMapper oauth2ResponseObjectMapper;
 
     @Value("${cors.allowed-origins}")
     private String allowedOrigins;
+
+    public OAuth2AuthenticationSuccessHandler(
+            JwtUtil jwtUtil,
+            UserRepository userRepository,
+            @Qualifier("oauth2ResponseObjectMapper") ObjectMapper oauth2ResponseObjectMapper) {
+        this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
+        this.oauth2ResponseObjectMapper = oauth2ResponseObjectMapper;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, 
@@ -97,10 +102,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             AuthResponse authResponse = new AuthResponse(user, token);
             
             // Encode the response as JSON
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            String userDataJson = URLEncoder.encode(mapper.writeValueAsString(authResponse), StandardCharsets.UTF_8);
+            String userDataJson = URLEncoder.encode(oauth2ResponseObjectMapper.writeValueAsString(authResponse), StandardCharsets.UTF_8);
 
             // Get the frontend URL (use the first allowed origin)
             String frontendUrl = allowedOrigins.split(",")[0].trim();
