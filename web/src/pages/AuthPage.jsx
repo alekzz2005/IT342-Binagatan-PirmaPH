@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ClipboardList, Home, Lock, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
 import locationService from '../services/locationService';
@@ -248,7 +249,7 @@ const AuthPage = () => {
         const redirectPath = getLandingPathForUser(result.user);
         showModal({
           context: 'success',
-          title: 'Registration Successful! 🎉',
+          title: 'Registration Successful!',
           message: `Welcome to PirmaPH, ${registerData.firstName}! Your account has been created successfully.`,
           detail: `Email: ${registerData.email}\nAddress: ${registerData.barangay}, ${registerData.city}`,
           confirmText: 'Go to Dashboard',
@@ -294,28 +295,28 @@ const AuthPage = () => {
 
         <div className="left-features">
           <div className="feature-item">
-            <div className="feature-icon">📋</div>
+            <div className="feature-icon"><ClipboardList size={20} strokeWidth={2} /></div>
             <div className="feature-text">
               <h3>Request Documents Online</h3>
               <p>Apply for clearances and certificates digitally</p>
             </div>
           </div>
           <div className="feature-item">
-            <div className="feature-icon">🔍</div>
+            <div className="feature-icon"><Search size={20} strokeWidth={2} /></div>
             <div className="feature-text">
               <h3>Track Your Submissions</h3>
               <p>Real-time status updates on your requests</p>
             </div>
           </div>
           <div className="feature-item">
-            <div className="feature-icon">🏠</div>
+            <div className="feature-icon"><Home size={20} strokeWidth={2} /></div>
             <div className="feature-text">
               <h3>Serve Your Barangay</h3>
               <p>Empowering communities through technology</p>
             </div>
           </div>
           <div className="feature-item">
-            <div className="feature-icon">🔒</div>
+            <div className="feature-icon"><Lock size={20} strokeWidth={2} /></div>
             <div className="feature-text">
               <h3>Secure & Private</h3>
               <p>Your data is protected with enterprise security</p>

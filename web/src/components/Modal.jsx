@@ -1,4 +1,5 @@
 import { useModal } from '../context/ModalContext';
+import { AlertCircle, AlertTriangle, CheckCircle2, FileText, Info, X } from 'lucide-react';
 import './Modal.css';
 
 const Modal = () => {
@@ -8,7 +9,7 @@ const Modal = () => {
 
   const contextConfig = {
     confirmation: {
-      icon: '📋',
+      icon: FileText,
       label: 'Confirmation',
       colors: {
         iconBg: '#EEF2FC',
@@ -18,7 +19,7 @@ const Modal = () => {
       }
     },
     success: {
-      icon: '✅',
+      icon: CheckCircle2,
       label: 'Success',
       colors: {
         iconBg: '#EDFAF3',
@@ -28,7 +29,7 @@ const Modal = () => {
       }
     },
     error: {
-      icon: '❌',
+      icon: AlertCircle,
       label: 'Error',
       colors: {
         iconBg: '#FEF0F2',
@@ -38,7 +39,7 @@ const Modal = () => {
       }
     },
     warning: {
-      icon: '⚠️',
+      icon: AlertTriangle,
       label: 'Warning',
       colors: {
         iconBg: '#FFFBEA',
@@ -48,7 +49,7 @@ const Modal = () => {
       }
     },
     info: {
-      icon: 'ℹ️',
+      icon: Info,
       label: 'Information',
       colors: {
         iconBg: '#F0F7FF',
@@ -60,6 +61,7 @@ const Modal = () => {
   };
 
   const config = contextConfig[modal.context] || contextConfig.confirmation;
+  const IconComponent = config.icon;
 
   const handleConfirm = () => {
     if (modal.onConfirm) {
@@ -109,7 +111,7 @@ const Modal = () => {
               color: config.colors.accent,
             }}
           >
-            {config.icon}
+            <IconComponent size={28} strokeWidth={2} />
           </div>
           <div className="modal-title-block">
             <div className="modal-context-label" style={{ color: config.colors.accent }}>
@@ -125,7 +127,7 @@ const Modal = () => {
             aria-label="Close modal"
             onClick={closeModal}
           >
-            ✕
+            <X size={16} strokeWidth={2} />
           </button>
         </div>
 

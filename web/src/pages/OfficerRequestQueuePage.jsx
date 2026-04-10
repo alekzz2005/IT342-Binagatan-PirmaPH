@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import apiService from '../services/api';
 import { useModal } from '../context/ModalContext';
 import './OfficerRequestQueuePage.css';
@@ -77,7 +78,7 @@ export default function OfficerRequestQueuePage() {
   return (
     <div className="officer-queue-page">
       <header>
-        <button onClick={() => navigate('/dashboard/officer')}>← Back</button>
+        <button onClick={() => navigate('/dashboard/officer')}><ArrowLeft size={16} strokeWidth={2} /> Back</button>
         <h1>Officer Request Queue</h1>
       </header>
 

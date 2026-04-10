@@ -50,7 +50,7 @@ const OAuth2RedirectHandler = () => {
           // Show success modal and navigate to dashboard
           showModal({
             context: 'success',
-            title: 'Google Sign In Successful! 🎉',
+            title: 'Google Sign In Successful!',
             message: `Welcome to PirmaPH, ${userData?.firstName || 'User'}! Your Google account has been successfully linked. You can now access all barangay digital services.`,
             confirmText: 'Go to Dashboard',
             showCancel: false,

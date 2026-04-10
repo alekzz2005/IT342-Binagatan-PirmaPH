@@ -1,313 +1,370 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Bell, BriefcaseBusiness, CheckCircle2, FileText, HandHelping, Home, Hourglass, IdCard, Sunrise, XCircle } from 'lucide-react';
+import apiService from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
-import { useNavigate } from 'react-router-dom';
-import { USER_ROLES } from '../utils/rbac';
-import ResidentVerificationPanel from '../components/ResidentVerificationPanel';
-import OfficerVerificationPanel from '../components/OfficerVerificationPanel';
+import ResidentSidebar from '../components/ResidentSidebar';
 import './Dashboard.css';
 
-const Dashboard = () => {
-  const { user, logout } = useAuth();
+const DOCUMENT_LABELS = {
+  BARANGAY_CLEARANCE: 'Barangay Clearance',
+  CERTIFICATE_OF_RESIDENCY: 'Certificate of Residency',
+  CERTIFICATE_OF_INDIGENCY: 'Certificate of Indigency',
+  BUSINESS_CLEARANCE: 'Business Clearance',
+  CERTIFICATE_OF_GOOD_MORAL: 'Certificate of Good Moral',
+  BARANGAY_ID: 'Barangay ID',
+};
+
+const DOCUMENT_ICONS = {
+  BARANGAY_CLEARANCE: FileText,
+  CERTIFICATE_OF_RESIDENCY: Home,
+  CERTIFICATE_OF_INDIGENCY: HandHelping,
+  BUSINESS_CLEARANCE: BriefcaseBusiness,
+  CERTIFICATE_OF_GOOD_MORAL: IdCard,
+  BARANGAY_ID: IdCard,
+};
+
+const STATUS_LABELS = {
+  SUBMITTED: 'Pending',
+  UNDER_REVIEW: 'Under Review',
+  APPROVED: 'Approved',
+  DECLINED: 'Rejected',
+  PENDING_PAYMENT: 'Pending Payment',
+  READY_FOR_RELEASE: 'Ready for Release',
+};
+
+const STATUS_CLASSES = {
+  SUBMITTED: 'status-pending',
+  UNDER_REVIEW: 'status-pending',
+  APPROVED: 'status-approved',
+  DECLINED: 'status-rejected',
+  PENDING_PAYMENT: 'status-pending',
+  READY_FOR_RELEASE: 'status-ready',
+};
+
+const ANNOUNCEMENT_BADGES = {
+  SUBMITTED: { label: 'Info', className: 'ab-blue' },
+  UNDER_REVIEW: { label: 'Update', className: 'ab-blue' },
+  APPROVED: { label: 'Approved', className: 'ab-gold' },
+  DECLINED: { label: 'Alert', className: 'ab-red' },
+  PENDING_PAYMENT: { label: 'Alert', className: 'ab-red' },
+  READY_FOR_RELEASE: { label: 'Ready', className: 'ab-gold' },
+};
+
+const formatDocumentType = (documentType) => DOCUMENT_LABELS[documentType] || documentType;
+
+const formatStatusLabel = (status) => STATUS_LABELS[status] || status;
+
+const formatDate = (value) => {
+  if (!value) {
+    return 'N/A';
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value));
+};
+
+const formatRelativeTime = (value) => {
+  if (!value) {
+    return 'just now';
+  }
+
+  const diff = Date.now() - new Date(value).getTime();
+  const minutes = Math.max(1, Math.round(diff / 60000));
+
+  if (minutes < 60) {
+    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  }
+
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) {
+    return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  }
+
+  const days = Math.round(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+};
+
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+};
+
+export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { showModal } = useModal();
 
-  const handleLogout = () => {
-    showModal({
-      context: 'confirmation',
-      title: 'Confirm Logout',
-      message: 'Are you sure you want to log out? You will need to log in again to access your account.',
-      confirmText: 'Yes, Logout',
-      cancelText: 'Stay Logged In',
-      onConfirm: () => {
-        logout();
-        showModal({
-          context: 'success',
-          title: 'Logged Out Successfully',
-          message: 'You have been successfully logged out. Thank you for using PirmaPH!',
-          confirmText: 'Back to Login',
-          showCancel: false,
-          onConfirm: () => {
-            navigate('/');
-          }
-        });
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      setError('');
+
+      try {
+        const data = await apiService.getMyDocumentRequests();
+        if (!cancelled) {
+          setRequests(Array.isArray(data) ? data : []);
+        }
+      } catch (requestError) {
+        if (!cancelled) {
+          setError(requestError.message || 'Unable to load dashboard data');
+          setRequests([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
+    };
+
+    load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const sortedRequests = useMemo(() => {
+    return [...requests].sort((left, right) => new Date(right.requestTimestamp) - new Date(left.requestTimestamp));
+  }, [requests]);
+
+  const requestStats = useMemo(() => {
+    return sortedRequests.reduce((summary, request) => {
+      summary.total += 1;
+
+      if (request.status === 'SUBMITTED' || request.status === 'UNDER_REVIEW' || request.status === 'PENDING_PAYMENT') {
+        summary.pending += 1;
+      }
+
+      if (request.status === 'APPROVED' || request.status === 'READY_FOR_RELEASE') {
+        summary.approved += 1;
+      }
+
+      if (request.status === 'DECLINED') {
+        summary.rejected += 1;
+      }
+
+      return summary;
+    }, { total: 0, pending: 0, approved: 0, rejected: 0 });
+  }, [sortedRequests]);
+
+  const recentRequests = sortedRequests.slice(0, 5);
+
+  const announcementItems = useMemo(() => {
+    return sortedRequests.slice(0, 4).map((request) => {
+      const badge = ANNOUNCEMENT_BADGES[request.status] || ANNOUNCEMENT_BADGES.SUBMITTED;
+      const releaseLabel = request.status === 'READY_FOR_RELEASE'
+        ? 'Ready for release'
+        : request.status === 'APPROVED'
+          ? 'Approved and in process'
+          : request.status === 'DECLINED'
+            ? 'Action required'
+            : 'Processing update';
+
+      return {
+        badge,
+        title: `${formatDocumentType(request.documentType)} ${releaseLabel}`,
+        body: `Submitted on ${formatDate(request.requestTimestamp)} for ${request.purpose}.`,
+        date: request.updatedAt ? `Updated ${formatRelativeTime(request.updatedAt)}` : `Submitted ${formatRelativeTime(request.requestTimestamp)}`,
+      };
+    });
+  }, [sortedRequests]);
+
+  const pendingCount = requestStats.pending;
+  const approvedCount = requestStats.approved;
+  const rejectedCount = requestStats.rejected;
+
+  const bannerCopy = sortedRequests.length > 0
+    ? `You have ${pendingCount} pending request${pendingCount === 1 ? '' : 's'} and ${approvedCount} approved request${approvedCount === 1 ? '' : 's'} in your barangay queue.`
+    : 'You do not have any submitted requests yet.';
+
+  const openRequestDetails = (request) => {
+    showModal({
+      context: 'success',
+      title: formatDocumentType(request.documentType),
+      message: `Status: ${formatStatusLabel(request.status)}`,
+      detail: [
+        `Purpose: ${request.purpose}`,
+        `Submitted: ${formatDate(request.requestTimestamp)}`,
+        `Copies: ${request.copies}`,
+        `Additional details: ${request.additionalDetails || 'None'}`,
+        `Attachments: ${(request.files || []).length}`,
+      ].join('\n'),
+      confirmText: 'View Request History',
+      showCancel: false,
+      onConfirm: () => navigate('/requests/mine'),
     });
   };
 
-  const getInitials = () => {
-    if (!user) return 'JD';
-    const firstInitial = user.firstName?.charAt(0) || '';
-    const lastInitial = user.lastName?.charAt(0) || '';
-    return `${firstInitial}${lastInitial}`.toUpperCase();
+  const showRequestSummary = () => {
+    showModal({
+      context: 'success',
+      title: 'Request Summary',
+      message: 'Here is a live summary of your document requests.',
+      detail: [
+        `Total requests: ${requestStats.total}`,
+        `Pending: ${requestStats.pending}`,
+        `Approved: ${requestStats.approved}`,
+        `Rejected: ${requestStats.rejected}`,
+      ].join('\n'),
+      confirmText: 'View My Requests',
+      showCancel: false,
+      onConfirm: () => navigate('/requests/mine'),
+    });
   };
 
-  const getFullName = () => {
-    if (!user) return 'Juan Dela Cruz';
-    return `${user.firstName} ${user.lastName}`;
+  const openAnnouncements = () => {
+    const details = announcementItems.length > 0
+      ? announcementItems.map((item) => `${item.title} - ${item.body}`).join('\n\n')
+      : 'No recent request updates are available yet.';
+
+    showModal({
+      context: 'success',
+      title: 'Recent Updates',
+      message: 'The right panel is driven by your live request history.',
+      detail: details,
+      confirmText: 'View My Requests',
+      showCancel: false,
+      onConfirm: () => navigate('/requests/mine'),
+    });
   };
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  };
-
-  const currentRole = user?.role || USER_ROLES.RESIDENT;
-
-  const roleLabel = {
-    [USER_ROLES.RESIDENT]: 'Resident',
-    [USER_ROLES.OFFICER]: 'Officer',
-    [USER_ROLES.BARANGAY_ADMIN]: 'Barangay Admin',
-    [USER_ROLES.SUPER_ADMIN]: 'Super Admin',
-  }[currentRole] || 'Resident';
-
-  const navItemsByRole = {
-    [USER_ROLES.RESIDENT]: [
-      { label: 'Dashboard', icon: '🏠', active: true, path: '/dashboard/resident' },
-      { label: 'Submit Request', icon: '📋', path: '/requests/submit' },
-      { label: 'My Requests', icon: '🕐', path: '/requests/mine' },
-      { label: 'Announcements', icon: '📢', path: '/dashboard/resident' },
-    ],
-    [USER_ROLES.OFFICER]: [
-      { label: 'Dashboard', icon: '🏠', active: true, path: '/dashboard/officer' },
-      { label: 'Process Requests', icon: '📂', path: '/officer/requests' },
-      { label: 'Upload Official Docs', icon: '🗂️', path: '/officer/requests' },
-      { label: 'Resident Queue', icon: '👥', path: '/officer/requests' },
-    ],
-    [USER_ROLES.BARANGAY_ADMIN]: [
-      { label: 'Dashboard', icon: '🏠', active: true, path: '/dashboard/barangay-admin' },
-      { label: 'User Approvals', icon: '✅', path: '/dashboard/barangay-admin' },
-      { label: 'Role Management', icon: '🛡️', path: '/dashboard/barangay-admin' },
-      { label: 'Barangay Settings', icon: '⚙️', path: '/dashboard/barangay-admin' },
-    ],
-    [USER_ROLES.SUPER_ADMIN]: [
-      { label: 'Dashboard', icon: '🏠', active: true, path: '/dashboard/super-admin' },
-      { label: 'Nationwide Overview', icon: '🌐', path: '/dashboard/super-admin' },
-      { label: 'Barangay Participation', icon: '🏛️', path: '/dashboard/super-admin' },
-      { label: 'Override Decisions', icon: '⚖️', path: '/dashboard/super-admin' },
-    ],
-  };
-
-  const navItems = navItemsByRole[currentRole] || navItemsByRole[USER_ROLES.RESIDENT];
-
-  const roleActionLabel = {
-    [USER_ROLES.RESIDENT]: '+ New Request',
-    [USER_ROLES.OFFICER]: '+ Review Queue',
-    [USER_ROLES.BARANGAY_ADMIN]: '+ Review Approvals',
-    [USER_ROLES.SUPER_ADMIN]: '+ Open Control Center',
-  }[currentRole] || '+ New Request';
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-top">
-          <div className="brand">
-            Pirma<span>PH</span>
-          </div>
-          <div className="brand-sub">Barangay Digital Services</div>
-        </div>
+      <ResidentSidebar activeItem="dashboard" />
 
-        <span className="nav-section-label">{roleLabel}</span>
-        {navItems.map((item) => (
-          <a
-            key={item.label}
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              if (item.path) {
-                navigate(item.path);
-              }
-            }}
-            className={`nav-item ${item.active ? 'active' : ''}`}
-          >
-            <span className="nav-icon">{item.icon}</span> {item.label}
-          </a>
-        ))}
-
-        <span className="nav-section-label">Account</span>
-        <a href="#" className="nav-item">
-          <span className="nav-icon">👤</span> Profile
-        </a>
-        <a href="#" className="nav-item">
-          <span className="nav-icon">⚙️</span> Settings
-        </a>
-
-        <div className="sidebar-footer">
-          <div className="user-card">
-            <div className="user-avatar">{getInitials()}</div>
-            <div className="user-info">
-              <h4>{getFullName()}</h4>
-              <p>{roleLabel.toUpperCase()}</p>
-            </div>
-            <button className="logout-btn" onClick={handleLogout} title="Logout">
-              →
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
       <div className="main">
-        {/* Header */}
         <header className="header">
           <div>
             <div className="header-title">Dashboard</div>
             <div className="header-breadcrumb">Welcome back, {user?.firstName || 'Juan'}</div>
           </div>
           <div className="header-right">
-            <div className="header-flag">
+            <div className="header-flag" aria-hidden="true">
               <div className="hf-blue"></div>
               <div className="hf-red"></div>
             </div>
-            <div className="notif-btn">
-              🔔
+            <button type="button" className="notif-btn" onClick={showRequestSummary} aria-label="Show request summary">
+              <Bell size={18} strokeWidth={2} />
               <span className="notif-badge"></span>
-            </div>
+            </button>
           </div>
         </header>
 
-        {/* Content */}
         <div className="content">
-          {/* Banner */}
           <div className="flag-banner">
             <div className="banner-text">
-              <h2>{getGreeting()}, {user?.firstName || 'Juan'}! 🌅</h2>
-              <p>
-                {currentRole === USER_ROLES.RESIDENT && 'You have 1 pending request and 2 new announcements from your barangay.'}
-                {currentRole === USER_ROLES.OFFICER && 'You have 8 document requests awaiting officer review in your barangay queue.'}
-                {currentRole === USER_ROLES.BARANGAY_ADMIN && 'You have 5 user accounts pending approval and 2 role escalation requests.'}
-                {currentRole === USER_ROLES.SUPER_ADMIN && 'You have 3 barangay escalations and 12 participation updates pending review.'}
-              </p>
+              <h2><Sunrise size={20} strokeWidth={2} /> {getGreeting()}, {user?.firstName || 'Juan'}!</h2>
+              <p>{bannerCopy}</p>
             </div>
-            <button className="banner-cta">{roleActionLabel}</button>
+            <button type="button" className="banner-cta" onClick={() => navigate('/requests/submit')}>
+              + New Request
+            </button>
           </div>
 
-          {/* Stats */}
           <div className="stats-row">
             <div className="stat-card blue">
               <div className="stat-label">Total Requests</div>
-              <div className="stat-value">5</div>
+              <div className="stat-value">{requestStats.total}</div>
               <div className="stat-sub">All time submissions</div>
-              <span className="stat-icon">📋</span>
+              <span className="stat-icon"><FileText size={24} strokeWidth={2} /></span>
             </div>
             <div className="stat-card gold">
               <div className="stat-label">Pending</div>
-              <div className="stat-value">1</div>
+              <div className="stat-value">{requestStats.pending}</div>
               <div className="stat-sub">Awaiting officer review</div>
-              <span className="stat-icon">⏳</span>
+              <span className="stat-icon"><Hourglass size={24} strokeWidth={2} /></span>
             </div>
             <div className="stat-card green">
               <div className="stat-label">Approved</div>
-              <div className="stat-value">3</div>
+              <div className="stat-value">{requestStats.approved}</div>
               <div className="stat-sub">Ready for release</div>
-              <span className="stat-icon">✅</span>
+              <span className="stat-icon"><CheckCircle2 size={24} strokeWidth={2} /></span>
             </div>
             <div className="stat-card red">
               <div className="stat-label">Rejected</div>
-              <div className="stat-value">1</div>
+              <div className="stat-value">{rejectedCount}</div>
               <div className="stat-sub">See remarks</div>
-              <span className="stat-icon">❌</span>
+              <span className="stat-icon"><XCircle size={24} strokeWidth={2} /></span>
             </div>
           </div>
 
-          {/* Two-column */}
+          {error && <div className="dashboard-error">{error}</div>}
+
           <div className="two-col">
-            {/* Recent Requests */}
             <div className="card">
               <div className="card-header">
-                <div className="card-title">Recent Requests</div>
-                <a href="#" className="card-action">
+                <div className="card-title">My Recent Requests</div>
+                <button type="button" className="card-action" onClick={() => navigate('/requests/mine')}>
                   View All
-                </a>
+                </button>
               </div>
-              <div className="req-item">
-                <div className="req-type-icon">📄</div>
-                <div className="req-info">
-                  <div className="req-name">Barangay Clearance</div>
-                  <div className="req-meta">Requested on Dec 1, 2024</div>
+
+              {loading && <div className="empty-state">Loading recent requests...</div>}
+
+              {!loading && recentRequests.length === 0 && (
+                <div className="empty-state">
+                  No requests yet. Submit your first document request to get started.
                 </div>
-                <span className="req-status status-pending">Pending</span>
-              </div>
-              <div className="req-item">
-                <div className="req-type-icon">🆔</div>
-                <div className="req-info">
-                  <div className="req-name">Certificate of Residency</div>
-                  <div className="req-meta">Requested on Nov 28, 2024</div>
-                </div>
-                <span className="req-status status-approved">Approved</span>
-              </div>
-              <div className="req-item">
-                <div className="req-type-icon">📄</div>
-                <div className="req-info">
-                  <div className="req-name">Barangay Clearance</div>
-                  <div className="req-meta">Requested on Nov 20, 2024</div>
-                </div>
-                <span className="req-status status-ready">Ready</span>
-              </div>
-              <div className="req-item">
-                <div className="req-type-icon">💼</div>
-                <div className="req-info">
-                  <div className="req-name">Certificate of Indigency</div>
-                  <div className="req-meta">Requested on Nov 15, 2024</div>
-                </div>
-                <span className="req-status status-approved">Approved</span>
-              </div>
-              <div className="req-item">
-                <div className="req-type-icon">🆔</div>
-                <div className="req-info">
-                  <div className="req-name">Barangay ID</div>
-                  <div className="req-meta">Requested on Nov 10, 2024</div>
-                </div>
-                <span className="req-status status-rejected">Rejected</span>
-              </div>
+              )}
+
+              {!loading && recentRequests.map((request) => (
+                <button key={request.id} type="button" className="req-item req-item-button" onClick={() => openRequestDetails(request)}>
+                  <div className="req-type-icon">
+                    {(() => {
+                      const IconComponent = DOCUMENT_ICONS[request.documentType] || FileText;
+                      return <IconComponent size={20} strokeWidth={2} />;
+                    })()}
+                  </div>
+                  <div className="req-info">
+                    <div className="req-name">{formatDocumentType(request.documentType)}</div>
+                    <div className="req-meta">Submitted {formatDate(request.requestTimestamp)} · {request.purpose}</div>
+                  </div>
+                  <span className={`req-status ${STATUS_CLASSES[request.status] || 'status-pending'}`}>
+                    {formatStatusLabel(request.status)}
+                  </span>
+                </button>
+              ))}
             </div>
 
-            {/* Announcements */}
             <div className="card">
               <div className="card-header">
                 <div className="card-title">Announcements</div>
-                <a href="#" className="card-action">
-                  View All
-                </a>
+                <button type="button" className="card-action" onClick={openAnnouncements}>
+                  See All
+                </button>
               </div>
-              <div className="announce-item">
-                <span className="announce-badge ab-red">Urgent</span>
-                <div className="announce-title">Community Meeting - Dec 10</div>
-                <div className="announce-body">
-                  All residents are invited to attend the quarterly barangay assembly at
-                  the covered court.
+
+              {loading && <div className="empty-state">Loading updates...</div>}
+
+              {!loading && announcementItems.length === 0 && (
+                <div className="empty-state">No recent updates yet.</div>
+              )}
+
+              {!loading && announcementItems.map((item) => (
+                <div className="announce-item" key={`${item.title}-${item.date}`}>
+                  <span className={`announce-badge ${item.badge.className}`}>{item.badge.label}</span>
+                  <div className="announce-title">{item.title}</div>
+                  <div className="announce-body">{item.body}</div>
+                  <div className="announce-date">{item.date}</div>
                 </div>
-                <div className="announce-date">Posted 2 hours ago</div>
-              </div>
-              <div className="announce-item">
-                <span className="announce-badge ab-blue">Info</span>
-                <div className="announce-title">New Document Processing Schedule</div>
-                <div className="announce-body">
-                  Starting December 2024, document claims will be available Monday to
-                  Friday, 9 AM to 4 PM.
-                </div>
-                <div className="announce-date">Posted 1 day ago</div>
-              </div>
-              <div className="announce-item">
-                <span className="announce-badge ab-gold">Event</span>
-                <div className="announce-title">Christmas Festival 2024</div>
-                <div className="announce-body">
-                  Join us for our annual Christmas celebration on December 20 at the
-                  barangay hall.
-                </div>
-                <div className="announce-date">Posted 3 days ago</div>
-              </div>
+              ))}
             </div>
           </div>
-
-          {currentRole === USER_ROLES.RESIDENT && <ResidentVerificationPanel user={user} />}
-          {currentRole === USER_ROLES.OFFICER && <OfficerVerificationPanel user={user} />}
         </div>
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

@@ -215,7 +215,11 @@
   align-items: center; 
   justify-content: center;
   font-size: 18px;
-  position: relative;
+    position: relative;
+}
+
+button.notif-btn {
+  padding: 0;
 }
 
 .notif-badge {
@@ -287,6 +291,9 @@
   font-weight: 700;
   color: var(--white);
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .banner-text p {
@@ -369,8 +376,12 @@
   position: absolute; 
   top: 16px; 
   right: 16px; 
-  font-size: 26px; 
   opacity: 0.15; 
+}
+
+.stat-icon svg {
+  width: 26px;
+  height: 26px;
 }
 
 /* Two-column layout */
@@ -408,6 +419,9 @@
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
 }
 
 /* Request list */
@@ -420,6 +434,16 @@
   transition: background 0.15s;
   cursor: pointer;
 }
+
+.req-item-button {
+  width: 100%;
+  border: 0;
+  background: var(--white);
+  text-align: left;
+}
+
+.req-item-button:hover {
+  background: var(--blue-light);
 
 .req-item:last-child { 
   border-bottom: none; 
@@ -540,6 +564,23 @@
   font-size: 11px; 
   color: #a0b0cc; 
   margin-top: 6px; 
+}
+
+.empty-state {
+  padding: 24px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.dashboard-error {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  border-radius: 10px;
+  background: rgba(185, 28, 28, 0.06);
+  color: #b91c1c;
+  font-size: 14px;
+}
 }
 
 /* Responsive */

@@ -101,6 +101,11 @@
   position: relative;
 }
 
+.modal-icon-wrap svg {
+  width: 28px;
+  height: 28px;
+}
+
 .modal-icon-wrap::after {
   content: '';
   position: absolute;
@@ -151,6 +156,11 @@
   transition: background 0.15s, color 0.15s;
   line-height: 1;
   padding: 0;
+}
+
+.modal-close svg {
+  width: 16px;
+  height: 16px;
 }
 
 .modal-close:hover {

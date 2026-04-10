@@ -12,6 +12,7 @@ import AdminVerificationPage from './pages/AdminVerificationPage';
 import SubmitRequestPage from './pages/SubmitRequestPage';
 import RequestHistoryPage from './pages/RequestHistoryPage';
 import OfficerRequestQueuePage from './pages/OfficerRequestQueuePage';
+import ResidentProfilePage from './pages/ResidentProfilePage';
 import './App.css';
 
 function AppRoutes() {
@@ -73,6 +74,17 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={[USER_ROLES.RESIDENT]} allowedStatuses={['APPROVED']}>
             <RequestHistoryPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute
+            allowedRoles={[USER_ROLES.RESIDENT]}
+            allowedStatuses={['PENDING_VERIFICATION', 'REJECTED', 'APPROVED']}
+          >
+            <ResidentProfilePage />
           </ProtectedRoute>
         }
       />
