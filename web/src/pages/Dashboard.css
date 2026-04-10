@@ -164,7 +164,7 @@
 }
 
 /* ===== MAIN ===== */
-.main {
+.dashboard-main {
   margin-left: var(--sidebar-w);
   flex: 1;
   display: flex;
@@ -173,7 +173,7 @@
 }
 
 /* Header */
-.header {
+.dashboard-header {
   height: var(--header-h);
   background: var(--white);
   border-bottom: 1px solid var(--border);
@@ -186,19 +186,19 @@
   z-index: 50;
 }
 
-.header-title { 
+.dashboard-header-title { 
   font-size: 18px; 
   font-weight: 700; 
   color: var(--text-dark); 
 }
 
-.header-breadcrumb { 
+.dashboard-header-breadcrumb { 
   font-size: 13px; 
   color: var(--text-muted); 
   margin-top: 1px; 
 }
 
-.header-right { 
+.dashboard-header-right { 
   margin-left: auto; 
   display: flex; 
   align-items: center; 
@@ -215,7 +215,7 @@
   align-items: center; 
   justify-content: center;
   font-size: 18px;
-    position: relative;
+  position: relative;
 }
 
 button.notif-btn {
@@ -251,7 +251,7 @@ button.notif-btn {
 }
 
 /* ===== CONTENT ===== */
-.content { 
+.dashboard-content { 
   padding: 32px; 
 }
 
@@ -444,6 +444,7 @@ button.notif-btn {
 
 .req-item-button:hover {
   background: var(--blue-light);
+}
 
 .req-item:last-child { 
   border-bottom: none; 
@@ -581,7 +582,6 @@ button.notif-btn {
   color: #b91c1c;
   font-size: 14px;
 }
-}
 
 /* Responsive */
 @media (max-width: 1200px) {
@@ -599,7 +599,7 @@ button.notif-btn {
     width: 80px;
   }
   
-  .main {
+  .dashboard-main {
     margin-left: 80px;
   }
   

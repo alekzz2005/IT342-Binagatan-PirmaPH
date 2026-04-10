@@ -57,7 +57,7 @@ function AppRoutes() {
         path="/dashboard/officer"
         element={
           <ProtectedRoute allowedRoles={[USER_ROLES.OFFICER]} allowedStatuses={['PENDING_VERIFICATION', 'REJECTED', 'APPROVED']}>
-            <Dashboard />
+            <OfficerRequestQueuePage />
           </ProtectedRoute>
         }
       />

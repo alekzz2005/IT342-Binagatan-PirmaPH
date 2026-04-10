@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getDashboardPathByRole, isApprovedUser } from '../utils/rbac';
+import { getDashboardPathByRole, isApprovedUser, normalizeRole } from '../utils/rbac';
 
 const ProtectedRoute = ({ children, allowedRoles = [], allowedStatuses = ['APPROVED'] }) => {
   const { isAuthenticated, loading, user } = useAuth();
@@ -29,8 +29,11 @@ const ProtectedRoute = ({ children, allowedRoles = [], allowedStatuses = ['APPRO
     return <Navigate to="/" replace />;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
-    return <Navigate to={getDashboardPathByRole(user?.role)} replace />;
+  const currentRole = normalizeRole(user?.role);
+  const normalizedAllowedRoles = allowedRoles.map((role) => normalizeRole(role));
+
+  if (normalizedAllowedRoles.length > 0 && !normalizedAllowedRoles.includes(currentRole)) {
+    return <Navigate to={getDashboardPathByRole(currentRole)} replace />;
   }
 
   return children;

@@ -22,9 +22,9 @@
   box-sizing: border-box;
 }
 
-.submit-request-shell button,
-.submit-request-shell select,
-.submit-request-shell textarea {
+.submit-request-shell .main button,
+.submit-request-shell .main select,
+.submit-request-shell .main textarea {
   font: inherit;
 }
 
@@ -542,8 +542,8 @@
   gap: 12px;
 }
 
-.btn-secondary,
-.btn-primary {
+.submit-row .btn-secondary,
+.submit-row .btn-primary {
   padding: 12px 24px;
   border-radius: 10px;
   cursor: pointer;
@@ -551,9 +551,11 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  width: auto;
+  flex: 0 0 auto;
 }
 
-.btn-secondary {
+.submit-row .btn-secondary {
   border: 1.5px solid var(--border);
   background: var(--white);
   color: var(--text-muted);
@@ -561,17 +563,17 @@
   font-weight: 600;
 }
 
-.btn-primary {
+.submit-row .btn-primary {
   position: relative;
   border: 0;
   background: var(--blue);
   color: var(--white);
-  padding: 12px 32px;
+  padding: 12px 24px;
   font-size: 14px;
   font-weight: 700;
 }
 
-.btn-primary::after {
+.submit-row .btn-primary::after {
   content: '';
   position: absolute;
   left: 0;
@@ -582,7 +584,7 @@
   background: var(--red);
 }
 
-.btn-primary:disabled {
+.submit-row .btn-primary:disabled {
   opacity: 0.75;
   cursor: progress;
 }

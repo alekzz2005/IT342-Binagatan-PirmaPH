@@ -215,7 +215,7 @@ public class DocumentRequestService {
     private DocumentRequestFile uploadFile(DocumentRequest request, User actor, MultipartFile file, DocumentFileType fileType) {
         validateFile(file);
 
-        String bucket = "documents";
+        String bucket = supabaseStorageService.resolveBucket("PROFILE_PHOTO");
         String objectPath = request.getBarangayCode() + "/"
                 + request.getResidentUserId() + "/"
                 + request.getId() + "/"

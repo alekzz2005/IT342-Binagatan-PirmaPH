@@ -19,8 +19,22 @@ const ROLE_TO_DASHBOARD_PATH = {
   [USER_ROLES.SUPER_ADMIN]: '/dashboard/super-admin',
 };
 
+export function normalizeRole(role) {
+  if (!role || typeof role !== 'string') {
+    return USER_ROLES.RESIDENT;
+  }
+
+  const normalized = role.toUpperCase().replace(/^ROLE_/, '');
+
+  if (Object.values(USER_ROLES).includes(normalized)) {
+    return normalized;
+  }
+
+  return USER_ROLES.RESIDENT;
+}
+
 export function getDashboardPathByRole(role) {
-  return ROLE_TO_DASHBOARD_PATH[role] || '/dashboard/resident';
+  return ROLE_TO_DASHBOARD_PATH[normalizeRole(role)] || '/dashboard/resident';
 }
 
 export function getLandingPathForUser(user) {
@@ -28,11 +42,13 @@ export function getLandingPathForUser(user) {
     return '/';
   }
 
-  if (user.role === USER_ROLES.RESIDENT && (user.status === USER_STATUS.PENDING_VERIFICATION || user.status === USER_STATUS.REJECTED)) {
+  const normalizedRole = normalizeRole(user.role);
+
+  if (normalizedRole === USER_ROLES.RESIDENT && (user.status === USER_STATUS.PENDING_VERIFICATION || user.status === USER_STATUS.REJECTED)) {
     return '/dashboard/pending';
   }
 
-  return getDashboardPathByRole(user.role);
+  return getDashboardPathByRole(normalizedRole);
 }
 
 export function isApprovedUser(user) {

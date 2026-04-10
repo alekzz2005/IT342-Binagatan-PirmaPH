@@ -1,157 +1,568 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import apiService from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
+import OfficerVerificationPanel from '../components/OfficerVerificationPanel';
 import './OfficerRequestQueuePage.css';
 
-const STATUSES = ['SUBMITTED', 'UNDER_REVIEW', 'APPROVED', 'DECLINED'];
+const STATUS = {
+  SUBMITTED: 'SUBMITTED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  APPROVED: 'APPROVED',
+  DECLINED: 'DECLINED',
+  READY_FOR_RELEASE: 'READY_FOR_RELEASE',
+};
+
+const FILTERS = {
+  ALL: 'ALL',
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  READY: 'READY',
+};
+
+const QUEUE_STATUSES = [STATUS.SUBMITTED, STATUS.UNDER_REVIEW, STATUS.APPROVED, STATUS.DECLINED, STATUS.READY_FOR_RELEASE];
+
+const DOCUMENT_LABELS = {
+  BARANGAY_CLEARANCE: 'Brgy. Clearance',
+  CERTIFICATE_OF_RESIDENCY: 'Cert. of Residency',
+  CERTIFICATE_OF_INDIGENCY: 'Cert. of Indigency',
+  BUSINESS_CLEARANCE: 'Business Clearance',
+  CERTIFICATE_OF_GOOD_MORAL: 'Cert. of Good Moral',
+  BARANGAY_ID: 'Brgy. ID',
+};
+
+const STATUS_LABELS = {
+  [STATUS.SUBMITTED]: 'Pending',
+  [STATUS.UNDER_REVIEW]: 'Pending',
+  [STATUS.APPROVED]: 'Approved',
+  [STATUS.DECLINED]: 'Rejected',
+  [STATUS.READY_FOR_RELEASE]: 'For Release',
+};
+
+const STATUS_BADGE_CLASS = {
+  [STATUS.SUBMITTED]: 'sb-pending',
+  [STATUS.UNDER_REVIEW]: 'sb-pending',
+  [STATUS.APPROVED]: 'sb-approved',
+  [STATUS.DECLINED]: 'sb-rejected',
+  [STATUS.READY_FOR_RELEASE]: 'sb-ready',
+};
+
+const isPendingStatus = (status) => status === STATUS.SUBMITTED || status === STATUS.UNDER_REVIEW;
+
+const getDocumentLabel = (documentType) => DOCUMENT_LABELS[documentType] || documentType || 'Unknown Document';
+
+const formatDate = (value) => {
+  if (!value) {
+    return 'N/A';
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value));
+};
+
+const getRequestNumber = (id) => {
+  if (!id) {
+    return 'REQ-000';
+  }
+
+  const compact = String(id).replace(/-/g, '').slice(-3).toUpperCase();
+  return `REQ-${compact}`;
+};
+
+const getDisplayName = (request) => {
+  const fallback = `Resident ${String(request.residentUserId || '').slice(0, 8) || 'Unknown'}`;
+  return request.residentFullName || fallback;
+};
+
+const getDisplayEmail = (request) => {
+  return request.residentEmail || `ID: ${String(request.residentUserId || '').slice(0, 12) || 'N/A'}`;
+};
+
+const matchesFilter = (request, activeFilter) => {
+  switch (activeFilter) {
+    case FILTERS.PENDING:
+      return isPendingStatus(request.status);
+    case FILTERS.APPROVED:
+      return request.status === STATUS.APPROVED;
+    case FILTERS.REJECTED:
+      return request.status === STATUS.DECLINED;
+    case FILTERS.READY:
+      return request.status === STATUS.READY_FOR_RELEASE;
+    case FILTERS.ALL:
+    default:
+      return true;
+  }
+};
+
+const sortRequests = (requests, sortBy) => {
+  const sorted = [...requests];
+
+  if (sortBy === 'oldest') {
+    sorted.sort((a, b) => new Date(a.requestTimestamp) - new Date(b.requestTimestamp));
+    return sorted;
+  }
+
+  if (sortBy === 'status') {
+    sorted.sort((a, b) => String(a.status || '').localeCompare(String(b.status || '')));
+    return sorted;
+  }
+
+  if (sortBy === 'document') {
+    sorted.sort((a, b) => getDocumentLabel(a.documentType).localeCompare(getDocumentLabel(b.documentType)));
+    return sorted;
+  }
+
+  sorted.sort((a, b) => new Date(b.requestTimestamp) - new Date(a.requestTimestamp));
+  return sorted;
+};
 
 export default function OfficerRequestQueuePage() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const { showModal } = useModal();
 
-  const [filter, setFilter] = useState('SUBMITTED');
-  const [queue, setQueue] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [requests, setRequests] = useState([]);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [activeFilter, setActiveFilter] = useState(FILTERS.ALL);
+  const [sortBy, setSortBy] = useState('newest');
+  const [query, setQuery] = useState('');
   const [remarks, setRemarks] = useState('');
-  const [generatedFile, setGeneratedFile] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const load = async () => {
+  const isOfficerApproved = user?.status === 'APPROVED';
+
+  const loadQueue = async () => {
+    setLoading(true);
     setError('');
+
     try {
-      const data = await apiService.getOfficerRequestQueue(filter);
-      setQueue(data);
-      if (data.length) {
-        setSelected(data[0]);
-      } else {
-        setSelected(null);
+      const queueResults = await Promise.all(QUEUE_STATUSES.map((status) => apiService.getOfficerRequestQueue(status)));
+      const merged = queueResults.flat().filter(Boolean);
+
+      const deduped = merged.reduce((acc, item) => {
+        if (!acc.some((existing) => existing.id === item.id)) {
+          acc.push(item);
+        }
+        return acc;
+      }, []);
+
+      setRequests(deduped);
+
+      if (deduped.length > 0 && !deduped.some((item) => item.id === selectedRequestId)) {
+        setSelectedRequestId(deduped[0].id);
       }
-    } catch (e) {
-      setError(e.message || 'Unable to load queue');
+    } catch (queueError) {
+      setError(queueError.message || 'Unable to load officer requests');
+      setRequests([]);
+      setSelectedRequestId(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
-  }, [filter]);
+    if (!isOfficerApproved) {
+      setLoading(false);
+      setRequests([]);
+      return;
+    }
 
-  const selectedDetails = useMemo(() => selected || null, [selected]);
+    loadQueue();
+  }, [isOfficerApproved]);
 
-  const changeStatus = async (status) => {
-    if (!selectedDetails) return;
+  const counts = useMemo(() => {
+    return requests.reduce((summary, request) => {
+      summary.total += 1;
+
+      if (isPendingStatus(request.status)) {
+        summary.pending += 1;
+      }
+
+      if (request.status === STATUS.APPROVED) {
+        summary.approved += 1;
+      }
+
+      if (request.status === STATUS.DECLINED) {
+        summary.rejected += 1;
+      }
+
+      if (request.status === STATUS.READY_FOR_RELEASE) {
+        summary.ready += 1;
+      }
+
+      return summary;
+    }, { total: 0, pending: 0, approved: 0, rejected: 0, ready: 0 });
+  }, [requests]);
+
+  const visibleRequests = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    const filtered = requests.filter((request) => {
+      if (!matchesFilter(request, activeFilter)) {
+        return false;
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      const searchBlob = [
+        getRequestNumber(request.id),
+        getDisplayName(request),
+        getDisplayEmail(request),
+        getDocumentLabel(request.documentType),
+        request.purpose,
+      ].join(' ').toLowerCase();
+
+      return searchBlob.includes(normalizedQuery);
+    });
+
+    return sortRequests(filtered, sortBy);
+  }, [requests, activeFilter, query, sortBy]);
+
+  const selectedRequest = useMemo(() => {
+    if (!visibleRequests.length) {
+      return null;
+    }
+
+    return visibleRequests.find((request) => request.id === selectedRequestId) || visibleRequests[0];
+  }, [visibleRequests, selectedRequestId]);
+
+  useEffect(() => {
+    if (selectedRequest && selectedRequest.id !== selectedRequestId) {
+      setSelectedRequestId(selectedRequest.id);
+    }
+  }, [selectedRequest, selectedRequestId]);
+
+  useEffect(() => {
+    setRemarks(selectedRequest?.officerRemarks || '');
+  }, [selectedRequest?.id]);
+
+  const updateStatus = async (nextStatus) => {
+    if (!selectedRequest) {
+      return;
+    }
+
+    if (nextStatus === STATUS.DECLINED && !remarks.trim()) {
+      setError('Remarks are required when rejecting a request.');
+      return;
+    }
+
+    setError('');
+
     try {
-      await apiService.updateOfficerRequestStatus(selectedDetails.id, { status, remarks });
+      await apiService.updateOfficerRequestStatus(selectedRequest.id, {
+        status: nextStatus,
+        remarks,
+      });
+
+      await loadQueue();
+
       showModal({
         context: 'success',
-        title: 'Status Updated',
-        message: `Request moved to ${status}.`,
-        showCancel: false,
+        title: 'Request Updated',
+        message: `Request ${getRequestNumber(selectedRequest.id)} moved to ${STATUS_LABELS[nextStatus] || nextStatus}.`,
         confirmText: 'OK',
+        showCancel: false,
       });
-      setRemarks('');
-      await load();
-    } catch (e) {
-      setError(e.message || 'Unable to update status');
+    } catch (updateError) {
+      setError(updateError.message || 'Unable to update request status');
     }
   };
 
-  const uploadGenerated = async () => {
-    if (!selectedDetails || !generatedFile) return;
-    try {
-      await apiService.uploadGeneratedRequestDocument(selectedDetails.id, generatedFile);
-      showModal({
-        context: 'success',
-        title: 'Generated Document Uploaded',
-        message: 'The signed/generated document is now attached to this request.',
-        showCancel: false,
-        confirmText: 'OK',
-      });
-      setGeneratedFile(null);
-      await load();
-    } catch (e) {
-      setError(e.message || 'Unable to upload generated document');
-    }
+  const markReady = () => {
+    showModal({
+      context: 'info',
+      title: 'Ready For Release',
+      message: 'This action is reserved for a future workflow and is not enabled by the backend yet.',
+      confirmText: 'OK',
+      showCancel: false,
+    });
   };
+
+  const handleLogout = () => {
+    showModal({
+      context: 'confirmation',
+      title: 'Confirm Logout',
+      message: 'Are you sure you want to log out from the officer panel?',
+      confirmText: 'Yes, Logout',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        logout();
+        navigate('/');
+      },
+    });
+  };
+
+  if (!isOfficerApproved) {
+    return (
+      <div className="officer-panel-shell">
+        <aside className="sidebar">
+          <div className="sidebar-top">
+            <div className="brand">Pirma<span>PH</span></div>
+            <div className="brand-sub">Barangay Digital Services</div>
+            <div className="officer-badge">Officer Panel</div>
+          </div>
+        </aside>
+
+        <div className="main">
+          <header className="header">
+            <div className="header-title">Officer Dashboard</div>
+          </header>
+          <div className="content onboarding-content">
+            <OfficerVerificationPanel user={user} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="officer-queue-page">
-      <header>
-        <button onClick={() => navigate('/dashboard/officer')}><ArrowLeft size={16} strokeWidth={2} /> Back</button>
-        <h1>Officer Request Queue</h1>
-      </header>
+    <div className="officer-panel-shell">
+      <aside className="sidebar">
+        <div className="sidebar-top">
+          <div className="brand">Pirma<span>PH</span></div>
+          <div className="brand-sub">Barangay Digital Services</div>
+          <div className="officer-badge">Officer Panel</div>
+        </div>
 
-      <div className="filter-row">
-        {STATUSES.map((status) => (
-          <button
-            key={status}
-            className={filter === status ? 'active' : ''}
-            onClick={() => setFilter(status)}
-          >
-            {status}
-          </button>
-        ))}
-      </div>
+        <span className="nav-section-label">Management</span>
+        <button type="button" className="nav-item active">
+          <span className="nav-icon">📋</span>
+          <span>Requests</span>
+          <span className="nav-badge">{counts.pending}</span>
+        </button>
 
-      {error && <div className="error-text">{error}</div>}
+        <span className="nav-section-label">Quick Actions</span>
+        <button type="button" className="nav-item" onClick={() => navigate('/dashboard/officer')}>
+          <span className="nav-icon">📊</span>
+          <span>Refresh</span>
+        </button>
 
-      <div className="queue-layout">
-        <section className="queue-list">
-          <h3>Requests ({queue.length})</h3>
-          {queue.map((request) => (
-            <button
-              key={request.id}
-              className={`queue-item ${selectedDetails?.id === request.id ? 'selected' : ''}`}
-              onClick={() => setSelected(request)}
-            >
-              <strong>{request.documentType}</strong>
-              <span>{request.purpose}</span>
-              <small>{new Date(request.requestTimestamp).toLocaleString()}</small>
+        <div className="sidebar-footer">
+          <div className="user-card">
+            <div className="user-avatar">{String(user?.firstName || 'O').slice(0, 1).toUpperCase()}{String(user?.lastName || 'F').slice(0, 1).toUpperCase()}</div>
+            <div className="user-info">
+              <h4>{[user?.firstName, user?.lastName].filter(Boolean).join(' ') || 'Barangay Officer'}</h4>
+              <p>Barangay Officer</p>
+            </div>
+            <button type="button" className="logout-btn" onClick={handleLogout} title="Logout">
+              <LogOut size={16} strokeWidth={2} />
             </button>
-          ))}
-          {queue.length === 0 && <div className="empty">No requests in this status.</div>}
-        </section>
+          </div>
+        </div>
+      </aside>
 
-        <section className="queue-detail">
-          {!selectedDetails && <div>Select a request to review.</div>}
-
-          {selectedDetails && (
-            <>
-              <h3>{selectedDetails.documentType}</h3>
-              <p><strong>Purpose:</strong> {selectedDetails.purpose}</p>
-              <p><strong>Status:</strong> {selectedDetails.status}</p>
-              <p><strong>Submitted:</strong> {new Date(selectedDetails.requestTimestamp).toLocaleString()}</p>
-              <p><strong>Remarks:</strong> {selectedDetails.officerRemarks || 'None'}</p>
-
-              <div className="files-box">
-                <strong>Attachments</strong>
-                {(selectedDetails.files || []).map((file) => (
-                  <a key={file.id} href={file.signedUrl} target="_blank" rel="noreferrer">{file.originalFileName} ({file.fileType})</a>
-                ))}
-                {(selectedDetails.files || []).length === 0 && <span>No files attached.</span>}
-              </div>
-
-              <textarea
-                placeholder="Remarks (required when declining)"
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
+      <div className="main">
+        <header className="header">
+          <div className="header-title">Request Management</div>
+          <div className="header-right">
+            <div className="search-box">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                placeholder="Search by name, request ID..."
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
               />
+            </div>
+            <button type="button" className="btn-export" onClick={loadQueue}>
+              Refresh
+            </button>
+          </div>
+        </header>
 
-              <div className="action-row">
-                <button onClick={() => changeStatus('UNDER_REVIEW')}>Mark Under Review</button>
-                <button onClick={() => changeStatus('APPROVED')} className="approve">Approve</button>
-                <button onClick={() => changeStatus('DECLINED')} className="decline">Decline</button>
-              </div>
+        <div className="content">
+          <div className="stats-row">
+            <div className="stat-card total">
+              <div className="stat-label">Total Requests</div>
+              <div className="stat-value">{counts.total}</div>
+              <div className="stat-icon">📋</div>
+            </div>
+            <div className="stat-card pending">
+              <div className="stat-label">Pending</div>
+              <div className="stat-value">{counts.pending}</div>
+              <div className="stat-icon">⏳</div>
+            </div>
+            <div className="stat-card approved">
+              <div className="stat-label">Approved</div>
+              <div className="stat-value">{counts.approved}</div>
+              <div className="stat-icon">✅</div>
+            </div>
+            <div className="stat-card rejected">
+              <div className="stat-label">Rejected</div>
+              <div className="stat-value">{counts.rejected}</div>
+              <div className="stat-icon">❌</div>
+            </div>
+            <div className="stat-card ready">
+              <div className="stat-label">For Release</div>
+              <div className="stat-value">{counts.ready}</div>
+              <div className="stat-icon">📦</div>
+            </div>
+          </div>
 
-              <div className="upload-generated">
-                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setGeneratedFile(e.target.files?.[0] || null)} />
-                <button onClick={uploadGenerated} disabled={!generatedFile}>Upload Generated Document</button>
-              </div>
-            </>
-          )}
-        </section>
+          <div className="filters-row">
+            <span className="filter-label">Filter:</span>
+            <button type="button" className={`filter-chip ${activeFilter === FILTERS.ALL ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.ALL)}>
+              All ({counts.total})
+            </button>
+            <button type="button" className={`filter-chip chip-pending ${activeFilter === FILTERS.PENDING ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.PENDING)}>
+              Pending ({counts.pending})
+            </button>
+            <button type="button" className={`filter-chip chip-approved ${activeFilter === FILTERS.APPROVED ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.APPROVED)}>
+              Approved ({counts.approved})
+            </button>
+            <button type="button" className={`filter-chip chip-rejected ${activeFilter === FILTERS.REJECTED ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.REJECTED)}>
+              Rejected ({counts.rejected})
+            </button>
+            <button type="button" className={`filter-chip chip-ready ${activeFilter === FILTERS.READY ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.READY)}>
+              For Release ({counts.ready})
+            </button>
+            <div className="filter-sep"></div>
+            <select className="sort-select" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+              <option value="newest">Sort: Newest First</option>
+              <option value="oldest">Sort: Oldest First</option>
+              <option value="status">Sort: Status</option>
+              <option value="document">Sort: Document Type</option>
+            </select>
+          </div>
+
+          {error && <div className="officer-error">{error}</div>}
+
+          <div className="table-card">
+            <div className="table-header-row">
+              <div className="th">#</div>
+              <div className="th">Resident</div>
+              <div className="th">Document</div>
+              <div className="th">Submitted</div>
+              <div className="th">Purpose</div>
+              <div className="th">Status</div>
+              <div className="th">Actions</div>
+            </div>
+
+            {loading && <div className="table-empty">Loading requests...</div>}
+
+            {!loading && visibleRequests.length === 0 && (
+              <div className="table-empty">No requests found for the current filters.</div>
+            )}
+
+            {!loading && visibleRequests.map((request) => (
+              <button
+                type="button"
+                key={request.id}
+                className={`table-row ${selectedRequest?.id === request.id ? 'selected' : ''}`}
+                onClick={() => setSelectedRequestId(request.id)}
+              >
+                <div className="td req-num">{getRequestNumber(request.id)}</div>
+                <div className="td">
+                  <div className="resident-name">{getDisplayName(request)}</div>
+                  <div className="resident-email">{getDisplayEmail(request)}</div>
+                </div>
+                <div className="td"><span className="doc-tag">{getDocumentLabel(request.documentType)}</span></div>
+                <div className="td date-text">{formatDate(request.requestTimestamp)}</div>
+                <div className="td purpose-text">{request.purpose || 'N/A'}</div>
+                <div className="td">
+                  <span className={`status-badge ${STATUS_BADGE_CLASS[request.status] || 'sb-pending'}`}>
+                    {STATUS_LABELS[request.status] || request.status}
+                  </span>
+                </div>
+                <div className="td actions" onClick={(event) => event.stopPropagation()}>
+                  {isPendingStatus(request.status) && (
+                    <>
+                      <button type="button" className="action-btn ab-approve" onClick={() => { setSelectedRequestId(request.id); updateStatus(STATUS.APPROVED); }}>
+                        Approve
+                      </button>
+                      <button type="button" className="action-btn ab-reject" onClick={() => { setSelectedRequestId(request.id); updateStatus(STATUS.DECLINED); }}>
+                        Reject
+                      </button>
+                    </>
+                  )}
+                  {!isPendingStatus(request.status) && (
+                    <button type="button" className="action-btn ab-view" onClick={() => setSelectedRequestId(request.id)}>
+                      View
+                    </button>
+                  )}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="pagination">
+            <div className="page-info">Showing {visibleRequests.length} of {counts.total} requests</div>
+            <div className="page-btns">
+              <button type="button" className="page-btn current">1</button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {selectedRequest && (
+        <div className="detail-overlay">
+          <div className="detail-header">
+            <div className="detail-title">Request Detail</div>
+            <div className="detail-id">{getRequestNumber(selectedRequest.id)} · {formatDate(selectedRequest.requestTimestamp)}</div>
+            <button type="button" className="close-btn" onClick={() => setSelectedRequestId(null)}>✕</button>
+          </div>
+
+          <div className="detail-body">
+            <div className="detail-section">
+              <div className="detail-section-title">Resident Info</div>
+              <div className="detail-field"><div className="detail-key">Name</div><div className="detail-val">{getDisplayName(selectedRequest)}</div></div>
+              <div className="detail-field"><div className="detail-key">Contact</div><div className="detail-val">{getDisplayEmail(selectedRequest)}</div></div>
+              <div className="detail-field"><div className="detail-key">Barangay</div><div className="detail-val">{selectedRequest.barangayCode || 'N/A'}</div></div>
+            </div>
+
+            <div className="detail-section">
+              <div className="detail-section-title">Request Info</div>
+              <div className="detail-field"><div className="detail-key">Document Type</div><div className="detail-val">{getDocumentLabel(selectedRequest.documentType)}</div></div>
+              <div className="detail-field"><div className="detail-key">Purpose</div><div className="detail-val">{selectedRequest.purpose || 'N/A'}</div></div>
+              <div className="detail-field"><div className="detail-key">Remarks</div><div className="detail-val detail-muted">{selectedRequest.additionalDetails || 'No additional details provided.'}</div></div>
+              <div className="detail-field"><div className="detail-key">Status</div><div className="detail-val"><span className={`status-badge ${STATUS_BADGE_CLASS[selectedRequest.status] || 'sb-pending'}`}>{STATUS_LABELS[selectedRequest.status] || selectedRequest.status}</span></div></div>
+            </div>
+
+            <div className="detail-section">
+              <div className="detail-section-title">Submitted Files</div>
+              <div className="id-preview">
+                {(selectedRequest.files || []).length === 0 && <div>No uploaded file found.</div>}
+                {(selectedRequest.files || []).slice(0, 3).map((file) => (
+                  <div key={file.id} className="file-item">
+                    <div className="file-name">{file.originalFileName}</div>
+                    <div className="file-meta">{file.fileType} · {formatDate(file.uploadedAt)}</div>
+                    {file.signedUrl && (
+                      <a href={file.signedUrl} target="_blank" rel="noreferrer" className="file-link">View File</a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="detail-section">
+              <div className="detail-section-title">Officer Remarks</div>
+              <textarea
+                className="remarks-input"
+                placeholder="Add remarks or reason for rejection (required when rejecting)..."
+                value={remarks}
+                onChange={(event) => setRemarks(event.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="detail-footer">
+            <div className="action-row">
+              <button type="button" className="btn-approve" onClick={() => updateStatus(STATUS.APPROVED)}>Approve</button>
+              <button type="button" className="btn-reject" onClick={() => updateStatus(STATUS.DECLINED)}>Reject</button>
+            </div>
+            <button type="button" className="btn-ready" onClick={markReady}>Mark as Ready for Release</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

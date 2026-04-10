@@ -245,13 +245,13 @@ export default function Dashboard() {
     <div className="dashboard-container">
       <ResidentSidebar activeItem="dashboard" />
 
-      <div className="main">
-        <header className="header">
+      <div className="dashboard-main">
+        <header className="dashboard-header">
           <div>
-            <div className="header-title">Dashboard</div>
-            <div className="header-breadcrumb">Welcome back, {user?.firstName || 'Juan'}</div>
+            <div className="dashboard-header-title">Dashboard</div>
+            <div className="dashboard-header-breadcrumb">Welcome back, {user?.firstName || 'Juan'}</div>
           </div>
-          <div className="header-right">
+          <div className="dashboard-header-right">
             <div className="header-flag" aria-hidden="true">
               <div className="hf-blue"></div>
               <div className="hf-red"></div>
@@ -263,7 +263,7 @@ export default function Dashboard() {
           </div>
         </header>
 
-        <div className="content">
+        <div className="dashboard-content">
           <div className="flag-banner">
             <div className="banner-text">
               <h2><Sunrise size={20} strokeWidth={2} /> {getGreeting()}, {user?.firstName || 'Juan'}!</h2>
