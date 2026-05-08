@@ -1,0 +1,750 @@
+.barangay-admin-officer-monitoring {
+  --blue: #0038a8;
+  --blue-mid: #1a50c8;
+  --blue-light: #eef2fc;
+  --blue-dark: #002880;
+  --red: #ce1126;
+  --red-light: #fdf0f2;
+  --gold: #fcd116;
+  --gold-light: #fffbea;
+  --green: #10b981;
+  --green-light: #ecfdf5;
+  --orange: #f59e0b;
+  --orange-light: #fffbeb;
+  --white: #ffffff;
+  --text-dark: #0a1a3a;
+  --text-muted: #5a6a8a;
+  --border: #d0d8f0;
+  --bg: #f4f6fb;
+  --sidebar-w: 268px;
+  --admin: #1e3a6e;
+  --admin-light: #e8edf8;
+
+  min-height: 100vh;
+  display: flex;
+  background: var(--bg);
+  color: var(--text-dark);
+  font-family: 'Source Sans 3', sans-serif;
+}
+
+.barangay-admin-officer-monitoring *,
+.barangay-admin-officer-monitoring *::before,
+.barangay-admin-officer-monitoring *::after {
+  box-sizing: border-box;
+}
+
+.barangay-admin-officer-monitoring .sidebar {
+  width: var(--sidebar-w);
+  background: var(--admin);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.barangay-admin-officer-monitoring .sidebar-top {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+.barangay-admin-officer-monitoring .sidebar-top::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--red));
+}
+
+.barangay-admin-officer-monitoring .brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 25px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.barangay-admin-officer-monitoring .brand span {
+  color: var(--gold);
+}
+
+.barangay-admin-officer-monitoring .brand-sub {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.barangay-admin-officer-monitoring .role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(252, 209, 22, 0.15);
+  border: 1px solid rgba(252, 209, 22, 0.35);
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-top: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.barangay-admin-officer-monitoring .scope-note {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.barangay-admin-officer-monitoring .scope-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+}
+
+.barangay-admin-officer-monitoring .nav-section {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  padding: 18px 20px 7px;
+}
+
+.barangay-admin-officer-monitoring .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 20px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  transition: background 0.14s, color 0.14s;
+  border: none;
+  background: transparent;
+}
+
+.barangay-admin-officer-monitoring .nav-item.nav-button {
+  width: 100%;
+  text-align: left;
+}
+
+.barangay-admin-officer-monitoring .nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.barangay-admin-officer-monitoring .nav-item.active {
+  background: rgba(252, 209, 22, 0.1);
+  color: var(--gold);
+  border-left-color: var(--gold);
+}
+
+.barangay-admin-officer-monitoring .nav-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.barangay-admin-officer-monitoring .nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.barangay-admin-officer-monitoring .sidebar-footer {
+  margin-top: auto;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.barangay-admin-officer-monitoring .user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.barangay-admin-officer-monitoring .user-av {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--admin);
+  flex-shrink: 0;
+}
+
+.barangay-admin-officer-monitoring .user-info h4 {
+  font-size: 13px;
+  color: #fff;
+  font-weight: 600;
+}
+
+.barangay-admin-officer-monitoring .user-info p {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.38);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 1px;
+}
+
+.barangay-admin-officer-monitoring .logout-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.barangay-admin-officer-monitoring .main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.barangay-admin-officer-monitoring .header {
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.barangay-admin-officer-monitoring .header-left {
+  flex: 1;
+}
+
+.barangay-admin-officer-monitoring .header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.barangay-admin-officer-monitoring .header-crumb {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.barangay-admin-officer-monitoring .header-crumb span {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.barangay-admin-officer-monitoring .header-right {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.barangay-admin-officer-monitoring .hdr-flag {
+  display: flex;
+  height: 20px;
+  width: 34px;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+.barangay-admin-officer-monitoring .hf-b {
+  flex: 1;
+  background: var(--blue);
+}
+
+.barangay-admin-officer-monitoring .hf-r {
+  flex: 1;
+  background: var(--red);
+}
+
+.barangay-admin-officer-monitoring .hdr-notif {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  position: relative;
+}
+
+.barangay-admin-officer-monitoring .ndot {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  width: 7px;
+  height: 7px;
+  background: var(--red);
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+}
+
+.barangay-admin-officer-monitoring .content {
+  padding: 26px 30px 50px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.barangay-admin-officer-monitoring .dashboard-error {
+  background: #fff4f4;
+  border: 1px solid #f3c7ca;
+  color: #9f1239;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.barangay-admin-officer-monitoring .dashboard-error button {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.barangay-admin-officer-monitoring .section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.barangay-admin-officer-monitoring .officers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.barangay-admin-officer-monitoring .oc {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.14s, border-color 0.14s;
+}
+
+.barangay-admin-officer-monitoring .oc:hover {
+  box-shadow: 0 6px 22px rgba(0, 56, 168, 0.09);
+}
+
+.barangay-admin-officer-monitoring .oc-flagged {
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.barangay-admin-officer-monitoring .oc-header {
+  background: var(--admin);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.barangay-admin-officer-monitoring .oc-header-flagged {
+  background: #7a3010;
+}
+
+.barangay-admin-officer-monitoring .oc-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--red));
+}
+
+.barangay-admin-officer-monitoring .oc-av {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--admin);
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.barangay-admin-officer-monitoring .oc-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.barangay-admin-officer-monitoring .oc-pos {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 1px;
+}
+
+.barangay-admin-officer-monitoring .online-badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.barangay-admin-officer-monitoring .online-badge.ob-online {
+  color: #86efac;
+}
+
+.barangay-admin-officer-monitoring .online-badge.ob-offline {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.barangay-admin-officer-monitoring .online-badge.ob-flagged {
+  background: rgba(245, 158, 11, 0.2);
+  border-radius: 6px;
+  padding: 2px 7px;
+  color: var(--orange);
+}
+
+.barangay-admin-officer-monitoring .ob-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.barangay-admin-officer-monitoring .ob-online {
+  background: var(--green);
+}
+
+.barangay-admin-officer-monitoring .ob-offline {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.barangay-admin-officer-monitoring .ob-flagged {
+  background: var(--orange);
+}
+
+.barangay-admin-officer-monitoring .oc-body {
+  padding: 16px 18px;
+}
+
+.barangay-admin-officer-monitoring .flag-warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  padding: 9px 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #b45309;
+}
+
+.barangay-admin-officer-monitoring .oc-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.barangay-admin-officer-monitoring .ocs {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.barangay-admin-officer-monitoring .ocs-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.barangay-admin-officer-monitoring .ocs-lbl {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.barangay-admin-officer-monitoring .activity-mini {
+  margin-bottom: 12px;
+}
+
+.barangay-admin-officer-monitoring .am-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.barangay-admin-officer-monitoring .am-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 12px;
+  color: var(--text-dark);
+}
+
+.barangay-admin-officer-monitoring .am-item:last-child {
+  border-bottom: none;
+}
+
+.barangay-admin-officer-monitoring .am-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.barangay-admin-officer-monitoring .am-time {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+.barangay-admin-officer-monitoring .oc-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.barangay-admin-officer-monitoring .ocbtn {
+  flex: 1;
+  padding: 8px;
+  border-radius: 9px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.barangay-admin-officer-monitoring .ocb-view {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+.barangay-admin-officer-monitoring .ocb-intervene {
+  background: var(--gold-light);
+  color: #8a6000;
+  border: 1px solid rgba(252, 209, 22, 0.4);
+}
+
+.barangay-admin-officer-monitoring .ocb-revoke {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.barangay-admin-officer-monitoring .ocbtn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.barangay-admin-officer-monitoring .table-card {
+  background: #fff;
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.barangay-admin-officer-monitoring .table-head {
+  display: grid;
+  grid-template-columns: 150px 130px 1fr 120px 100px 80px;
+  padding: 10px 18px;
+  background: var(--blue-light);
+  border-bottom: 1.5px solid var(--border);
+}
+
+.barangay-admin-officer-monitoring .th {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+.barangay-admin-officer-monitoring .table-row {
+  display: grid;
+  grid-template-columns: 150px 130px 1fr 120px 100px 80px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  font-size: 13px;
+}
+
+.barangay-admin-officer-monitoring .table-row:last-child {
+  border-bottom: none;
+}
+
+.barangay-admin-officer-monitoring .table-row:hover {
+  background: #f8faff;
+}
+
+.barangay-admin-officer-monitoring .action-type {
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.barangay-admin-officer-monitoring .at-approve {
+  background: var(--green-light);
+  color: #047857;
+}
+
+.barangay-admin-officer-monitoring .at-reject {
+  background: var(--red-light);
+  color: var(--red);
+}
+
+.barangay-admin-officer-monitoring .at-release {
+  background: var(--blue-light);
+  color: var(--blue);
+}
+
+.barangay-admin-officer-monitoring .table-name-cell {
+  min-width: 0;
+}
+
+.barangay-admin-officer-monitoring .table-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.barangay-admin-officer-monitoring .table-subtle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.barangay-admin-officer-monitoring .request-id-cell {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.barangay-admin-officer-monitoring .table-empty {
+  padding: 16px 18px;
+  color: var(--text-muted);
+  font-size: 13px;
+  background: #fff;
+}
+
+@media (max-width: 1200px) {
+  .barangay-admin-officer-monitoring .officers-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .barangay-admin-officer-monitoring .table-head,
+  .barangay-admin-officer-monitoring .table-row {
+    grid-template-columns: 140px 120px 1fr 110px 90px 70px;
+  }
+}
+
+@media (max-width: 960px) {
+  .barangay-admin-officer-monitoring {
+    flex-direction: column;
+  }
+
+  .barangay-admin-officer-monitoring .sidebar {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+  }
+
+  .barangay-admin-officer-monitoring .main {
+    margin-left: 0;
+  }
+
+  .barangay-admin-officer-monitoring .officers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .barangay-admin-officer-monitoring .table-head,
+  .barangay-admin-officer-monitoring .table-row {
+    grid-template-columns: 140px 120px 1fr 110px 90px 70px;
+    min-width: 760px;
+  }
+
+  .barangay-admin-officer-monitoring .table-card {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .barangay-admin-officer-monitoring .header,
+  .barangay-admin-officer-monitoring .content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .barangay-admin-officer-monitoring .oc-actions {
+    flex-direction: column;
+  }
+}
