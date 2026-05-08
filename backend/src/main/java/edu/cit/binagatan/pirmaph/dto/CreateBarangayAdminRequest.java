@@ -4,8 +4,8 @@ import jakarta.validation.constraints.*;
 
 public class CreateBarangayAdminRequest {
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 4, max = 50)
+    @Size(max = 50)
+    @Pattern(regexp = "^[a-zA-Z0-9_]*$", message = "Username can only contain letters, numbers, and underscores")
     private String username;
 
     @NotBlank(message = "Email is required")
@@ -13,14 +13,33 @@ public class CreateBarangayAdminRequest {
     private String email;
 
     @NotBlank(message = "Temporary password is required")
-    @Size(min = 8)
+    @Size(min = 8, message = "Temporary password must be at least 8 characters")
+    @Pattern(
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,}$",
+        message = "Temporary password must include upper and lower case letters, a number, and a special character"
+    )
     private String temporaryPassword;
 
     @NotBlank(message = "First name is required")
     private String firstName;
 
+    @Size(max = 50, message = "Middle name must not exceed 50 characters")
+    private String middleName;
+
     @NotBlank(message = "Last name is required")
     private String lastName;
+
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^\\+?[0-9\\s-()]+$", message = "Phone number format is invalid")
+    private String phoneNumber;
+
+    @NotBlank(message = "Region code is required")
+    private String regionCode;
+
+    private String provinceCode;
+
+    @NotBlank(message = "City/Municipality code is required")
+    private String cityMunCode;
 
     @NotBlank(message = "Barangay code is required")
     private String barangayCode;
@@ -31,11 +50,14 @@ public class CreateBarangayAdminRequest {
     @NotBlank(message = "City is required")
     private String city;
 
-    @NotBlank(message = "Province is required")
+    @Size(max = 100, message = "Province must not exceed 100 characters")
     private String province;
 
     @NotBlank(message = "Region is required")
     private String region;
+
+    @Size(max = 20, message = "ZIP code must not exceed 20 characters")
+    private String zipCode;
 
     public String getUsername() {
         return username;
@@ -69,12 +91,52 @@ public class CreateBarangayAdminRequest {
         this.firstName = firstName;
     }
 
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
     public String getLastName() {
         return lastName;
     }
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getRegionCode() {
+        return regionCode;
+    }
+
+    public void setRegionCode(String regionCode) {
+        this.regionCode = regionCode;
+    }
+
+    public String getProvinceCode() {
+        return provinceCode;
+    }
+
+    public void setProvinceCode(String provinceCode) {
+        this.provinceCode = provinceCode;
+    }
+
+    public String getCityMunCode() {
+        return cityMunCode;
+    }
+
+    public void setCityMunCode(String cityMunCode) {
+        this.cityMunCode = cityMunCode;
     }
 
     public String getBarangayCode() {
@@ -115,5 +177,13 @@ public class CreateBarangayAdminRequest {
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
     }
 }

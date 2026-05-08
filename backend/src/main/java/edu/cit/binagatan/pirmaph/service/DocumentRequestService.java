@@ -289,7 +289,7 @@ public class DocumentRequestService {
     }
 
     private void validateOfficerStatusUpdate(DocumentRequestStatus status, String remarks) {
-        if (status == DocumentRequestStatus.PENDING_PAYMENT || status == DocumentRequestStatus.READY_FOR_RELEASE) {
+        if (status == DocumentRequestStatus.PENDING_PAYMENT) {
             throw new IllegalArgumentException("Status is reserved for future sprint workflow");
         }
 
@@ -306,6 +306,11 @@ public class DocumentRequestService {
 
         if (current == DocumentRequestStatus.UNDER_REVIEW &&
                 (next == DocumentRequestStatus.APPROVED || next == DocumentRequestStatus.DECLINED)) {
+            return;
+        }
+
+        if (current == DocumentRequestStatus.APPROVED &&
+                next == DocumentRequestStatus.READY_FOR_RELEASE) {
             return;
         }
 
