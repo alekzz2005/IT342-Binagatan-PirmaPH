@@ -1,5 +1,6 @@
 // API Base URL - Use environment variable with fallback
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_ROOT_URL = API_BASE_URL.replace(/\/api$/, '');
 const OAUTH2_URL = import.meta.env.VITE_OAUTH2_URL || 'http://localhost:8080/oauth2/authorization/google';
 
 import SuccessResponseAdapter from '../adapters/SuccessResponseAdapter';
@@ -18,6 +19,11 @@ class ApiService {
     return standard.data;
   }
 
+  async requestAbsolute(url, options = {}) {
+    const standard = await this.requestStandardAbsolute(url, options);
+    return standard.data;
+  }
+
   async requestStandard(endpoint, options = {}) {
     const token = localStorage.getItem('token');
 
@@ -32,6 +38,46 @@ class ApiService {
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+      const data = await this.parseJsonSafely(response);
+
+      if (!response.ok) {
+        const adaptedError = this.errorAdapter.adapt(response.status, data, 'An error occurred');
+        throw {
+          status: adaptedError.status,
+          message: adaptedError.message,
+          errors: adaptedError.error,
+        };
+      }
+
+      return this.successAdapter.adapt(response.status, data);
+    } catch (error) {
+      if (error.status) {
+        throw error;
+      }
+
+      const adaptedNetworkError = this.errorAdapter.adapt(500, null, 'Network error. Please check your connection.');
+      throw {
+        status: adaptedNetworkError.status,
+        message: adaptedNetworkError.message,
+        errors: adaptedNetworkError.error,
+      };
+    }
+  }
+
+  async requestStandardAbsolute(url, options = {}) {
+    const token = localStorage.getItem('token');
+
+    const config = {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
       const data = await this.parseJsonSafely(response);
 
       if (!response.ok) {
@@ -203,6 +249,10 @@ class ApiService {
     return this.request('/admin/officers');
   }
 
+  async getResidents() {
+    return this.request('/admin/residents');
+  }
+
   async updateUserRole(userId, role) {
     return this.request(`/admin/users/${userId}/role`, {
       method: 'PATCH',
@@ -223,6 +273,26 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  }
+
+  async getBarangayAdminDashboard() {
+    return this.request('/admin/dashboard');
+  }
+  
+  async getSuperAdminDashboard() {
+    return this.request('/admin/super-dashboard');
+  }
+
+  async getActuatorHealth() {
+    return this.requestAbsolute(`${API_ROOT_URL}/actuator/health`);
+  }
+
+  async getActuatorInfo() {
+    return this.requestAbsolute(`${API_ROOT_URL}/actuator/info`);
+  }
+
+  async getActuatorMetric(metricName) {
+    return this.requestAbsolute(`${API_ROOT_URL}/actuator/metrics/${encodeURIComponent(metricName)}`);
   }
 
   async getResidentFilesForReview(userId) {
