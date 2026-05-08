@@ -261,15 +261,30 @@
   padding: 28px;
 }
 
+.officer-panel-shell .officer-queue-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
 .officer-panel-shell .onboarding-content {
   max-width: 980px;
+}
+
+.officer-panel-shell .queue-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+  width: 100%;
 }
 
 .officer-panel-shell .stats-row {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
 }
 
 .officer-panel-shell .stat-card {
@@ -342,8 +357,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
 }
 
 .officer-panel-shell .filter-label {
@@ -420,6 +435,7 @@
   color: var(--text-muted);
   background: white;
   outline: none;
+  flex-shrink: 0;
 }
 
 .officer-panel-shell .officer-error {
@@ -433,6 +449,19 @@
   border-radius: 14px;
   border: 1.5px solid var(--border);
   overflow: hidden;
+  width: 100%;
+}
+
+.officer-panel-shell .officer-queue-content .table-card,
+.officer-panel-shell .officer-queue-content .filters-row,
+.officer-panel-shell .officer-queue-content .pagination {
+  width: 100%;
+}
+
+.officer-panel-shell .request-list-panel {
+  width: 100%;
+  margin-top: 0;
+  align-self: stretch;
 }
 
 .officer-panel-shell .table-header-row,
@@ -817,12 +846,11 @@
 .officer-panel-shell .pagination {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 12px;
   padding: 14px 20px;
   background: var(--white);
-  border: 1.5px solid var(--border);
-  border-radius: 13px;
-  margin-top: 12px;
+  border-top: 1.5px solid var(--border);
 }
 
 .officer-panel-shell .page-info {
@@ -833,6 +861,7 @@
 .officer-panel-shell .page-btns {
   display: flex;
   gap: 6px;
+  margin-left: 0;
 }
 
 .officer-panel-shell .page-btn {
@@ -894,6 +923,10 @@
 
   .officer-panel-shell .stats-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .officer-panel-shell .filters-row {
+    flex-wrap: wrap;
   }
 
   .officer-panel-shell .table-card {

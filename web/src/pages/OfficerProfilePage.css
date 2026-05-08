@@ -1,0 +1,540 @@
+.officer-profile-shell .main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+}
+
+.officer-profile-shell .header {
+  height: 64px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.officer-profile-shell .header-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.officer-profile-shell .header-breadcrumb {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.officer-profile-shell .profile-content {
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.officer-profile-shell .profile-card {
+  background: var(--white);
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  position: sticky;
+  top: 88px;
+}
+
+.officer-profile-shell .profile-cover {
+  height: 80px;
+  background: linear-gradient(135deg, #06093a 0%, #0038a8 50%, #ce1126 100%);
+  position: relative;
+}
+
+.officer-profile-shell .profile-cover::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gold);
+}
+
+.officer-profile-shell .profile-avatar-wrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin-top: -36px;
+  margin-bottom: 12px;
+}
+
+.officer-profile-shell .profile-avatar-big {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 4px solid var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--blue);
+  box-shadow: 0 4px 16px rgba(0, 56, 168, 0.15);
+}
+
+.officer-profile-shell .profile-name {
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.officer-profile-shell .profile-role {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.officer-profile-shell .profile-flag {
+  display: flex;
+  height: 3px;
+  margin: 16px 20px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.officer-profile-shell .pf-blue { flex: 1; background: var(--blue); }
+.officer-profile-shell .pf-red { flex: 1; background: var(--red); }
+.officer-profile-shell .pf-gold { flex: 1; background: var(--gold); }
+
+.officer-profile-shell .profile-info {
+  padding: 0 20px 20px;
+}
+
+.officer-profile-shell .info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.officer-profile-shell .info-row:last-child {
+  border-bottom: none;
+}
+
+.officer-profile-shell .info-icon {
+  width: 24px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.officer-profile-shell .info-key {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.officer-profile-shell .info-val {
+  font-size: 13px;
+  color: var(--text-dark);
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+.officer-profile-shell .edit-profile-btn {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 0 20px 20px;
+  padding: 11px;
+  background: var(--blue-light);
+  color: var(--blue);
+  border: 1.5px solid rgba(0, 56, 168, 0.2);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.officer-profile-shell .right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.officer-profile-shell .section-card {
+  background: var(--white);
+  border-radius: 16px;
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+}
+
+.officer-profile-shell .section-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.officer-profile-shell .section-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--blue), var(--gold));
+}
+
+.officer-profile-shell .section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.officer-profile-shell .section-action {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.officer-profile-shell .section-body {
+  padding: 24px;
+}
+
+.officer-profile-shell .edit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.officer-profile-shell .form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.officer-profile-shell .form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  font-size: 14px;
+  color: var(--text-dark);
+  background: #fafbff;
+  outline: none;
+}
+
+.officer-profile-shell .form-input.readonly {
+  background: #f4f6fb;
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.officer-profile-shell .full-width {
+  grid-column: 1 / -1;
+}
+
+.officer-profile-shell .hist-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.officer-profile-shell .hist-tab {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  background: transparent;
+}
+
+.officer-profile-shell .hist-tab.active {
+  color: var(--blue);
+  border-bottom-color: var(--blue);
+}
+
+.officer-profile-shell .hist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.officer-profile-shell .hist-item:last-child {
+  border-bottom: none;
+}
+
+.officer-profile-shell .hist-item:hover {
+  background: var(--blue-light);
+}
+
+.officer-profile-shell .hist-type-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--blue-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.officer-profile-shell .hist-info {
+  flex: 1;
+}
+
+.officer-profile-shell .hist-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.officer-profile-shell .hist-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.officer-profile-shell .hist-remarks {
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 3px;
+  font-style: italic;
+}
+
+.officer-profile-shell .hist-right {
+  text-align: right;
+}
+
+.officer-profile-shell .req-id {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.5px;
+}
+
+.officer-profile-shell .req-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.officer-profile-shell .status-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.officer-profile-shell .sb-pending { background: rgba(252, 209, 22, 0.18); color: #a07800; }
+.officer-profile-shell .sb-approved { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.officer-profile-shell .sb-rejected { background: rgba(206, 17, 38, 0.1); color: var(--red); }
+.officer-profile-shell .sb-ready { background: rgba(0, 56, 168, 0.1); color: var(--blue); }
+
+.officer-profile-shell .empty-state {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.officer-profile-shell .empty-icon {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.officer-profile-shell .empty-text {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.officer-profile-shell .profile-error {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(185, 28, 28, 0.2);
+  background: rgba(185, 28, 28, 0.06);
+  color: #b91c1c;
+}
+
+.officer-profile-shell .profile-loading {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 56, 168, 0.15);
+  background: rgba(0, 56, 168, 0.06);
+  color: var(--blue);
+}
+
+.officer-profile-shell .security-action-row {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.officer-profile-shell .update-password-btn {
+  padding: 10px 24px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.officer-profile-shell .section-body .card {
+  margin-top: 0 !important;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.officer-profile-shell .section-body .card-header {
+  padding: 0 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.officer-profile-shell .section-body .btn-primary {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  background: var(--blue);
+  color: var(--white);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.officer-profile-shell .mini-stats-card {
+  padding: 16px 20px;
+}
+
+.officer-profile-shell .mini-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.officer-profile-shell .mini-stat-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: #f8faff;
+}
+
+.officer-profile-shell .mini-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.officer-profile-shell .mini-stat-value {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.officer-profile-shell .error-message {
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+@media (max-width: 1260px) {
+  .officer-profile-shell .mini-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .officer-profile-shell .profile-content {
+    grid-template-columns: 1fr;
+  }
+
+  .officer-profile-shell .profile-card {
+    position: static;
+  }
+}
+
+@media (max-width: 1040px) {
+  .officer-profile-shell {
+    display: block;
+  }
+
+  .officer-profile-shell .main {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .officer-profile-shell .header,
+  .officer-profile-shell .profile-content {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .officer-profile-shell .edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .officer-profile-shell .hist-item {
+    flex-direction: column;
+  }
+
+  .officer-profile-shell .hist-right {
+    text-align: left;
+  }
+}

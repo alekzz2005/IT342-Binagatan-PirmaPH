@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import {
+  CheckCircle2,
+  ClipboardList,
+  Home,
+  Hourglass,
+  LogOut,
+  Package,
+  Search,
+  User,
+  XCircle,
+} from 'lucide-react';
 import apiService from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useModal } from '../context/ModalContext';
@@ -129,6 +139,8 @@ export default function OfficerRequestQueuePage() {
 
   const [requests, setRequests] = useState([]);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [selectedRequestDetails, setSelectedRequestDetails] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState(FILTERS.ALL);
   const [sortBy, setSortBy] = useState('newest');
   const [query, setQuery] = useState('');
@@ -155,13 +167,15 @@ export default function OfficerRequestQueuePage() {
 
       setRequests(deduped);
 
-      if (deduped.length > 0 && !deduped.some((item) => item.id === selectedRequestId)) {
-        setSelectedRequestId(deduped[0].id);
+      if (selectedRequestId && !deduped.some((item) => item.id === selectedRequestId)) {
+        setSelectedRequestId(null);
+        setSelectedRequestDetails(null);
       }
     } catch (queueError) {
       setError(queueError.message || 'Unable to load officer requests');
       setRequests([]);
       setSelectedRequestId(null);
+      setSelectedRequestDetails(null);
     } finally {
       setLoading(false);
     }
@@ -228,29 +242,77 @@ export default function OfficerRequestQueuePage() {
   }, [requests, activeFilter, query, sortBy]);
 
   const selectedRequest = useMemo(() => {
-    if (!visibleRequests.length) {
+    if (!selectedRequestId || !visibleRequests.length) {
       return null;
     }
 
-    return visibleRequests.find((request) => request.id === selectedRequestId) || visibleRequests[0];
-  }, [visibleRequests, selectedRequestId]);
+    const selectedFromQueue = visibleRequests.find((request) => request.id === selectedRequestId);
+    if (!selectedFromQueue) {
+      return null;
+    }
+
+    return selectedRequestDetails && selectedRequestDetails.id === selectedRequestId
+      ? selectedRequestDetails
+      : selectedFromQueue;
+  }, [visibleRequests, selectedRequestDetails, selectedRequestId]);
 
   useEffect(() => {
-    if (selectedRequest && selectedRequest.id !== selectedRequestId) {
-      setSelectedRequestId(selectedRequest.id);
+    if (selectedRequestId && !visibleRequests.some((request) => request.id === selectedRequestId)) {
+      setSelectedRequestId(null);
+      setSelectedRequestDetails(null);
     }
-  }, [selectedRequest, selectedRequestId]);
+  }, [selectedRequestId, visibleRequests]);
 
   useEffect(() => {
     setRemarks(selectedRequest?.officerRemarks || '');
   }, [selectedRequest?.id]);
 
-  const updateStatus = async (nextStatus) => {
-    if (!selectedRequest) {
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSelectedRequestDetails = async () => {
+      if (!selectedRequestId) {
+        setSelectedRequestDetails(null);
+        setDetailLoading(false);
+        return;
+      }
+
+      setDetailLoading(true);
+
+      try {
+        const data = await apiService.getOfficerRequestById(selectedRequestId);
+        if (!cancelled) {
+          setSelectedRequestDetails(data || null);
+        }
+      } catch (detailError) {
+        if (!cancelled) {
+          setSelectedRequestDetails(null);
+          setError(detailError.message || 'Unable to load request details');
+        }
+      } finally {
+        if (!cancelled) {
+          setDetailLoading(false);
+        }
+      }
+    };
+
+    loadSelectedRequestDetails();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedRequestId]);
+
+  const updateStatus = async (nextStatus, targetRequest = selectedRequest) => {
+    if (!targetRequest) {
       return;
     }
 
-    if (nextStatus === STATUS.DECLINED && !remarks.trim()) {
+    const requestRemarks = targetRequest.id === selectedRequest?.id
+      ? remarks
+      : (targetRequest.officerRemarks || '');
+
+    if (nextStatus === STATUS.DECLINED && !requestRemarks.trim()) {
       setError('Remarks are required when rejecting a request.');
       return;
     }
@@ -258,17 +320,22 @@ export default function OfficerRequestQueuePage() {
     setError('');
 
     try {
-      await apiService.updateOfficerRequestStatus(selectedRequest.id, {
+      await apiService.updateOfficerRequestStatus(targetRequest.id, {
         status: nextStatus,
-        remarks,
+        remarks: requestRemarks,
       });
 
       await loadQueue();
 
+      if (selectedRequestId === targetRequest.id) {
+        const refreshed = await apiService.getOfficerRequestById(targetRequest.id);
+        setSelectedRequestDetails(refreshed || null);
+      }
+
       showModal({
         context: 'success',
         title: 'Request Updated',
-        message: `Request ${getRequestNumber(selectedRequest.id)} moved to ${STATUS_LABELS[nextStatus] || nextStatus}.`,
+        message: `Request ${getRequestNumber(targetRequest.id)} moved to ${STATUS_LABELS[nextStatus] || nextStatus}.`,
         confirmText: 'OK',
         showCancel: false,
       });
@@ -277,15 +344,7 @@ export default function OfficerRequestQueuePage() {
     }
   };
 
-  const markReady = () => {
-    showModal({
-      context: 'info',
-      title: 'Ready For Release',
-      message: 'This action is reserved for a future workflow and is not enabled by the backend yet.',
-      confirmText: 'OK',
-      showCancel: false,
-    });
-  };
+  const markReady = () => updateStatus(STATUS.READY_FOR_RELEASE);
 
   const handleLogout = () => {
     showModal({
@@ -335,15 +394,13 @@ export default function OfficerRequestQueuePage() {
 
         <span className="nav-section-label">Management</span>
         <button type="button" className="nav-item active">
-          <span className="nav-icon">📋</span>
+          <span className="nav-icon"><ClipboardList size={18} strokeWidth={2} /></span>
           <span>Requests</span>
           <span className="nav-badge">{counts.pending}</span>
         </button>
-
-        <span className="nav-section-label">Quick Actions</span>
-        <button type="button" className="nav-item" onClick={() => navigate('/dashboard/officer')}>
-          <span className="nav-icon">📊</span>
-          <span>Refresh</span>
+        <button type="button" className="nav-item" onClick={() => navigate('/officer/profile')}>
+          <span className="nav-icon"><User size={18} strokeWidth={2} /></span>
+          <span>Profile</span>
         </button>
 
         <div className="sidebar-footer">
@@ -365,7 +422,7 @@ export default function OfficerRequestQueuePage() {
           <div className="header-title">Request Management</div>
           <div className="header-right">
             <div className="search-box">
-              <span className="search-icon">🔍</span>
+              <span className="search-icon"><Search size={16} strokeWidth={2} /></span>
               <input
                 type="text"
                 placeholder="Search by name, request ID..."
@@ -379,64 +436,67 @@ export default function OfficerRequestQueuePage() {
           </div>
         </header>
 
-        <div className="content">
-          <div className="stats-row">
-            <div className="stat-card total">
-              <div className="stat-label">Total Requests</div>
-              <div className="stat-value">{counts.total}</div>
-              <div className="stat-icon">📋</div>
+        <div className="content officer-queue-content">
+          <div className="queue-controls">
+            <div className="stats-row">
+              <div className="stat-card total">
+                <div className="stat-label">Total Requests</div>
+                <div className="stat-value">{counts.total}</div>
+                <div className="stat-icon"><ClipboardList size={22} strokeWidth={2} /></div>
+              </div>
+              <div className="stat-card pending">
+                <div className="stat-label">Pending</div>
+                <div className="stat-value">{counts.pending}</div>
+                <div className="stat-icon"><Hourglass size={22} strokeWidth={2} /></div>
+              </div>
+              <div className="stat-card approved">
+                <div className="stat-label">Approved</div>
+                <div className="stat-value">{counts.approved}</div>
+                <div className="stat-icon"><CheckCircle2 size={22} strokeWidth={2} /></div>
+              </div>
+              <div className="stat-card rejected">
+                <div className="stat-label">Rejected</div>
+                <div className="stat-value">{counts.rejected}</div>
+                <div className="stat-icon"><XCircle size={22} strokeWidth={2} /></div>
+              </div>
+              <div className="stat-card ready">
+                <div className="stat-label">For Release</div>
+                <div className="stat-value">{counts.ready}</div>
+                <div className="stat-icon"><Package size={22} strokeWidth={2} /></div>
+              </div>
             </div>
-            <div className="stat-card pending">
-              <div className="stat-label">Pending</div>
-              <div className="stat-value">{counts.pending}</div>
-              <div className="stat-icon">⏳</div>
-            </div>
-            <div className="stat-card approved">
-              <div className="stat-label">Approved</div>
-              <div className="stat-value">{counts.approved}</div>
-              <div className="stat-icon">✅</div>
-            </div>
-            <div className="stat-card rejected">
-              <div className="stat-label">Rejected</div>
-              <div className="stat-value">{counts.rejected}</div>
-              <div className="stat-icon">❌</div>
-            </div>
-            <div className="stat-card ready">
-              <div className="stat-label">For Release</div>
-              <div className="stat-value">{counts.ready}</div>
-              <div className="stat-icon">📦</div>
-            </div>
-          </div>
 
-          <div className="filters-row">
-            <span className="filter-label">Filter:</span>
-            <button type="button" className={`filter-chip ${activeFilter === FILTERS.ALL ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.ALL)}>
-              All ({counts.total})
-            </button>
-            <button type="button" className={`filter-chip chip-pending ${activeFilter === FILTERS.PENDING ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.PENDING)}>
-              Pending ({counts.pending})
-            </button>
-            <button type="button" className={`filter-chip chip-approved ${activeFilter === FILTERS.APPROVED ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.APPROVED)}>
-              Approved ({counts.approved})
-            </button>
-            <button type="button" className={`filter-chip chip-rejected ${activeFilter === FILTERS.REJECTED ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.REJECTED)}>
-              Rejected ({counts.rejected})
-            </button>
-            <button type="button" className={`filter-chip chip-ready ${activeFilter === FILTERS.READY ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.READY)}>
-              For Release ({counts.ready})
-            </button>
-            <div className="filter-sep"></div>
-            <select className="sort-select" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
-              <option value="newest">Sort: Newest First</option>
-              <option value="oldest">Sort: Oldest First</option>
-              <option value="status">Sort: Status</option>
-              <option value="document">Sort: Document Type</option>
-            </select>
+            <div className="filters-row">
+              <span className="filter-label">Filter:</span>
+              <button type="button" className={`filter-chip ${activeFilter === FILTERS.ALL ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.ALL)}>
+                All ({counts.total})
+              </button>
+              <button type="button" className={`filter-chip chip-pending ${activeFilter === FILTERS.PENDING ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.PENDING)}>
+                Pending ({counts.pending})
+              </button>
+              <button type="button" className={`filter-chip chip-approved ${activeFilter === FILTERS.APPROVED ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.APPROVED)}>
+                Approved ({counts.approved})
+              </button>
+              <button type="button" className={`filter-chip chip-rejected ${activeFilter === FILTERS.REJECTED ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.REJECTED)}>
+                Rejected ({counts.rejected})
+              </button>
+              <button type="button" className={`filter-chip chip-ready ${activeFilter === FILTERS.READY ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.READY)}>
+                For Release ({counts.ready})
+              </button>
+              <div className="filter-sep"></div>
+              <select className="sort-select" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
+                <option value="newest">Sort: Newest First</option>
+                <option value="oldest">Sort: Oldest First</option>
+                <option value="status">Sort: Status</option>
+                <option value="document">Sort: Document Type</option>
+              </select>
+            </div>
           </div>
 
           {error && <div className="officer-error">{error}</div>}
 
-          <div className="table-card">
+          <div className="request-list-panel">
+            <div className="table-card">
             <div className="table-header-row">
               <div className="th">#</div>
               <div className="th">Resident</div>
@@ -476,10 +536,10 @@ export default function OfficerRequestQueuePage() {
                 <div className="td actions" onClick={(event) => event.stopPropagation()}>
                   {isPendingStatus(request.status) && (
                     <>
-                      <button type="button" className="action-btn ab-approve" onClick={() => { setSelectedRequestId(request.id); updateStatus(STATUS.APPROVED); }}>
+                      <button type="button" className="action-btn ab-approve" onClick={() => { setSelectedRequestId(request.id); updateStatus(STATUS.APPROVED, request); }}>
                         Approve
                       </button>
-                      <button type="button" className="action-btn ab-reject" onClick={() => { setSelectedRequestId(request.id); updateStatus(STATUS.DECLINED); }}>
+                      <button type="button" className="action-btn ab-reject" onClick={() => { setSelectedRequestId(request.id); updateStatus(STATUS.DECLINED, request); }}>
                         Reject
                       </button>
                     </>
@@ -492,13 +552,14 @@ export default function OfficerRequestQueuePage() {
                 </div>
               </button>
             ))}
-          </div>
 
-          <div className="pagination">
-            <div className="page-info">Showing {visibleRequests.length} of {counts.total} requests</div>
-            <div className="page-btns">
-              <button type="button" className="page-btn current">1</button>
+            <div className="pagination">
+              <div className="page-info">Showing {visibleRequests.length} of {counts.total} requests</div>
+              <div className="page-btns">
+                <button type="button" className="page-btn current">1</button>
+              </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -512,6 +573,8 @@ export default function OfficerRequestQueuePage() {
           </div>
 
           <div className="detail-body">
+            {detailLoading && <div className="officer-error">Refreshing request details...</div>}
+
             <div className="detail-section">
               <div className="detail-section-title">Resident Info</div>
               <div className="detail-field"><div className="detail-key">Name</div><div className="detail-val">{getDisplayName(selectedRequest)}</div></div>
