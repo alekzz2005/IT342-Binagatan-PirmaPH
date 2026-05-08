@@ -1,0 +1,193 @@
+.super-admin-shared-sidebar {
+  width: var(--sidebar-w, 272px);
+  min-width: var(--sidebar-w, 272px);
+  max-width: var(--sidebar-w, 272px);
+  background: var(--sa-dark, #04072e);
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  font-family: 'Source Sans 3', sans-serif;
+  flex: 0 0 var(--sidebar-w, 272px);
+  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.super-admin-shared-sidebar {
+  scrollbar-width: none;
+}
+
+.super-admin-shared-sidebar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.super-admin-shared-sidebar .sidebar-top {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  position: relative;
+}
+
+.super-admin-shared-sidebar .sidebar-top::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold, #fcd116), var(--red, #ce1126));
+}
+
+.super-admin-shared-sidebar .brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--white, #fff);
+  letter-spacing: 1px;
+}
+
+.super-admin-shared-sidebar .brand span {
+  color: var(--gold, #fcd116);
+}
+
+.super-admin-shared-sidebar .brand-sub {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.super-admin-shared-sidebar .sa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(252, 209, 22, 0.12);
+  border: 1px solid rgba(252, 209, 22, 0.3);
+  border-radius: 6px;
+  padding: 4px 10px;
+  margin-top: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold, #fcd116);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.super-admin-shared-sidebar .nav-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.25);
+  padding: 18px 20px 7px;
+}
+
+.super-admin-shared-sidebar .nav-item {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 20px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.super-admin-shared-sidebar .nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.super-admin-shared-sidebar .nav-item.active {
+  background: rgba(252, 209, 22, 0.08);
+  color: var(--gold, #fcd116);
+  border-left-color: var(--gold, #fcd116);
+}
+
+.super-admin-shared-sidebar .nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.super-admin-shared-sidebar .nav-badge {
+  margin-left: auto;
+  background: var(--red, #ce1126);
+  color: white;
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.super-admin-shared-sidebar .sidebar-footer {
+  margin-top: auto;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.super-admin-shared-sidebar .user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.super-admin-shared-sidebar .user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold, #fcd116), var(--red, #ce1126));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--sa-dark, #04072e);
+  flex-shrink: 0;
+}
+
+.super-admin-shared-sidebar .user-info h4 {
+  font-size: 12px;
+  color: var(--white, #fff);
+  font-weight: 600;
+  margin: 0;
+}
+
+.super-admin-shared-sidebar .user-info p {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.38);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 1px 0 0;
+}
+
+.super-admin-shared-sidebar .logout-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+}
