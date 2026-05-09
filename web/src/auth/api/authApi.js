@@ -1,0 +1,52 @@
+import apiService from '../../shared/services/api';
+
+/**
+ * Auth API - Feature-scoped wrapper for auth-specific API calls
+ */
+class AuthApi {
+  /**
+   * Register a new user
+   */
+  async register(userData) {
+    return apiService.register(userData);
+  }
+
+  /**
+   * Login with email and password
+   */
+  async login(credentials) {
+    return apiService.login(credentials);
+  }
+
+  /**
+   * Get current authenticated user
+   */
+  async getCurrentUser() {
+    return apiService.getCurrentUser();
+  }
+
+  /**
+   * Logout current user
+   */
+  async logout() {
+    return apiService.logout();
+  }
+
+  /**
+   * Request password reset
+   */
+  async forgotPassword(email) {
+    return apiService.forgotPassword(email);
+  }
+
+  /**
+   * Reset password with reset token
+   */
+  async resetPassword(token, newPassword, confirmPassword) {
+    return apiService.resetPassword(token, newPassword, confirmPassword);
+  }
+}
+
+const authApi = new AuthApi();
+
+export default authApi;
