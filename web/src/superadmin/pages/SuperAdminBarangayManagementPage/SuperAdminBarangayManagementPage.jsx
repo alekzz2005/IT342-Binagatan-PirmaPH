@@ -806,10 +806,10 @@ export default function SuperAdminBarangayManagementPage() {
           </div>
           <div className="header-right">
             <div className="scope-pill"><Globe2 size={14} strokeWidth={2} /> Nationwide Scope</div>
-            <button type="button" className="header-notif" onClick={refreshPage} aria-label="Refresh barangay data">
+            {/* <button type="button" className="header-notif" onClick={refreshPage} aria-label="Refresh barangay data">
               <Bell size={16} strokeWidth={2} />
               <span className="notif-dot"></span>
-            </button>
+            </button> */}
             <button type="button" className="btn-primary header-create-btn" onClick={openCreateForm}>
               <UserCog size={16} strokeWidth={2} /> Create Barangay
             </button>

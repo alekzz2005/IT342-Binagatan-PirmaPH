@@ -75,7 +75,7 @@ const SuperAdminSidebar = ({
       <div className="sidebar-top">
         <div className="brand">Pirma<span>PH</span></div>
         <div className="brand-sub">National Admin Portal</div>
-        <div className="sa-badge">⚡ Super Admin</div>
+        <div className="sa-badge">Super Admin</div>
       </div>
 
       <span className="nav-section-label">System</span>

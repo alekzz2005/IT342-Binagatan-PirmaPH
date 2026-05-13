@@ -506,10 +506,10 @@ export default function SuperAdminSystemMonitoringPage() {
           </div>
           <div className="header-right">
             <div className="scope-pill"><Globe2 size={14} strokeWidth={2} /> Live · Updated {lastUpdatedAt ? formatRelativeTime(lastUpdatedAt) : 'just now'}</div>
-            <button type="button" className="header-notif" onClick={loadData} aria-label="Refresh monitoring data">
+            {/* <button type="button" className="header-notif" onClick={loadData} aria-label="Refresh monitoring data">
               <Bell size={16} strokeWidth={2} />
               <span className="notif-dot"></span>
-            </button>
+            </button> */}
           </div>
         </header>
 

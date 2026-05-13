@@ -526,10 +526,10 @@ export default function SuperAdminGlobalUserControlPage() {
           </div>
           <div className="header-right">
             <div className="scope-pill"><Globe2 size={14} strokeWidth={2} /> All Barangays</div>
-            <button type="button" className="header-notif" onClick={loadData} aria-label="Refresh users">
+            {/* <button type="button" className="header-notif" onClick={loadData} aria-label="Refresh users">
               <Bell size={16} strokeWidth={2} />
               <span className="notif-dot"></span>
-            </button>
+            </button> */}
           </div>
         </header>
 

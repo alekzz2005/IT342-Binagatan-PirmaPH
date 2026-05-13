@@ -436,10 +436,10 @@ export default function SuperAdminDashboardPage() {
           </div>
           <div className="header-right">
             <div className="scope-pill"><Globe2 size={14} strokeWidth={2} /> Nationwide Scope</div>
-            <button type="button" className="header-notif" onClick={navigateToManage} aria-label="Open management console">
+            {/* <button type="button" className="header-notif" onClick={navigateToManage} aria-label="Open management console">
               <Bell size={16} strokeWidth={2} />
               <span className="notif-dot"></span>
-            </button>
+            </button> */}
           </div>
         </header>
 
