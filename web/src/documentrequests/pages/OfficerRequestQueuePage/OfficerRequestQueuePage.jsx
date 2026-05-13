@@ -8,6 +8,7 @@ import {
   LogOut,
   Package,
   Search,
+  RefreshCcw,
   User,
   XCircle,
 } from 'lucide-react';
@@ -430,8 +431,8 @@ export default function OfficerRequestQueuePage() {
                 onChange={(event) => setQuery(event.target.value)}
               />
             </div>
-            <button type="button" className="btn-export" onClick={loadQueue}>
-              Refresh
+            <button type="button" className="btn-icon" onClick={loadQueue} aria-label="Refresh requests">
+              <RefreshCcw size={16} strokeWidth={2} />
             </button>
           </div>
         </header>

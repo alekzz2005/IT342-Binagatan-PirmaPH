@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { FileText, History, Home, LogOut, Megaphone, Settings, User } from 'lucide-react';
+import { FileText, History, Home, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../shared/context/AuthContext';
 import { useModal } from '../../shared/context/ModalContext';
 import './ResidentSidebar.css';
@@ -29,7 +29,6 @@ const NAV_ITEMS = [
   { key: 'dashboard', label: 'Dashboard', icon: Home, path: '/dashboard/resident' },
   { key: 'submit', label: 'Submit Request', icon: FileText, path: '/requests/submit' },
   { key: 'requests', label: 'My Requests', icon: History, path: '/requests/mine' },
-  { key: 'announcements', label: 'Announcements', icon: Megaphone },
 ];
 
 export default function ResidentSidebar({ activeItem = 'dashboard' }) {
@@ -39,17 +38,6 @@ export default function ResidentSidebar({ activeItem = 'dashboard' }) {
 
   const residentName = getResidentName(user);
   const residentInitials = getInitials(residentName);
-
-  const openMessage = (title, message) => {
-    showModal({
-      context: 'success',
-      title,
-      message,
-      confirmText: 'Back to Dashboard',
-      showCancel: false,
-      onConfirm: () => navigate('/dashboard/resident'),
-    });
-  };
 
   const handleLogout = () => {
     showModal({
@@ -89,10 +77,7 @@ export default function ResidentSidebar({ activeItem = 'dashboard' }) {
           onClick={() => {
             if (item.path) {
               navigate(item.path);
-              return;
             }
-
-            openMessage('Announcements', 'Resident announcements are shown on the dashboard.');
           }}
         >
           <span className="nav-icon"><item.icon size={18} strokeWidth={2} /></span>
@@ -109,10 +94,6 @@ export default function ResidentSidebar({ activeItem = 'dashboard' }) {
       >
         <span className="nav-icon"><User size={18} strokeWidth={2} /></span>
         <span>Profile</span>
-      </button>
-      <button type="button" className="nav-item" onClick={() => openMessage('Settings', 'Settings are not available yet in the resident workspace.')}>
-        <span className="nav-icon"><Settings size={18} strokeWidth={2} /></span>
-        <span>Settings</span>
       </button>
 
       <div className="sidebar-footer">

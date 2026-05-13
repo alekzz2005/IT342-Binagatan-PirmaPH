@@ -280,10 +280,6 @@ export default function RequestHistoryPage() {
               <div className="hf-blue"></div>
               <div className="hf-red"></div>
             </div>
-            <button type="button" className="my-requests-notif" aria-label="Notifications">
-              🔔
-              <span className="notif-dot"></span>
-            </button>
             <button type="button" className="btn-new-request" onClick={() => navigate('/requests/submit')}>
               <span>＋</span> New Request
             </button>

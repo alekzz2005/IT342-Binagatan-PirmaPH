@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertTriangle,
-  Bell,
   CheckCircle2,
   ChevronRight,
   ClipboardList,
@@ -329,10 +328,7 @@ export default function BarangayAdminDashboardPage() {
               <div className="hf-b"></div>
               <div className="hf-r"></div>
             </div>
-            <button type="button" className="hdr-notif" aria-label="Notifications">
-              <Bell size={18} strokeWidth={2} />
-              <span className="ndot"></span>
-            </button>
+            {/* Notifications removed for Barangay Admin role */}
           </div>
         </header>
 

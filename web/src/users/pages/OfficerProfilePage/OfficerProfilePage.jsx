@@ -16,7 +16,6 @@ import {
   Package,
   Phone,
   Pencil,
-  Search,
   Shield,
   User,
   XCircle,
@@ -337,12 +336,7 @@ export default function OfficerProfilePage() {
             <div className="header-title">My Profile</div>
             <div className="header-breadcrumb">Dashboard / Profile</div>
           </div>
-          <div className="header-right">
-            <div className="search-box">
-              <span className="search-icon"><Search size={16} strokeWidth={2} /></span>
-              <input type="text" value="Officer account profile" readOnly />
-            </div>
-          </div>
+          <div className="header-right" />
         </header>
 
         <div className="profile-content">

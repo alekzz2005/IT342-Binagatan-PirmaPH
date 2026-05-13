@@ -8,15 +8,12 @@ import {
   LogOut,
   Mail,
   MapPin,
-  Pencil,
   Phone,
-  Save,
   Search,
   Shield,
   ShieldCheck,
   User,
   Users,
-  X,
 } from 'lucide-react';
 import apiService from '../../../shared/services/api';
 import { useAuth } from '../../../shared/context/AuthContext';
@@ -79,19 +76,7 @@ const toDateInputValue = (value) => {
   return new Date(value).toISOString().slice(0, 10);
 };
 
-const buildProfileForm = (account) => ({
-  firstName: account?.firstName || '',
-  middleName: account?.middleName || '',
-  lastName: account?.lastName || '',
-  email: account?.email || '',
-  phoneNumber: account?.phoneNumber || '',
-  birthDate: toDateInputValue(account?.birthDate),
-  street: account?.street || '',
-  barangay: account?.barangay || '',
-  city: account?.city || '',
-  province: account?.province || '',
-  zipCode: account?.zipCode || '',
-});
+// Profile edits removed for barangay admin to preserve verification integrity.
 
 const statusClass = (status) => {
   if (status === 'APPROVED') return 'approved';
@@ -117,11 +102,9 @@ export default function BarangayAdminProfilePage() {
 
   const [profile, setProfile] = useState(user);
   const [dashboard, setDashboard] = useState(null);
-  const [profileForm, setProfileForm] = useState(() => buildProfileForm(user));
   const [passwordForm, setPasswordForm] = useState(INITIAL_PASSWORD_FORM);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -143,7 +126,6 @@ export default function BarangayAdminProfilePage() {
       const dashboardPayload = dashboardResult.status === 'fulfilled' ? dashboardResult.value : null;
 
       setProfile(currentUser);
-      setProfileForm(buildProfileForm(currentUser));
       setDashboard(dashboardPayload);
 
       const messages = [];
@@ -234,61 +216,7 @@ export default function BarangayAdminProfilePage() {
     });
   };
 
-  const handleStartEdit = () => {
-    setProfileForm(buildProfileForm(profile));
-    setIsEditing(true);
-  };
-
-  const handleCancelEdit = () => {
-    setProfileForm(buildProfileForm(profile));
-    setIsEditing(false);
-  };
-
-  const handleSaveProfile = () => {
-    if (!profileForm.firstName.trim() || !profileForm.lastName.trim() || !profileForm.email.trim()) {
-      showModal({
-        context: 'error',
-        title: 'Missing Profile Fields',
-        message: 'First name, last name, and email are required before saving.',
-        confirmText: 'OK',
-        showCancel: false,
-      });
-      return;
-    }
-
-    const updatedProfile = {
-      ...(profile || {}),
-      firstName: profileForm.firstName.trim(),
-      middleName: profileForm.middleName.trim(),
-      lastName: profileForm.lastName.trim(),
-      email: profileForm.email.trim(),
-      phoneNumber: profileForm.phoneNumber.trim(),
-      birthDate: profileForm.birthDate || null,
-      street: profileForm.street.trim(),
-      barangay: profileForm.barangay.trim(),
-      city: profileForm.city.trim(),
-      province: profileForm.province.trim(),
-      zipCode: profileForm.zipCode.trim(),
-    };
-
-    setProfile(updatedProfile);
-    setProfileForm(buildProfileForm(updatedProfile));
-    setIsEditing(false);
-
-    if (token) {
-      setAuthData(token, updatedProfile);
-    }
-
-    localStorage.setItem('user', JSON.stringify(updatedProfile));
-
-    showModal({
-      context: 'success',
-      title: 'Profile Saved',
-      message: 'Your profile changes are now reflected across the current session.',
-      confirmText: 'OK',
-      showCancel: false,
-    });
-  };
+  // Edit/save profile removed for barangay admin.
 
   const handleUpdatePassword = () => {
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
@@ -454,20 +382,7 @@ export default function BarangayAdminProfilePage() {
             </div>
 
             <div className="profile-actions">
-              {isEditing ? (
-                <>
-                  <button type="button" className="edit-profile-btn primary" onClick={handleSaveProfile}>
-                    <Save size={14} strokeWidth={2} /> Save Changes
-                  </button>
-                  <button type="button" className="edit-profile-btn secondary" onClick={handleCancelEdit}>
-                    <X size={14} strokeWidth={2} /> Cancel
-                  </button>
-                </>
-              ) : (
-                <button type="button" className="edit-profile-btn" onClick={handleStartEdit}>
-                  <Pencil size={14} strokeWidth={2} /> Edit Profile
-                </button>
-              )}
+              {/* Profile editing disabled for barangay admin */}
             </div>
           </div>
 
@@ -478,122 +393,53 @@ export default function BarangayAdminProfilePage() {
             <div className="section-card">
               <div className="section-header">
                 <div className="section-title">Personal Information</div>
-                {isEditing ? (
-                  <div className="section-actions">
-                    <button type="button" className="section-action" onClick={handleCancelEdit}>
-                      <X size={14} strokeWidth={2} /> Cancel
-                    </button>
-                    <button type="button" className="section-action primary" onClick={handleSaveProfile}>
-                      <Save size={14} strokeWidth={2} /> Save Changes
-                    </button>
-                  </div>
-                ) : (
-                  <button type="button" className="section-action" onClick={handleStartEdit}>
-                    <Pencil size={14} strokeWidth={2} /> Edit
-                  </button>
-                )}
+                {/* Editing personal information is disabled for barangay admin */}
               </div>
               <div className="section-body">
                 <div className="edit-grid">
                   <div className="form-group">
                     <label className="form-label">First Name</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.firstName}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, firstName: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.firstName || ''} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Last Name</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.lastName}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, lastName: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.lastName || ''} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Middle Name</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.middleName}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, middleName: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.middleName || ''} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Date of Birth</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      type={isEditing ? 'date' : 'text'}
-                      value={isEditing ? profileForm.birthDate : formatDate(profile?.birthDate)}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, birthDate: event.target.value }))}
-                    />
+                    <input className="form-input readonly" type="text" value={formatDate(profile?.birthDate)} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Phone Number</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.phoneNumber}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, phoneNumber: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.phoneNumber || ''} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Email Address</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.email}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, email: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.email || ''} readOnly />
                   </div>
                   <div className="form-group full-width">
                     <label className="form-label">Home Address</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.street}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, street: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.street || ''} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Barangay</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.barangay}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, barangay: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.barangay || ''} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">City / Municipality</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.city}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, city: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.city || ''} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Province</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.province}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, province: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.province || ''} readOnly />
                   </div>
                   <div className="form-group">
                     <label className="form-label">ZIP Code</label>
-                    <input
-                      className={`form-input ${isEditing ? '' : 'readonly'}`}
-                      value={profileForm.zipCode}
-                      readOnly={!isEditing}
-                      onChange={(event) => setProfileForm((current) => ({ ...current, zipCode: event.target.value }))}
-                    />
+                    <input className="form-input readonly" value={profile?.zipCode || ''} readOnly />
                   </div>
                 </div>
               </div>

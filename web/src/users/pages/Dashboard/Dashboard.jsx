@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, BriefcaseBusiness, CheckCircle2, FileText, HandHelping, Home, Hourglass, IdCard, Sunrise, XCircle } from 'lucide-react';
 import apiService from '../../../shared/services/api';
@@ -100,10 +100,12 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showModal } = useModal();
+  const notificationsRef = useRef(null);
 
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +138,34 @@ export default function Dashboard() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!notificationsOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [notificationsOpen]);
+
   const sortedRequests = useMemo(() => {
     return [...requests].sort((left, right) => new Date(right.requestTimestamp) - new Date(left.requestTimestamp));
   }, [requests]);
@@ -161,6 +191,17 @@ export default function Dashboard() {
   }, [sortedRequests]);
 
   const recentRequests = sortedRequests.slice(0, 5);
+
+  const notificationItems = useMemo(() => {
+    return sortedRequests.map((request) => ({
+      title: formatDocumentType(request.documentType),
+      status: formatStatusLabel(request.status),
+      purpose: request.purpose || 'General',
+      summary: request.updatedAt
+        ? `Updated ${formatRelativeTime(request.updatedAt)}`
+        : `Submitted ${formatRelativeTime(request.requestTimestamp)}`,
+    }));
+  }, [sortedRequests]);
 
   const announcementItems = useMemo(() => {
     return sortedRequests.slice(0, 4).map((request) => {
@@ -208,23 +249,6 @@ export default function Dashboard() {
     });
   };
 
-  const showRequestSummary = () => {
-    showModal({
-      context: 'success',
-      title: 'Request Summary',
-      message: 'Here is a live summary of your document requests.',
-      detail: [
-        `Total requests: ${requestStats.total}`,
-        `Pending: ${requestStats.pending}`,
-        `Approved: ${requestStats.approved}`,
-        `Rejected: ${requestStats.rejected}`,
-      ].join('\n'),
-      confirmText: 'View My Requests',
-      showCancel: false,
-      onConfirm: () => navigate('/requests/mine'),
-    });
-  };
-
   const openAnnouncements = () => {
     const details = announcementItems.length > 0
       ? announcementItems.map((item) => `${item.title} - ${item.body}`).join('\n\n')
@@ -239,6 +263,14 @@ export default function Dashboard() {
       showCancel: false,
       onConfirm: () => navigate('/requests/mine'),
     });
+  };
+
+  const toggleNotificationsPanel = () => {
+    setNotificationsOpen((current) => !current);
+  };
+
+  const closeNotificationsPanel = () => {
+    setNotificationsOpen(false);
   };
 
   return (
@@ -256,10 +288,68 @@ export default function Dashboard() {
               <div className="hf-blue"></div>
               <div className="hf-red"></div>
             </div>
-            <button type="button" className="notif-btn" onClick={showRequestSummary} aria-label="Show request summary">
-              <Bell size={18} strokeWidth={2} />
-              <span className="notif-badge"></span>
-            </button>
+            <div className="notifications-anchor" ref={notificationsRef}>
+              <button
+                type="button"
+                className="notif-btn"
+                onClick={toggleNotificationsPanel}
+                aria-label="Toggle notifications panel"
+                aria-haspopup="dialog"
+                aria-expanded={notificationsOpen}
+                aria-controls="resident-notifications-panel"
+              >
+                <Bell size={18} strokeWidth={2} />
+                <span className="notif-badge"></span>
+              </button>
+
+              {notificationsOpen && (
+                <div className="notifications-panel card" id="resident-notifications-panel" role="dialog" aria-label="Notifications" aria-live="polite">
+                  <div className="card-header">
+                    <div>
+                      <div className="card-title">Notifications</div>
+                      <div className="notifications-panel-subtitle">Recent updates from your request history</div>
+                    </div>
+                    <button type="button" className="card-action" onClick={closeNotificationsPanel}>
+                      Close
+                    </button>
+                  </div>
+
+                  <div className="notifications-summary">
+                    <div className="notifications-summary-item">
+                      <span>Total</span>
+                      <strong>{requestStats.total}</strong>
+                    </div>
+                    <div className="notifications-summary-item">
+                      <span>Pending</span>
+                      <strong>{requestStats.pending}</strong>
+                    </div>
+                    <div className="notifications-summary-item">
+                      <span>Approved</span>
+                      <strong>{requestStats.approved}</strong>
+                    </div>
+                    <div className="notifications-summary-item">
+                      <span>Rejected</span>
+                      <strong>{requestStats.rejected}</strong>
+                    </div>
+                  </div>
+
+                  <div className="notifications-list">
+                    {notificationItems.length === 0 && <div className="empty-state">No resident notifications available yet.</div>}
+
+                    {notificationItems.map((item, index) => (
+                      <div className="notifications-item" key={`${item.title}-${item.summary}-${index}`}>
+                        <div className="notifications-item-top">
+                          <div className="notifications-item-title">{item.title}</div>
+                          <span className="notifications-item-status">{item.status}</span>
+                        </div>
+                        <div className="notifications-item-purpose">{item.purpose}</div>
+                        <div className="notifications-item-summary">{item.summary}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
