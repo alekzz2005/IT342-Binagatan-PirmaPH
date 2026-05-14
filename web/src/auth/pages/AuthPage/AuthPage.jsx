@@ -6,6 +6,8 @@ import { useModal } from '../../../shared/context/ModalContext';
 import locationService from '../../../shared/services/locationService';
 import { OAUTH2_URL } from '../../../shared/services/api';
 import { getLandingPathForUser } from '../../../shared/utils/rbac';
+import authApi from '../../api/authApi';
+import OTPModal from '../../components/OTPModal/OTPModal';
 import './AuthPage.css';
 
 const AuthPage = () => {
@@ -53,6 +55,12 @@ const AuthPage = () => {
   const [cities, setCities] = useState([]);
   const [barangays, setBarangays] = useState([]);
   const [loadingLocations, setLoadingLocations] = useState(false);
+
+  // OTP Modal state
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [otpEmail, setOtpEmail] = useState('');
+  // Store the registered user & result so we can show the correct modal after OTP
+  const [pendingRegistration, setPendingRegistration] = useState(null);
 
   // Load regions on component mount
   useEffect(() => {
@@ -227,45 +235,65 @@ const AuthPage = () => {
     setLoading(true);
     const result = await register(registerData);
     const isOfficerRegistration = registerData.role === 'OFFICER';
-    
+
     if (result.success) {
-      if (result.requiresApproval) {
-        showModal({
-          context: 'info',
-          title: isOfficerRegistration ? 'Officer Registration Submitted' : 'Registration Submitted',
-          message: isOfficerRegistration
-            ? `Thank you, ${registerData.firstName}. Your officer onboarding request is pending barangay admin verification.`
-            : `Thank you, ${registerData.firstName}. Your account is pending approval by your barangay administrator.`,
-          detail: isOfficerRegistration
-            ? 'You can log in while pending to upload your appointment proof under the Officer dashboard.'
-            : 'You can log in once your account status is set to APPROVED.',
-          confirmText: 'Back to Login',
-          showCancel: false,
-          onConfirm: () => {
-            setActiveTab('login');
-          }
-        });
-      } else {
-        const redirectPath = getLandingPathForUser(result.user);
-        showModal({
-          context: 'success',
-          title: 'Registration Successful!',
-          message: `Welcome to PirmaPH, ${registerData.firstName}! Your account has been created successfully.`,
-          detail: `Email: ${registerData.email}\nAddress: ${registerData.barangay}, ${registerData.city}`,
-          confirmText: 'Go to Dashboard',
-          showCancel: false,
-          onConfirm: () => {
-            navigate(redirectPath);
-          }
-        });
+      // Send OTP and open the verification modal before showing the success message
+      try {
+        await authApi.sendOtp(registerData.email);
+      } catch {
+        // OTP send failure is non-blocking — proceed to modal anyway
       }
+      setPendingRegistration({ result, isOfficerRegistration });
+      setOtpEmail(registerData.email);
+      setOtpModalOpen(true);
     } else {
       setError(result.message);
     }
     setLoading(false);
   };
 
+  const handleOtpVerified = () => {
+    setOtpModalOpen(false);
+    if (!pendingRegistration) return;
+    const { result, isOfficerRegistration } = pendingRegistration;
+    setPendingRegistration(null);
+
+    if (result.requiresApproval) {
+      showModal({
+        context: 'info',
+        title: isOfficerRegistration ? 'Officer Registration Submitted' : 'Registration Submitted',
+        message: isOfficerRegistration
+          ? `Thank you, ${registerData.firstName}. Your officer onboarding request is pending barangay admin verification.`
+          : `Thank you, ${registerData.firstName}. Your account is pending approval by your barangay administrator.`,
+        detail: isOfficerRegistration
+          ? 'You can log in while pending to upload your appointment proof under the Officer dashboard.'
+          : 'You can log in once your account status is set to APPROVED.',
+        confirmText: 'Back to Login',
+        showCancel: false,
+        onConfirm: () => { setActiveTab('login'); }
+      });
+    } else {
+      const redirectPath = getLandingPathForUser(result.user);
+      showModal({
+        context: 'success',
+        title: 'Registration Successful!',
+        message: `Welcome to PirmaPH, ${registerData.firstName}! Your account has been created successfully.`,
+        detail: `Email: ${registerData.email}\nAddress: ${registerData.barangay}, ${registerData.city}`,
+        confirmText: 'Go to Dashboard',
+        showCancel: false,
+        onConfirm: () => { navigate(redirectPath); }
+      });
+    }
+  };
+
+  const handleOtpClose = () => {
+    setOtpModalOpen(false);
+    setPendingRegistration(null);
+    setActiveTab('login');
+  };
+
   return (
+    <>
     <div className="auth-container">
       {/* Left Panel */}
       <div className="left-panel">
@@ -798,6 +826,14 @@ const AuthPage = () => {
         </div>
       </div>
     </div>
+      {/* OTP Verification Modal */}
+      <OTPModal
+        isOpen={otpModalOpen}
+        email={otpEmail}
+        onVerified={handleOtpVerified}
+        onClose={handleOtpClose}
+      />
+    </>
   );
 };
 

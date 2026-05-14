@@ -45,6 +45,20 @@ class AuthApi {
   async resetPassword(token, newPassword, confirmPassword) {
     return apiService.resetPassword(token, newPassword, confirmPassword);
   }
+
+  /**
+   * Send a one-time password to the given email (LOCAL accounts only)
+   */
+  async sendOtp(email) {
+    return apiService.sendOtp(email);
+  }
+
+  /**
+   * Verify the OTP code entered by the user
+   */
+  async verifyOtp(email, code) {
+    return apiService.verifyOtp(email, code);
+  }
 }
 
 const authApi = new AuthApi();

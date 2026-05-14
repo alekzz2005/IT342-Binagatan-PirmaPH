@@ -194,6 +194,20 @@ class ApiService {
     });
   }
 
+  async sendOtp(email) {
+    return this.request('/auth/send-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async verifyOtp(email, code) {
+    return this.request('/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify({ email, code }),
+    });
+  }
+
   async getResidentVerificationStatus() {
     return this.request('/resident/verification-status');
   }

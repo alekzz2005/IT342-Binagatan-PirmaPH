@@ -92,6 +92,16 @@ public class User {
     @Column
     private LocalDateTime passwordResetExpiresAt;
 
+    // Email OTP Verification
+    @Column(length = 255)
+    private String otpCode; // BCrypt-hashed OTP
+
+    @Column
+    private LocalDateTime otpExpiresAt;
+
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private Boolean emailVerified = false;
+
     @Column
     private Integer failedLoginAttempts;
 
@@ -116,6 +126,9 @@ public class User {
         }
         if (failedLoginAttempts == null) {
             failedLoginAttempts = 0;
+        }
+        if (emailVerified == null) {
+            emailVerified = false;
         }
     }
 
@@ -356,6 +369,30 @@ public class User {
 
     public void setPasswordResetExpiresAt(LocalDateTime passwordResetExpiresAt) {
         this.passwordResetExpiresAt = passwordResetExpiresAt;
+    }
+
+    public String getOtpCode() {
+        return otpCode;
+    }
+
+    public void setOtpCode(String otpCode) {
+        this.otpCode = otpCode;
+    }
+
+    public LocalDateTime getOtpExpiresAt() {
+        return otpExpiresAt;
+    }
+
+    public void setOtpExpiresAt(LocalDateTime otpExpiresAt) {
+        this.otpExpiresAt = otpExpiresAt;
+    }
+
+    public Boolean getEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(Boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 
     public Integer getFailedLoginAttempts() {

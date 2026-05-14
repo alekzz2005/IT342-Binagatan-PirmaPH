@@ -6,6 +6,9 @@ import edu.cit.binagatan.pirmaph.auth.dto.ForgotPasswordRequest;
 import edu.cit.binagatan.pirmaph.auth.dto.LoginRequest;
 import edu.cit.binagatan.pirmaph.auth.dto.RegisterRequest;
 import edu.cit.binagatan.pirmaph.auth.dto.ResetPasswordRequest;
+import edu.cit.binagatan.pirmaph.auth.dto.SendOtpRequest;
+import edu.cit.binagatan.pirmaph.auth.dto.VerifyOtpRequest;
+import edu.cit.binagatan.pirmaph.auth.application.OtpService;
 import edu.cit.binagatan.pirmaph.shared.security.AuthenticatedUser;
 import edu.cit.binagatan.pirmaph.auth.application.AuthService;
 import jakarta.validation.Valid;
@@ -26,6 +29,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private OtpService otpService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -93,6 +99,38 @@ public class AuthController {
         } catch (IllegalArgumentException e) {
             ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
+    }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<?> sendOtp(@Valid @RequestBody SendOtpRequest request) {
+        Map<String, String> response = new HashMap<>();
+        boolean sent = otpService.sendOtp(request.getEmail());
+        if (sent) {
+            response.put("message", "OTP sent successfully");
+            return ResponseEntity.ok(response);
+        } else {
+            // Do not reveal whether the email exists or not (security best practice).
+            // Return 200 to avoid email enumeration.
+            response.put("message", "If this email is registered, an OTP has been sent.");
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        OtpService.OtpResult result = otpService.verifyOtp(request.getEmail(), request.getCode());
+        Map<String, String> response = new HashMap<>();
+        switch (result) {
+            case VERIFIED:
+                response.put("message", "Email verified successfully");
+                return ResponseEntity.ok(response);
+            case EXPIRED:
+                ErrorResponse expiredError = new ErrorResponse(HttpStatus.GONE.value(), "OTP has expired. Please request a new code.");
+                return ResponseEntity.status(HttpStatus.GONE).body(expiredError);
+            default:
+                ErrorResponse invalidError = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Invalid OTP code. Please try again.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(invalidError);
         }
     }
 
