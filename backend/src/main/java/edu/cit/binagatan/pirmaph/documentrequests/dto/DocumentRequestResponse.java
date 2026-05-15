@@ -3,7 +3,9 @@ package edu.cit.binagatan.pirmaph.documentrequests.dto;
 import edu.cit.binagatan.pirmaph.documentrequests.domain.DocumentRequest;
 import edu.cit.binagatan.pirmaph.documentrequests.domain.DocumentRequestStatus;
 import edu.cit.binagatan.pirmaph.documentrequests.domain.DocumentType;
+import edu.cit.binagatan.pirmaph.payment.dto.PaymentInfoResponse;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -23,8 +25,12 @@ public class DocumentRequestResponse {
     private LocalDateTime requestTimestamp;
     private LocalDateTime updatedAt;
     private List<DocumentRequestFileResponse> files;
+    /** Most recent payment for this request. May be null if no payment initiated. */
+    private PaymentInfoResponse paymentInfo;
+    /** Amount due in PHP, computed server-side. */
+    private BigDecimal amountDue;
 
-    public static DocumentRequestResponse from(DocumentRequest request, List<DocumentRequestFileResponse> files) {
+    public static DocumentRequestResponse from(DocumentRequest request, List<DocumentRequestFileResponse> files, PaymentInfoResponse paymentInfo) {
         DocumentRequestResponse response = new DocumentRequestResponse();
         response.setId(request.getId());
         response.setResidentUserId(request.getResidentUserId());
@@ -39,6 +45,10 @@ public class DocumentRequestResponse {
         response.setRequestTimestamp(request.getRequestTimestamp());
         response.setUpdatedAt(request.getUpdatedAt());
         response.setFiles(files);
+        response.setPaymentInfo(paymentInfo);
+        if (paymentInfo != null) {
+            response.setAmountDue(paymentInfo.getAmount());
+        }
         return response;
     }
 
@@ -144,5 +154,21 @@ public class DocumentRequestResponse {
 
     public void setFiles(List<DocumentRequestFileResponse> files) {
         this.files = files;
+    }
+
+    public PaymentInfoResponse getPaymentInfo() {
+        return paymentInfo;
+    }
+
+    public void setPaymentInfo(PaymentInfoResponse paymentInfo) {
+        this.paymentInfo = paymentInfo;
+    }
+
+    public BigDecimal getAmountDue() {
+        return amountDue;
+    }
+
+    public void setAmountDue(BigDecimal amountDue) {
+        this.amountDue = amountDue;
     }
 }

@@ -64,6 +64,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/login/oauth2/**", "/oauth2/**", "/actuator/health", "/actuator/info").permitAll()
+                        .requestMatchers("/api/v1/payments/webhook").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyRole("BARANGAY_ADMIN", "SUPER_ADMIN")
                         .requestMatchers("/actuator/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated()

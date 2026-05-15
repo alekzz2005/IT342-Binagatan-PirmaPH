@@ -7,6 +7,9 @@ import edu.cit.binagatan.pirmaph.documentrequests.dto.UpdateDocumentRequestStatu
 import edu.cit.binagatan.pirmaph.documentrequests.domain.*;
 import edu.cit.binagatan.pirmaph.documentrequests.repository.DocumentRequestFileRepository;
 import edu.cit.binagatan.pirmaph.documentrequests.repository.DocumentRequestRepository;
+import edu.cit.binagatan.pirmaph.payment.application.PayMongoService;
+import edu.cit.binagatan.pirmaph.payment.domain.Payment;
+import edu.cit.binagatan.pirmaph.payment.dto.PaymentInfoResponse;
 import edu.cit.binagatan.pirmaph.users.repository.UserRepository;
 import edu.cit.binagatan.pirmaph.users.domain.User;
 import edu.cit.binagatan.pirmaph.users.domain.UserRole;
@@ -61,6 +64,9 @@ public class DocumentRequestService {
 
     @Autowired
     private RequestFilterContext requestFilterContext;
+
+    @Autowired
+    private PayMongoService payMongoService;
 
     @Transactional
     public DocumentRequestResponse submitRequest(AuthenticatedUser principal, CreateDocumentRequestRequest request) {
@@ -210,7 +216,9 @@ public class DocumentRequestService {
                 .stream()
                 .map(this::toFileResponse)
                 .toList();
-        return DocumentRequestResponse.from(request, files);
+        Payment payment = payMongoService.getLatestPaymentForRequest(request.getId());
+        PaymentInfoResponse paymentInfo = PaymentInfoResponse.from(payment);
+        return DocumentRequestResponse.from(request, files, paymentInfo);
     }
 
     private DocumentRequestFileResponse toFileResponse(DocumentRequestFile file) {
@@ -295,10 +303,6 @@ public class DocumentRequestService {
     }
 
     private void validateOfficerStatusUpdate(DocumentRequestStatus status, String remarks) {
-        if (status == DocumentRequestStatus.PENDING_PAYMENT) {
-            throw new IllegalArgumentException("Status is reserved for future sprint workflow");
-        }
-
         if (status == DocumentRequestStatus.DECLINED && (remarks == null || remarks.isBlank())) {
             throw new IllegalArgumentException("Remarks are required when declining a request");
         }
@@ -306,17 +310,26 @@ public class DocumentRequestService {
 
     private void validateTransition(DocumentRequestStatus current, DocumentRequestStatus next) {
         if (current == DocumentRequestStatus.SUBMITTED &&
-                (next == DocumentRequestStatus.UNDER_REVIEW || next == DocumentRequestStatus.APPROVED || next == DocumentRequestStatus.DECLINED)) {
+                (next == DocumentRequestStatus.UNDER_REVIEW || next == DocumentRequestStatus.APPROVED
+                 || next == DocumentRequestStatus.DECLINED || next == DocumentRequestStatus.PENDING_PAYMENT)) {
             return;
         }
 
         if (current == DocumentRequestStatus.UNDER_REVIEW &&
-                (next == DocumentRequestStatus.APPROVED || next == DocumentRequestStatus.DECLINED)) {
+                (next == DocumentRequestStatus.APPROVED || next == DocumentRequestStatus.DECLINED
+                 || next == DocumentRequestStatus.PENDING_PAYMENT)) {
             return;
         }
 
         if (current == DocumentRequestStatus.APPROVED &&
-                next == DocumentRequestStatus.READY_FOR_RELEASE) {
+                (next == DocumentRequestStatus.READY_FOR_RELEASE || next == DocumentRequestStatus.PENDING_PAYMENT)) {
+            return;
+        }
+
+        // Allow PENDING_PAYMENT to transition to SUBMITTED, APPROVED, or DECLINED
+        if (current == DocumentRequestStatus.PENDING_PAYMENT &&
+                (next == DocumentRequestStatus.SUBMITTED || next == DocumentRequestStatus.APPROVED
+                 || next == DocumentRequestStatus.DECLINED)) {
             return;
         }
 
