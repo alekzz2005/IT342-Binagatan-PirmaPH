@@ -208,6 +208,20 @@ class ApiService {
     });
   }
 
+  async createPaymentCheckout(requestId) {
+    return this.request('/v1/payments/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ requestId }),
+    });
+  }
+
+  async verifyPaymentStatus(requestId, manual = false) {
+    const suffix = manual ? '?manual=true' : '';
+    return this.request(`/v1/payments/verify/${requestId}${suffix}`, {
+      method: 'POST',
+    });
+  }
+
   async getResidentVerificationStatus() {
     return this.request('/resident/verification-status');
   }

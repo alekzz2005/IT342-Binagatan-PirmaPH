@@ -24,17 +24,19 @@ const STATUS = {
   APPROVED: 'APPROVED',
   DECLINED: 'DECLINED',
   READY_FOR_RELEASE: 'READY_FOR_RELEASE',
+  PENDING_PAYMENT: 'PENDING_PAYMENT',
 };
 
 const FILTERS = {
   ALL: 'ALL',
   PENDING: 'PENDING',
+  PAYMENT: 'PAYMENT',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
   READY: 'READY',
 };
 
-const QUEUE_STATUSES = [STATUS.SUBMITTED, STATUS.UNDER_REVIEW, STATUS.APPROVED, STATUS.DECLINED, STATUS.READY_FOR_RELEASE];
+const QUEUE_STATUSES = [STATUS.SUBMITTED, STATUS.UNDER_REVIEW, STATUS.APPROVED, STATUS.DECLINED, STATUS.READY_FOR_RELEASE, STATUS.PENDING_PAYMENT];
 
 const DOCUMENT_LABELS = {
   BARANGAY_CLEARANCE: 'Brgy. Clearance',
@@ -47,10 +49,11 @@ const DOCUMENT_LABELS = {
 
 const STATUS_LABELS = {
   [STATUS.SUBMITTED]: 'Pending',
-  [STATUS.UNDER_REVIEW]: 'Pending',
+  [STATUS.UNDER_REVIEW]: 'Under Review',
   [STATUS.APPROVED]: 'Approved',
   [STATUS.DECLINED]: 'Rejected',
   [STATUS.READY_FOR_RELEASE]: 'For Release',
+  [STATUS.PENDING_PAYMENT]: 'Pending Payment',
 };
 
 const STATUS_BADGE_CLASS = {
@@ -59,6 +62,7 @@ const STATUS_BADGE_CLASS = {
   [STATUS.APPROVED]: 'sb-approved',
   [STATUS.DECLINED]: 'sb-rejected',
   [STATUS.READY_FOR_RELEASE]: 'sb-ready',
+  [STATUS.PENDING_PAYMENT]: 'sb-payment',
 };
 
 const isPendingStatus = (status) => status === STATUS.SUBMITTED || status === STATUS.UNDER_REVIEW;
@@ -99,6 +103,8 @@ const matchesFilter = (request, activeFilter) => {
   switch (activeFilter) {
     case FILTERS.PENDING:
       return isPendingStatus(request.status);
+    case FILTERS.PAYMENT:
+      return request.status === STATUS.PENDING_PAYMENT;
     case FILTERS.APPROVED:
       return request.status === STATUS.APPROVED;
     case FILTERS.REJECTED:
@@ -200,6 +206,10 @@ export default function OfficerRequestQueuePage() {
         summary.pending += 1;
       }
 
+      if (request.status === STATUS.PENDING_PAYMENT) {
+        summary.payment += 1;
+      }
+
       if (request.status === STATUS.APPROVED) {
         summary.approved += 1;
       }
@@ -213,7 +223,7 @@ export default function OfficerRequestQueuePage() {
       }
 
       return summary;
-    }, { total: 0, pending: 0, approved: 0, rejected: 0, ready: 0 });
+    }, { total: 0, pending: 0, payment: 0, approved: 0, rejected: 0, ready: 0 });
   }, [requests]);
 
   const visibleRequests = useMemo(() => {
@@ -346,6 +356,30 @@ export default function OfficerRequestQueuePage() {
   };
 
   const markReady = () => updateStatus(STATUS.READY_FOR_RELEASE);
+  const markPendingPayment = () => updateStatus(STATUS.PENDING_PAYMENT);
+
+  const handleVerifyPayment = async (manual = false) => {
+    if (!selectedRequest?.id) return;
+    setDetailLoading(true);
+    setError('');
+    try {
+      await apiService.verifyPaymentStatus(selectedRequest.id, manual);
+      await loadQueue();
+      const refreshed = await apiService.getOfficerRequestById(selectedRequest.id);
+      setSelectedRequestDetails(refreshed || null);
+      showModal({
+        context: 'success',
+        title: 'Payment Verified',
+        message: manual ? 'Payment manually confirmed as Paid.' : 'Payment status updated successfully.',
+        confirmText: 'OK',
+        showCancel: false,
+      });
+    } catch (err) {
+      setError(err.message || 'Unable to verify payment status');
+    } finally {
+      setDetailLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     showModal({
@@ -475,6 +509,9 @@ export default function OfficerRequestQueuePage() {
               <button type="button" className={`filter-chip chip-pending ${activeFilter === FILTERS.PENDING ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.PENDING)}>
                 Pending ({counts.pending})
               </button>
+              <button type="button" className={`filter-chip chip-payment ${activeFilter === FILTERS.PAYMENT ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.PAYMENT)}>
+                Payment ({counts.payment})
+              </button>
               <button type="button" className={`filter-chip chip-approved ${activeFilter === FILTERS.APPROVED ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.APPROVED)}>
                 Approved ({counts.approved})
               </button>
@@ -484,7 +521,7 @@ export default function OfficerRequestQueuePage() {
               <button type="button" className={`filter-chip chip-ready ${activeFilter === FILTERS.READY ? 'active' : ''}`} onClick={() => setActiveFilter(FILTERS.READY)}>
                 For Release ({counts.ready})
               </button>
-              <div className="filter-sep"></div>
+              <div className="filter-sep" />
               <select className="sort-select" value={sortBy} onChange={(event) => setSortBy(event.target.value)}>
                 <option value="newest">Sort: Newest First</option>
                 <option value="oldest">Sort: Oldest First</option>
@@ -608,6 +645,45 @@ export default function OfficerRequestQueuePage() {
             </div>
 
             <div className="detail-section">
+              <div className="detail-section-title">Payment Info</div>
+              {selectedRequest.paymentInfo ? (
+                <>
+                  <div className="detail-field"><div className="detail-key">Payment Status</div><div className="detail-val">
+                    <span className={`status-badge ${selectedRequest.paymentInfo.paymentStatus === 'PAID' ? 'sb-approved' : 'sb-payment'}`}>
+                      {selectedRequest.paymentInfo.paymentStatus === 'PAID' ? '✅ Paid' : selectedRequest.paymentInfo.paymentStatus}
+                    </span>
+                  </div></div>
+                  <div className="detail-field"><div className="detail-key">Amount</div><div className="detail-val">₱{Number(selectedRequest.paymentInfo.amount || 0).toFixed(2)}</div></div>
+                  <div className="detail-field"><div className="detail-key">Provider</div><div className="detail-val">{selectedRequest.paymentInfo.paymentProvider || 'N/A'}</div></div>
+                  {selectedRequest.paymentInfo.paidAt && (
+                    <div className="detail-field"><div className="detail-key">Paid At</div><div className="detail-val">{new Date(selectedRequest.paymentInfo.paidAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div></div>
+                  )}
+                  {selectedRequest.paymentInfo.paymentStatus !== 'PAID' && (
+                    <div className="payment-verify-actions" style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                      <button type="button" className="action-btn ab-approve" style={{ padding: '5px 12px', fontSize: 11, fontWeight: 500 }} onClick={() => handleVerifyPayment(false)}>
+                        Verify via PayMongo
+                      </button>
+                      <button type="button" className="action-btn ab-pay" style={{ padding: '5px 12px', fontSize: 11, fontWeight: 500 }} onClick={() => handleVerifyPayment(true)}>
+                        Manual Confirm Paid
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="detail-muted" style={{ fontSize: 13 }}>No payment recorded yet.</div>
+                  {selectedRequest.status === 'PENDING_PAYMENT' && (
+                    <div style={{ marginTop: 12 }}>
+                      <button type="button" className="action-btn ab-pay" style={{ padding: '5px 12px', fontSize: 11, fontWeight: 500 }} onClick={() => handleVerifyPayment(true)}>
+                        Manual Confirm Paid
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            <div className="detail-section">
               <div className="detail-section-title">Officer Remarks</div>
               <textarea
                 className="remarks-input"
@@ -622,6 +698,7 @@ export default function OfficerRequestQueuePage() {
             <div className="action-row">
               <button type="button" className="btn-approve" onClick={() => updateStatus(STATUS.APPROVED)}>Approve</button>
               <button type="button" className="btn-reject" onClick={() => updateStatus(STATUS.DECLINED)}>Reject</button>
+              <button type="button" className="btn-payment" onClick={markPendingPayment} title="Request payment from resident">Request Payment</button>
             </div>
             <button type="button" className="btn-ready" onClick={markReady}>Mark as Ready for Release</button>
           </div>

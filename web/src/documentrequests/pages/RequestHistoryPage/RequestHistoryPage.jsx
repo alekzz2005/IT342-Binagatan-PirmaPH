@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../../shared/services/api';
+import paymentApi from '../../../payment/api/paymentApi';
 import ResidentSidebar from '../../../users/components/ResidentSidebar';
 import './RequestHistoryPage.css';
 
@@ -15,8 +16,8 @@ const DOCUMENT_META = {
 
 const STATUS_META = {
   SUBMITTED: { label: 'Pending', badgeClass: 'sb-pending' },
-  UNDER_REVIEW: { label: 'Pending', badgeClass: 'sb-pending' },
-  PENDING_PAYMENT: { label: 'Pending', badgeClass: 'sb-pending' },
+  UNDER_REVIEW: { label: 'Under Review', badgeClass: 'sb-pending' },
+  PENDING_PAYMENT: { label: 'Pending Payment', badgeClass: 'sb-payment' },
   APPROVED: { label: 'Approved', badgeClass: 'sb-approved' },
   READY_FOR_RELEASE: { label: 'For Release', badgeClass: 'sb-release' },
   DECLINED: { label: 'Rejected', badgeClass: 'sb-rejected' },
@@ -118,6 +119,7 @@ export default function RequestHistoryPage() {
   const [sort, setSort] = useState('NEWEST');
   const [page, setPage] = useState(1);
   const [expandedRequestId, setExpandedRequestId] = useState(null);
+  const [payingRequestId, setPayingRequestId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -265,6 +267,23 @@ export default function RequestHistoryPage() {
     }
   };
 
+  const handlePayNow = async (request) => {
+    if (payingRequestId) return;
+    setPayingRequestId(request.id);
+    try {
+      const result = await paymentApi.createCheckout(request.id);
+      if (result?.checkoutUrl) {
+        window.location.href = result.checkoutUrl;
+      } else {
+        setError('Unable to start payment. Please try again.');
+      }
+    } catch (payErr) {
+      setError(payErr.message || 'Unable to start payment. Please try again.');
+    } finally {
+      setPayingRequestId(null);
+    }
+  };
+
   return (
     <div className="my-requests-shell">
       <ResidentSidebar activeItem="requests" />
@@ -400,6 +419,40 @@ export default function RequestHistoryPage() {
                     </div>
                     <div className="td actions-cell">
                       <button type="button" className="action-btn ab-view" onClick={() => toggleDetails(request.id)}>View</button>
+                      {request.status === 'PENDING_PAYMENT' && (() => {
+                        const pymtStatus = request.paymentInfo?.paymentStatus;
+
+                        // Already paid — button shouldn't appear (status would have changed), but guard anyway
+                        if (pymtStatus === 'PAID') return null;
+
+                        // Checkout already created but not yet completed — offer to resume
+                        if (pymtStatus === 'PENDING') {
+                          return (
+                            <button
+                              type="button"
+                              className="action-btn ab-pay ab-pay-resume"
+                              onClick={() => handlePayNow(request)}
+                              disabled={payingRequestId === request.id}
+                              title="Resume your existing PayMongo checkout"
+                            >
+                              {payingRequestId === request.id ? '...' : '↩ Resume Payment'}
+                            </button>
+                          );
+                        }
+
+                        // No payment record yet — fresh checkout
+                        return (
+                          <button
+                            type="button"
+                            className="action-btn ab-pay"
+                            onClick={() => handlePayNow(request)}
+                            disabled={payingRequestId === request.id}
+                            title="Pay via PayMongo"
+                          >
+                            {payingRequestId === request.id ? '...' : '💳 Pay Now'}
+                          </button>
+                        );
+                      })()}
                       {request.status === 'DECLINED' && (
                         <button type="button" className="action-btn ab-resubmit" onClick={() => navigate('/requests/submit')}>
                           ↺ Resubmit

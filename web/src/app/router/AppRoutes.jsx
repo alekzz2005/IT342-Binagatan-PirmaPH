@@ -9,6 +9,7 @@ import verificationRoutes from '../../verification/routes';
 import documentRequestsRoutes from '../../documentrequests/routes';
 import adminRoutes from '../../admin/routes';
 import superAdminRoutes from '../../superadmin/routes';
+import paymentRoutes from '../../payment/routes';
 
 const featureRoutes = [
   ...authRoutes,
@@ -17,6 +18,7 @@ const featureRoutes = [
   ...documentRequestsRoutes,
   ...adminRoutes,
   ...superAdminRoutes,
+  ...paymentRoutes,
 ];
 
 const wrapProtectedRoute = (route) => {

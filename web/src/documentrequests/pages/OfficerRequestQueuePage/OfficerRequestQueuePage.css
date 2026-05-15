@@ -599,6 +599,22 @@
   color: #7c3aed;
 }
 
+.officer-panel-shell .sb-payment {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+}
+
+.officer-panel-shell .filter-chip.chip-payment {
+  border-color: #8b5cf6;
+  color: #7c3aed;
+}
+
+.officer-panel-shell .filter-chip.chip-payment.active {
+  background: #8b5cf6;
+  color: #fff;
+  border-color: #8b5cf6;
+}
+
 .officer-panel-shell .actions {
   display: flex;
   gap: 6px;
@@ -854,6 +870,26 @@
   height: 3px;
   border-radius: 0 0 10px 10px;
   background: var(--gold);
+}
+
+.officer-panel-shell .btn-payment {
+  flex: 1;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+  border: 1.5px solid rgba(139, 92, 246, 0.35);
+  border-radius: 10px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.officer-panel-shell .btn-payment:hover {
+  background: #8b5cf6;
+  color: #fff;
+  border-color: #8b5cf6;
 }
 
 .officer-panel-shell .pagination {
