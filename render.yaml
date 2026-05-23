@@ -4,7 +4,7 @@ services:
     env: docker
     rootDir: backend
     plan: free
-    healthCheckPath: /api/actuator/health
+    healthCheckPath: /actuator/health
     envVars:
       # Application Configuration
       - key: APP_ENV
