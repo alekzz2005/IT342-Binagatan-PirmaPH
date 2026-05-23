@@ -13,11 +13,19 @@ public class DocumentRequest {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(name = "resident_user_id", nullable = false)
     private UUID residentUserId;
 
-    @Column
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resident_user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_doc_req_resident"))
+    private edu.cit.binagatan.pirmaph.users.domain.User residentUser;
+
+    @Column(name = "assigned_officer_user_id")
     private UUID assignedOfficerUserId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "assigned_officer_user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_doc_req_officer"))
+    private edu.cit.binagatan.pirmaph.users.domain.User assignedOfficerUser;
 
     @Column(length = 30)
     private String barangayCode;
@@ -42,8 +50,12 @@ public class DocumentRequest {
     @Column(length = 800)
     private String officerRemarks;
 
-    @Column
+    @Column(name = "last_updated_by_user_id")
     private UUID lastUpdatedByUserId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_updated_by_user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_doc_req_last_updated_by"))
+    private edu.cit.binagatan.pirmaph.users.domain.User lastUpdatedByUser;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime requestTimestamp;

@@ -312,19 +312,17 @@ export default function AdminVerificationPage() {
     });
   };
 
-  const openDocumentPreview = (card) => {
-    const previewFile = card.previewFile;
-
-    if (previewFile?.signedUrl) {
-      window.open(previewFile.signedUrl, '_blank', 'noopener,noreferrer');
+  const openDocumentPreview = (file, card) => {
+    if (file?.signedUrl) {
+      window.open(file.signedUrl, '_blank', 'noopener,noreferrer');
       return;
     }
 
     showModal({
       context: 'info',
       title: 'Document Preview',
-      message: 'No signed preview link is available for this record.',
-      detail: (card.files || []).map((file) => `${file.originalFileName || 'Unnamed file'} · ${file.category || 'N/A'}`).join('\n') || 'No uploaded files were found.',
+      message: 'No signed preview link is available for this file.',
+      detail: file ? `${file.originalFileName || 'Unnamed file'} · ${file.category || 'N/A'}` : ((card?.files || []).map((f) => `${f.originalFileName || 'Unnamed file'} · ${f.category || 'N/A'}`).join('\n') || 'No uploaded files were found.'),
       confirmText: 'Close',
       showCancel: false,
     });
@@ -557,15 +555,31 @@ export default function AdminVerificationPage() {
                         <div className="vc-key">Claimed Address</div>
                         <div className="vc-val">{formatAddress(card, scopeBarangay.barangay)}</div>
                       </div>
-                      <div className="doc-preview">
-                        <span className="dp-icon">{buildPreviewIcon(card)}</span>
-                        <div>
-                          <div className="dp-name">{previewFile?.originalFileName || 'No uploaded file'}</div>
-                          <div className="dp-sub">Uploaded {formatDate(previewFile?.uploadedAt || card.createdAt)}</div>
-                        </div>
-                        <button type="button" className="dp-view" style={{ marginLeft: 'auto' }} onClick={() => openDocumentPreview(card)}>
-                          View ↗
-                        </button>
+                      <div className="vc-files">
+                        {card.files && card.files.length > 0 ? (
+                          card.files.map((file) => (
+                            <div key={file.id} className="doc-preview" style={{ marginBottom: '8px' }}>
+                              <span className="dp-icon">{buildPreviewIcon(card)}</span>
+                              <div>
+                                <div className="dp-name" title={file.originalFileName}>{file.originalFileName || 'Unnamed file'}</div>
+                                <div className="dp-sub">{(file.category || '').replace(/_/g, ' ')} · Uploaded {formatDate(file.uploadedAt || card.createdAt)}</div>
+                              </div>
+                              <button type="button" className="dp-view" style={{ marginLeft: 'auto' }} onClick={() => openDocumentPreview(file, card)}>
+                                View ↗
+                              </button>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="doc-preview">
+                            <span className="dp-icon">{buildPreviewIcon(card)}</span>
+                            <div>
+                              <div className="dp-name">No uploaded files</div>
+                            </div>
+                            <button type="button" className="dp-view" style={{ marginLeft: 'auto', opacity: 0.5, cursor: 'not-allowed' }} disabled>
+                              View ↗
+                            </button>
+                          </div>
+                        )}
                       </div>
                       <div className="vc-checklist">
                         {card.checklist.map((item) => (

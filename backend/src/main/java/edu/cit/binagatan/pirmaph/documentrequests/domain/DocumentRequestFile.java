@@ -13,11 +13,19 @@ public class DocumentRequestFile {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(name = "request_id", nullable = false)
     private UUID requestId;
 
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_doc_req_file_req"))
+    private DocumentRequest request;
+
+    @Column(name = "uploader_user_id", nullable = false)
     private UUID uploaderUserId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uploader_user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_doc_req_file_uploader"))
+    private edu.cit.binagatan.pirmaph.users.domain.User uploaderUser;
 
     @Column(length = 30)
     private String barangayCode;

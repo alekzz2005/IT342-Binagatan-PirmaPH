@@ -40,11 +40,17 @@ public class NotificationService {
     }
 
     public void sendStatusUpdate(User user, UserStatus newStatus) {
-        String subject = "PirmaPH Registration Status Update";
-        String body = "Hello " + user.getFirstName() + ",\n\n"
-                + "Your verification status has been updated to: " + newStatus.name() + ".\n\n"
-                + statusInstruction(newStatus);
-        sendEmail(user.getEmail(), subject, body);
+        if (newStatus == UserStatus.APPROVED) {
+            String subject = "PirmaPH Account Approved";
+            String htmlBody = buildApprovalEmailHtml(user.getFirstName());
+            sendHtmlEmail(user.getEmail(), subject, htmlBody);
+        } else {
+            String subject = "PirmaPH Registration Status Update";
+            String body = "Hello " + user.getFirstName() + ",\n\n"
+                    + "Your verification status has been updated to: " + newStatus.name() + ".\n\n"
+                    + statusInstruction(newStatus);
+            sendEmail(user.getEmail(), subject, body);
+        }
     }
 
     public void sendRoleUpdated(User user) {
@@ -123,5 +129,49 @@ public class NotificationService {
             logger.warn("Notification email failed for {}: {}", recipient, ex.getMessage());
             logger.info("Notification fallback log for {} | {} | {}", recipient, subject, body);
         }
+    }
+
+    private void sendHtmlEmail(String recipient, String subject, String htmlBody) {
+        if (mailSender == null) {
+            logger.info("Mail sender not configured. Notification to {} | {} | HTML", recipient, subject);
+            return;
+        }
+
+        try {
+            jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
+            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(senderEmail);
+            helper.setTo(recipient);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true);
+            mailSender.send(message);
+        } catch (Exception ex) {
+            logger.warn("Notification HTML email failed for {}: {}", recipient, ex.getMessage());
+            logger.info("Notification fallback log for {} | {} | HTML", recipient, subject);
+        }
+    }
+
+    private String buildApprovalEmailHtml(String firstName) {
+        return "<!DOCTYPE html><html><body style='margin:0;padding:0;background:#f4f6fb;"
+                + "font-family:Arial,sans-serif'>"
+                + "<table width='100%' cellpadding='0' cellspacing='0'><tr><td align='center' style='padding:40px 20px'>"
+                + "<table width='480' cellpadding='0' cellspacing='0' style='background:#fff;"
+                + "border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(10,26,58,0.12)'>"
+                + "<tr><td style='height:5px;background:linear-gradient(90deg,#0038A8 33%,#CE1126 33% 66%,#FCD116 66%)'></td></tr>"
+                + "<tr><td style='padding:36px 40px 0;text-align:center'>"
+                + "<div style='font-size:28px;font-weight:900;color:#0038A8;"
+                + "font-family:Georgia,serif;letter-spacing:1px'>Pirma<span style='color:#FCD116'>PH</span></div>"
+                + "<p style='color:#5a6a8a;font-size:13px;letter-spacing:2px;text-transform:uppercase;margin:4px 0 24px'>Barangay Digital Services</p>"
+                + "<div style='width:72px;height:72px;border-radius:50%;background:#EEF2FC;"
+                + "margin:0 auto 20px;font-size:32px;line-height:72px;text-align:center'>✅</div>"
+                + "<h2 style='color:#0a1a3a;font-size:22px;margin:0 0 8px'>Account Approved</h2>"
+                + "<p style='color:#5a6a8a;font-size:14px;line-height:1.6;margin:0 0 24px'>"
+                + "Hi " + (firstName != null ? firstName : "there") + "! Your account has been successfully approved. You can now access resident services and request barangay documents.</p>"
+                + "</td></tr>"
+                + "<tr><td style='padding:24px 40px 32px;text-align:center'>"
+                + "<p style='color:#5a6a8a;font-size:12px;margin:0'>If you did not request this, you can safely ignore this email.</p>"
+                + "</td></tr>"
+                + "<tr><td style='height:4px;background:linear-gradient(90deg,#0038A8 33%,#CE1126 33% 66%,#FCD116 66%)'></td></tr>"
+                + "</table></td></tr></table></body></html>";
     }
 }

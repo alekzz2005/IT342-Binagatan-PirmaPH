@@ -234,7 +234,7 @@ credentials/
 # ================================
 
 # Layout files (HTML templates)
-layout/
+/layout/
 
 # Test files
 backend/test-api.http.local

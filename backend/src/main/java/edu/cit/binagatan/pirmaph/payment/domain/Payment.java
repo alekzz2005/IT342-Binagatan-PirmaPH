@@ -14,12 +14,20 @@ public class Payment {
     private UUID id;
 
     /** The document request this payment covers. */
-    @Column(nullable = false)
+    @Column(name = "request_id", nullable = false)
     private UUID requestId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "request_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_payment_request"))
+    private edu.cit.binagatan.pirmaph.documentrequests.domain.DocumentRequest request;
+
     /** UUID of the resident who initiated the payment. */
-    @Column(nullable = false)
+    @Column(name = "resident_user_id", nullable = false)
     private UUID residentUserId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "resident_user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_payment_resident_user"))
+    private edu.cit.binagatan.pirmaph.users.domain.User residentUser;
 
     /** Amount in Philippine Peso (e.g. 50.00). */
     @Column(nullable = false, precision = 10, scale = 2)

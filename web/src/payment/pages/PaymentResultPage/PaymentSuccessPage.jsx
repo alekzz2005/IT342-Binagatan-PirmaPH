@@ -9,15 +9,40 @@ export default function PaymentSuccessPage() {
   const requestId = searchParams.get('requestId');
   const [countdown, setCountdown] = useState(8);
 
-  // Auto-redirect to request history after countdown
+  const [isConfirmed, setIsConfirmed] = useState(false);
+
+  // Targeted Polling: Check request status every 3 seconds
   useEffect(() => {
+    if (!requestId || isConfirmed) return;
+
+    const intervalId = setInterval(async () => {
+      try {
+        const { default: requestApi } = await import('../../../documentrequests/api/requestApi');
+        const details = await requestApi.getRequestDetails(requestId);
+        
+        // If the status is no longer PENDING_PAYMENT, the webhook successfully processed it
+        if (details.status !== 'PENDING_PAYMENT') {
+          setIsConfirmed(true);
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [requestId, isConfirmed]);
+
+  // Auto-redirect to request history after countdown (only starts when confirmed)
+  useEffect(() => {
+    if (!isConfirmed) return;
+
     if (countdown <= 0) {
       navigate('/requests/mine');
       return;
     }
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
-  }, [countdown, navigate]);
+  }, [countdown, isConfirmed, navigate]);
 
   return (
     <div className="payment-result-shell">
@@ -49,15 +74,28 @@ export default function PaymentSuccessPage() {
             </div>
 
             <div className="result-icon-zone">
-              <div className="result-icon success-icon">✅</div>
+              <div className={`result-icon ${isConfirmed ? 'success-icon' : 'pending-icon'}`}>
+                {isConfirmed ? '✅' : '⏳'}
+              </div>
             </div>
 
             <div className="result-body">
-              <h1 className="result-title" style={{ color: 'var(--green)' }}>Payment Successful!</h1>
-              <p className="result-message">
-                Your payment has been confirmed. Your document request is now back in the
-                processing queue. You will be notified when your document is ready.
-              </p>
+              {isConfirmed ? (
+                <>
+                  <h1 className="result-title" style={{ color: 'var(--green)' }}>Payment Successful!</h1>
+                  <p className="result-message">
+                    Your payment has been confirmed. Your document request is now back in the
+                    processing queue. You will be notified when your document is ready.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h1 className="result-title" style={{ color: '#0038A8' }}>Confirming Payment...</h1>
+                  <p className="result-message">
+                    Please wait while we verify your transaction with PayMongo. This usually takes a few seconds. Do not close this page.
+                  </p>
+                </>
+              )}
 
               {requestId && (
                 <div className="result-info-box success-info">
@@ -80,29 +118,33 @@ export default function PaymentSuccessPage() {
                 </div>
               )}
 
-              <div className="result-note success-note">
-                <span>ℹ️</span>
-                <span>
-                  Redirecting to My Requests in <strong>{countdown}</strong> second{countdown !== 1 ? 's' : ''}…
-                </span>
-              </div>
+              {isConfirmed && (
+                <>
+                  <div className="result-note success-note">
+                    <span>ℹ️</span>
+                    <span>
+                      Redirecting to My Requests in <strong>{countdown}</strong> second{countdown !== 1 ? 's' : ''}…
+                    </span>
+                  </div>
 
-              <div className="result-actions">
-                <button
-                  type="button"
-                  className="result-btn primary"
-                  onClick={() => navigate('/requests/mine')}
-                >
-                  View My Requests
-                </button>
-                <button
-                  type="button"
-                  className="result-btn secondary"
-                  onClick={() => navigate('/requests/submit')}
-                >
-                  Submit Another Request
-                </button>
-              </div>
+                  <div className="result-actions">
+                    <button
+                      type="button"
+                      className="result-btn primary"
+                      onClick={() => navigate('/requests/mine')}
+                    >
+                      View My Requests
+                    </button>
+                    <button
+                      type="button"
+                      className="result-btn secondary"
+                      onClick={() => navigate('/requests/submit')}
+                    >
+                      Submit Another Request
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Bottom flag strip */}
