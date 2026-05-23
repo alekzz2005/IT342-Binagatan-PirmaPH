@@ -1,0 +1,63 @@
+services:
+  - type: web
+    name: pirmaph-backend
+    env: docker
+    rootDir: backend
+    plan: free
+    healthCheckPath: /api/actuator/health
+    envVars:
+      # Application Configuration
+      - key: APP_ENV
+        value: production
+      - key: SERVER_PORT
+        value: "8080"
+      - key: ACTIVE_DB
+        value: cloud
+      - key: CLOUD_DB_DRIVER
+        value: org.postgresql.Driver
+      
+      # Cross-Origin (Change this to your actual frontend domain)
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://your-frontend-domain.vercel.app"
+
+      # Authentication & Security Secrets (Fill these out in the Render Dashboard)
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+
+      # Database Connections
+      - key: CLOUD_DB_URL
+        sync: false
+      - key: CLOUD_DB_USERNAME
+        sync: false
+      - key: CLOUD_DB_PASSWORD
+        sync: false
+
+      # Supabase Storage Configuration
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_BUCKET_PROFILE_PHOTOS
+        value: profile-photos
+      - key: SUPABASE_BUCKET_DOCUMENTS
+        value: resident-documents
+
+      # Email Notifications
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        value: onboarding@resend.dev
+
+      # Payment Gateway
+      - key: PAYMONGO_SECRET_KEY
+        sync: false
+      - key: PAYMONGO_PUBLIC_KEY
+        sync: false
+      - key: PAYMONGO_WEBHOOK_SECRET
+        sync: false
