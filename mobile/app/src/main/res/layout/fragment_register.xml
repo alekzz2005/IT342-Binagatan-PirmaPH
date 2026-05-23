@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:text="Create Account"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="6dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fill in your details to get started"
+            android:textColor="@color/pirma_text_muted"
+            android:textSize="14sp"
+            android:layout_marginBottom="24dp" />
+
+        <!-- SECTION 1: Account Credentials -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:paddingBottom="4dp"
+            android:text="Account Credentials"
+            android:textColor="@color/pirma_blue"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Account Type -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="ACCOUNT TYPE"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerRole"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Username -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="USERNAME"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="e.g. juan123"
+            android:inputType="text"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Email -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="EMAIL ADDRESS"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="juan@email.com"
+            android:inputType="textEmailAddress"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Password -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="PASSWORD"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="Min. 8 characters"
+            android:inputType="textPassword"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Confirm Password -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="CONFIRM PASSWORD"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="Re-enter password"
+            android:inputType="textPassword"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- SECTION 2: Personal Information -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:paddingBottom="4dp"
+            android:text="Personal Information"
+            android:textColor="@color/pirma_blue"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- First Name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="FIRST NAME"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etFirstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="Juan"
+            android:inputType="textPersonName"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Middle Name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="MIDDLE NAME"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etMiddleName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="Santos"
+            android:inputType="textPersonName"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Last Name -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="LAST NAME"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etLastName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="Dela Cruz"
+            android:inputType="textPersonName"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Date of Birth -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="DATE OF BIRTH"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvBirthDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="YYYY-MM-DD"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Sex -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="SEX"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerSex"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Phone Number -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="PHONE NUMBER"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etPhoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="+63 9XX XXX XXXX"
+            android:inputType="phone"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- SECTION 3: Address Information -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:paddingBottom="4dp"
+            android:text="Address Information"
+            android:textColor="@color/pirma_blue"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <!-- Street Address -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="STREET ADDRESS"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etStreet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="123 Main Street, Apt 4B"
+            android:inputType="textPostalAddress"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Region -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="REGION"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerRegion"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Province -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="PROVINCE"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerProvince"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- City/Municipality -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="CITY/MUNICIPALITY"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerCity"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Barangay -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="BARANGAY"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerBarangay"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- ZIP Code -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:letterSpacing="0.04"
+            android:text="ZIP CODE"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etZipCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_input_field"
+            android:hint="1234"
+            android:inputType="number"
+            android:padding="14dp"
+            android:textColor="@color/pirma_text_dark"
+            android:textColorHint="#C0CCE0"
+            android:textSize="15sp"
+            android:layout_marginBottom="24dp"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnRegister"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_btn_primary"
+            android:text="Create Account"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.05"
+            android:padding="16dp" />
+
+    </LinearLayout>
+</ScrollView>

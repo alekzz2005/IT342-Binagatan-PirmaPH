@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">mobile</string>
+    <string name="auth_brand">PirmaPH</string>
+    <string name="auth_subtitle">Barangay Digital Services</string>
+    <string name="auth_login_title">Welcome back</string>
+    <string name="auth_login_subtitle">Sign in to your account to continue</string>
+    <string name="auth_register_title">Create Account</string>
+    <string name="auth_register_subtitle">Fill in your details to get started</string>
+    <string name="auth_tab_login">Log In</string>
+    <string name="auth_tab_register">Register</string>
+    <string name="auth_email">Email Address</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_confirm_password">Confirm Password</string>
+    <string name="auth_full_name">Full Name</string>
+    <string name="auth_forgot_password">Forgot password?</string>
+    <string name="auth_login_action">Log In</string>
+    <string name="auth_guest_action">👤 Continue as Guest</string>
+    <string name="auth_register_action">Create Account</string>
+    <string name="auth_registration_placeholder">Registration UI only for this slice</string>
+</resources>

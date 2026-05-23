@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Bottom Red Border (Shadow/Accent) -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/pirma_red" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+    <!-- Top Blue Button Background -->
+    <item android:bottom="3dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/pirma_blue" />
+            <corners android:radius="14dp" />
+        </shape>
+    </item>
+</layer-list>
