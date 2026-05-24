@@ -27,8 +27,7 @@ public class PasswordRecoveryService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
+    private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
 
     @Value("${app.frontend-url:http://localhost:5173}")
     private String frontendUrl;
@@ -36,8 +35,11 @@ public class PasswordRecoveryService {
     @Value("${password.reset.ttl-minutes:30}")
     private long passwordResetTtlMinutes;
 
-    @Value("${spring.mail.username:no-reply@pirmaph.local}")
-    private String senderEmail;
+    @Value("${resend.api-key:}")
+    private String resendApiKey;
+
+    @Value("${resend.from-email:onboarding@resend.dev}")
+    private String fromEmail;
 
     @Transactional
     public void requestPasswordReset(String email) {
@@ -80,20 +82,49 @@ public class PasswordRecoveryService {
     private void sendResetEmail(User user, String rawToken) {
         String resetLink = frontendUrl + "/reset-password?token=" + rawToken;
 
-        if (mailSender != null) {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(senderEmail);
-            message.setTo(user.getEmail());
-            message.setSubject("PirmaPH Password Recovery");
-            message.setText("Hello " + user.getFirstName() + ",\n\n"
-                    + "We received a password reset request for your account.\n"
-                    + "Use this link to set a new password: " + resetLink + "\n\n"
-                    + "This link will expire in " + passwordResetTtlMinutes + " minutes.\n"
-                    + "If you did not request this, you can safely ignore this email.");
-            mailSender.send(message);
+        if (resendApiKey == null || resendApiKey.isBlank()) {
+            logger.info("Password reset requested for {}. Resend API key not configured. Reset link: {}", user.getEmail(), resetLink);
             return;
         }
 
-        logger.info("Password reset requested for {}. Mail sender not configured. Reset link: {}", user.getEmail(), resetLink);
+        String body = "Hello " + user.getFirstName() + ",\n\n"
+                + "We received a password reset request for your account.\n"
+                + "Use this link to set a new password: " + resetLink + "\n\n"
+                + "This link will expire in " + passwordResetTtlMinutes + " minutes.\n"
+                + "If you did not request this, you can safely ignore this email.";
+
+        String jsonPayload = "{"
+                + "\"from\":\"" + escapeJson(fromEmail) + "\","
+                + "\"to\":[\"" + escapeJson(user.getEmail()) + "\"],"
+                + "\"subject\":\"PirmaPH Password Recovery\","
+                + "\"text\":\"" + escapeJson(body) + "\""
+                + "}";
+
+        try {
+            java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create("https://api.resend.com/emails"))
+                    .header("Authorization", "Bearer " + resendApiKey)
+                    .header("Content-Type", "application/json")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
+
+            java.net.http.HttpResponse<String> resp = httpClient.send(req, java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+                logger.info("Password reset email sent to {} via Resend", user.getEmail());
+            } else {
+                logger.error("Resend API error for {}: {} — {}", user.getEmail(), resp.statusCode(), resp.body());
+            }
+        } catch (Exception ex) {
+            logger.warn("Password reset email failed for {}: {}", user.getEmail(), ex.getMessage());
+        }
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n")
+                .replace("\t", "\\t");
     }
 }

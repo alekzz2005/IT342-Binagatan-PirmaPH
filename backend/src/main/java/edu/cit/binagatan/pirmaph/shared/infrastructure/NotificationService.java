@@ -15,11 +15,13 @@ public class NotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
+    private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
 
-    @Value("${spring.mail.username:no-reply@pirmaph.local}")
-    private String senderEmail;
+    @Value("${resend.api-key:}")
+    private String resendApiKey;
+
+    @Value("${resend.from-email:onboarding@resend.dev}")
+    private String fromEmail;
 
     public void sendRegistrationReceived(User user) {
         String subject = "PirmaPH Registration Received";
@@ -112,43 +114,64 @@ public class NotificationService {
     }
 
     private void sendEmail(String recipient, String subject, String body) {
-        if (mailSender == null) {
-            logger.info("Mail sender not configured. Notification to {} | {} | {}", recipient, subject, body);
+        if (resendApiKey == null || resendApiKey.isBlank()) {
+            logger.info("Resend API key not configured. Notification to {} | {} | {}", recipient, subject, body);
             return;
         }
 
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(senderEmail);
-            message.setTo(recipient);
-            message.setSubject(subject);
-            message.setText(body);
-            mailSender.send(message);
-        } catch (Exception ex) {
-            // Non-blocking notification: registration/approval should proceed even if mail is down.
-            logger.warn("Notification email failed for {}: {}", recipient, ex.getMessage());
-            logger.info("Notification fallback log for {} | {} | {}", recipient, subject, body);
-        }
+        String jsonPayload = "{"
+                + "\"from\":\"" + escapeJson(fromEmail) + "\","
+                + "\"to\":[\"" + escapeJson(recipient) + "\"],"
+                + "\"subject\":\"" + escapeJson(subject) + "\","
+                + "\"text\":\"" + escapeJson(body) + "\""
+                + "}";
+
+        executeResendRequest(recipient, subject, jsonPayload);
     }
 
     private void sendHtmlEmail(String recipient, String subject, String htmlBody) {
-        if (mailSender == null) {
-            logger.info("Mail sender not configured. Notification to {} | {} | HTML", recipient, subject);
+        if (resendApiKey == null || resendApiKey.isBlank()) {
+            logger.info("Resend API key not configured. Notification to {} | {} | HTML", recipient, subject);
             return;
         }
 
+        String jsonPayload = "{"
+                + "\"from\":\"" + escapeJson(fromEmail) + "\","
+                + "\"to\":[\"" + escapeJson(recipient) + "\"],"
+                + "\"subject\":\"" + escapeJson(subject) + "\","
+                + "\"html\":\"" + escapeJson(htmlBody) + "\""
+                + "}";
+
+        executeResendRequest(recipient, subject, jsonPayload);
+    }
+
+    private void executeResendRequest(String recipient, String subject, String jsonPayload) {
         try {
-            jakarta.mail.internet.MimeMessage message = mailSender.createMimeMessage();
-            org.springframework.mail.javamail.MimeMessageHelper helper = new org.springframework.mail.javamail.MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(senderEmail);
-            helper.setTo(recipient);
-            helper.setSubject(subject);
-            helper.setText(htmlBody, true);
-            mailSender.send(message);
+            java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create("https://api.resend.com/emails"))
+                    .header("Authorization", "Bearer " + resendApiKey)
+                    .header("Content-Type", "application/json")
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(jsonPayload))
+                    .build();
+
+            java.net.http.HttpResponse<String> resp = httpClient.send(req, java.net.http.HttpResponse.BodyHandlers.ofString());
+            if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+                logger.info("Notification email sent to {} via Resend", recipient);
+            } else {
+                logger.error("Resend API error for {}: {} — {}", recipient, resp.statusCode(), resp.body());
+            }
         } catch (Exception ex) {
-            logger.warn("Notification HTML email failed for {}: {}", recipient, ex.getMessage());
-            logger.info("Notification fallback log for {} | {} | HTML", recipient, subject);
+            logger.warn("Notification email failed for {}: {}", recipient, ex.getMessage());
         }
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n")
+                .replace("\t", "\\t");
     }
 
     private String buildApprovalEmailHtml(String firstName) {
