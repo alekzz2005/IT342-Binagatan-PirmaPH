@@ -8,8 +8,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-    // Use emulator-friendly localhost
-    private const val BASE_URL = "http://10.0.2.2:8080/"
+    // Use deployed backend
+    private const val BASE_URL = "https://pirmaph-backend.onrender.com/"
 
     fun create(tokenManager: TokenManager): ApiService {
         val logging = HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY }
