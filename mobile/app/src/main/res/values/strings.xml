@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">mobile</string>
+    <string name="app_name">PirmaPH</string>
     <string name="auth_brand">PirmaPH</string>
     <string name="auth_subtitle">Barangay Digital Services</string>
     <string name="auth_login_title">Welcome back</string>
