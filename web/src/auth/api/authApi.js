@@ -12,6 +12,13 @@ class AuthApi {
   }
 
   /**
+   * Complete profile for OAuth users
+   */
+  async completeProfile(profileData) {
+    return apiService.completeProfile(profileData);
+  }
+
+  /**
    * Login with email and password
    */
   async login(credentials) {

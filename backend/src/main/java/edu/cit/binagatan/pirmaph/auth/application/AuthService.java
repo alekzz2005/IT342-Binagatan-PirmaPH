@@ -174,4 +174,47 @@ public class AuthService {
     public void resetPassword(String token, String newPassword, String confirmPassword) {
         passwordRecoveryService.resetPassword(token, newPassword, confirmPassword);
     }
+
+    public AuthResponse completeProfile(AuthenticatedUser principal, edu.cit.binagatan.pirmaph.users.dto.CompleteProfileRequest request) {
+        User user = userRepository.findById(principal.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (user.getStatus() != UserStatus.INCOMPLETE_PROFILE) {
+            throw new IllegalArgumentException("Profile is already completed.");
+        }
+
+        user.setBirthDate(request.getBirthDate());
+        user.setSex(request.getSex());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setStreet(request.getStreet());
+        
+        user.setRegionCode(request.getRegionCode());
+        user.setProvinceCode(request.getProvinceCode());
+        user.setCityMunCode(request.getCityMunCode());
+        user.setBarangayCode(request.getBarangayCode());
+        
+        user.setRegion(request.getRegion());
+        user.setProvince(request.getProvince());
+        user.setCity(request.getCity());
+        user.setBarangay(request.getBarangay());
+        user.setZipCode(request.getZipCode());
+
+        user.setStatus(UserStatus.PENDING_VERIFICATION);
+
+        User savedUser = userRepository.save(user);
+
+        try {
+            if (savedUser.getRole() == UserRole.OFFICER) {
+                notificationService.sendOfficerRegistrationReceived(savedUser);
+            } else {
+                notificationService.sendRegistrationReceived(savedUser);
+            }
+        } catch (Exception ignored) {
+            // Notification failure should not block successful profile completion.
+        }
+
+        // Generate a new token with updated claims if needed, or just return the user data.
+        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getRole().name());
+        return new AuthResponse(savedUser, token);
+    }
 }

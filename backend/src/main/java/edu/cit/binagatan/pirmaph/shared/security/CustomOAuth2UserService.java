@@ -108,7 +108,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         
         // Set default role
         newUser.setRole(UserRole.RESIDENT);
-        newUser.setStatus(UserStatus.PENDING_VERIFICATION);
+        newUser.setStatus(UserStatus.INCOMPLETE_PROFILE);
 
         newUser.setPasswordHash("OAUTH2_USER");
         newUser.setBirthDate(LocalDate.of(1970, 1, 1));

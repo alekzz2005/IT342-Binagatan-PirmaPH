@@ -6,6 +6,7 @@ export const USER_ROLES = {
 };
 
 export const USER_STATUS = {
+  INCOMPLETE_PROFILE: 'INCOMPLETE_PROFILE',
   PENDING_VERIFICATION: 'PENDING_VERIFICATION',
   APPROVED: 'APPROVED',
   REJECTED: 'REJECTED',
@@ -40,6 +41,10 @@ export function getDashboardPathByRole(role) {
 export function getLandingPathForUser(user) {
   if (!user) {
     return '/';
+  }
+
+  if (user.status === USER_STATUS.INCOMPLETE_PROFILE) {
+    return '/complete-profile';
   }
 
   const normalizedRole = normalizeRole(user.role);

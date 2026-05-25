@@ -80,7 +80,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             User user = optionalUser.get();
             System.out.println("User found: " + user.getUsername() + " (ID: " + user.getId() + ")");
 
-                if (user.getStatus() != null && user.getStatus() != UserStatus.APPROVED) {
+            // Allow INCOMPLETE_PROFILE to proceed so they can get a token, but redirect them to complete profile later.
+            // Wait, we need to generate the token first. Let's restructure the redirect.
+            if (user.getStatus() != null && user.getStatus() != UserStatus.APPROVED && user.getStatus() != UserStatus.INCOMPLETE_PROFILE) {
                 String statusReason = user.getStatus() == UserStatus.SUSPENDED
                     ? "account_suspended"
                     : user.getStatus() == UserStatus.REJECTED
@@ -92,7 +94,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     .build().toUriString();
                 getRedirectStrategy().sendRedirect(request, response, redirectUrl);
                 return;
-                }
+            }
 
             // Generate JWT token
             String token = jwtUtil.generateToken(user.getId(), user.getRole().name());
@@ -108,10 +110,15 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             String frontendUrl = allowedOrigins.split(",")[0].trim();
             
             // Redirect to frontend with token and user data
-            String redirectUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/redirect")
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/redirect")
                     .queryParam("token", token)
-                    .queryParam("user", userDataJson)
-                    .build().toUriString();
+                    .queryParam("user", userDataJson);
+            
+            if (user.getStatus() == UserStatus.INCOMPLETE_PROFILE) {
+                uriBuilder.queryParam("status", "incomplete_profile");
+            }
+            
+            String redirectUrl = uriBuilder.build().toUriString();
             
             System.out.println("Redirecting to: " + frontendUrl + "/oauth2/redirect");
             getRedirectStrategy().sendRedirect(request, response, redirectUrl);

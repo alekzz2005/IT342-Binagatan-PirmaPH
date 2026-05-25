@@ -134,6 +134,22 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/complete-profile")
+    public ResponseEntity<?> completeProfile(@Valid @RequestBody edu.cit.binagatan.pirmaph.users.dto.CompleteProfileRequest request) {
+        try {
+            AuthenticatedUser principal = (AuthenticatedUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            AuthResponse response = authService.completeProfile(principal, request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (Exception e) {
+            ErrorResponse error = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), 
+                    "An error occurred while completing profile");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
     // Handle validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {

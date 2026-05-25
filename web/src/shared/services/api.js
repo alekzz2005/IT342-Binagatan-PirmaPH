@@ -161,6 +161,14 @@ class ApiService {
     });
   }
 
+  // Complete profile for OAuth users
+  async completeProfile(profileData) {
+    return this.request('/auth/complete-profile', {
+      method: 'POST',
+      body: JSON.stringify(profileData),
+    });
+  }
+
   // Login user
   async login(credentials) {
     return this.request('/auth/login', {
