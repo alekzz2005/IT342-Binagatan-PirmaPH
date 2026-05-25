@@ -102,15 +102,12 @@ class RegisterFragment : Fragment() {
     }
 
     private fun setupStaticSpinners() {
-        val roles = arrayOf("RESIDENT", "OFFICER")
-        val roleAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, roles)
-        roleAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        val roles = listOf("Select Role...", "RESIDENT", "OFFICER")
+        val roleAdapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), roles)
         spinnerRole.adapter = roleAdapter
 
-        val sexes = arrayOf("Male" to "M", "Female" to "F", "Other" to "O")
-        val sexLabels = sexes.map { it.first }.toTypedArray()
-        val sexAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, sexLabels)
-        sexAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+        val sexes = listOf("Select Sex...", "Male", "Female", "Other")
+        val sexAdapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), sexes)
         spinnerSex.adapter = sexAdapter
     }
 
@@ -179,8 +176,7 @@ class RegisterFragment : Fragment() {
                 regions = psgcApi.getRegions()
                 val names = mutableListOf("Select Region...")
                 names.addAll(regions.map { it.name })
-                val adapter = ArrayAdapter(requireContext(), R.layout.spinner_item, names)
-                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                val adapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), names)
                 spinnerRegion.adapter = adapter
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Failed to load regions", Toast.LENGTH_SHORT).show()
@@ -199,16 +195,13 @@ class RegisterFragment : Fragment() {
                 if (provinces.isNotEmpty()) {
                     val names = mutableListOf("Select Province...")
                     names.addAll(provinces.map { it.name })
-                    val provAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, names)
-                    provAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                    val provAdapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), names)
                     spinnerProvince.adapter = provAdapter
                     
-                    val cityAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, listOf("Select City..."))
-                    cityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                    val cityAdapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), listOf("Select City..."))
                     spinnerCity.adapter = cityAdapter
                 } else {
-                    val provAdapter = ArrayAdapter(requireContext(), R.layout.spinner_item, listOf("N/A"))
-                    provAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                    val provAdapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), listOf("N/A"))
                     spinnerProvince.adapter = provAdapter
                     loadCitiesByRegion(regionCode)
                 }
@@ -224,8 +217,7 @@ class RegisterFragment : Fragment() {
                 cities = psgcApi.getCitiesByProvince(provinceCode)
                 val names = mutableListOf("Select City...")
                 names.addAll(cities.map { it.name })
-                val adapter = ArrayAdapter(requireContext(), R.layout.spinner_item, names)
-                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                val adapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), names)
                 spinnerCity.adapter = adapter
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Failed to load cities", Toast.LENGTH_SHORT).show()
@@ -239,8 +231,7 @@ class RegisterFragment : Fragment() {
                 cities = psgcApi.getCitiesByRegion(regionCode)
                 val names = mutableListOf("Select City...")
                 names.addAll(cities.map { it.name })
-                val adapter = ArrayAdapter(requireContext(), R.layout.spinner_item, names)
-                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                val adapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), names)
                 spinnerCity.adapter = adapter
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Failed to load cities", Toast.LENGTH_SHORT).show()
@@ -254,8 +245,7 @@ class RegisterFragment : Fragment() {
                 barangays = psgcApi.getBarangaysByCity(cityCode)
                 val names = mutableListOf("Select Barangay...")
                 names.addAll(barangays.map { it.name })
-                val adapter = ArrayAdapter(requireContext(), R.layout.spinner_item, names)
-                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item)
+                val adapter = com.pirmaph.mobile.ui.utils.PirmaSpinnerAdapter(requireContext(), names)
                 spinnerBarangay.adapter = adapter
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Failed to load barangays", Toast.LENGTH_SHORT).show()
@@ -282,7 +272,7 @@ class RegisterFragment : Fragment() {
             return
         }
 
-        val sexMap = mapOf(0 to "M", 1 to "F", 2 to "O")
+        val sexMap = mapOf(1 to "M", 2 to "F", 3 to "O")
         val selectedSexCode = sexMap[spinnerSex.selectedItemPosition] ?: "M"
 
         val request = RegisterRequest(

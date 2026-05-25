@@ -8,6 +8,7 @@
     <color name="pirma_blue_light">#EEF2FC</color>
     <color name="pirma_text_dark">#0A1A3A</color>
     <color name="pirma_text_muted">#6B7A99</color>
+    <color name="pirma_placeholder">#A3B1CC</color>
     <color name="pirma_border">#DCE4F5</color>
     <color name="pirma_field_bg">#FAFBFF</color>
 </resources>

@@ -48,7 +48,7 @@
             android:inputType="textEmailAddress"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="18dp" />
 
@@ -72,7 +72,7 @@
             android:inputType="textPassword"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="24dp" />
 
@@ -89,18 +89,31 @@
             android:layout_marginBottom="24dp" />
 
         <!-- Primary Button -->
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnLogin"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_btn_primary"
-            android:text="Log In"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.05"
-            android:padding="16dp" />
+            android:layout_height="wrap_content">
+            
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_btn_primary"
+                android:text="Log In"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:padding="16dp" />
+
+            <ProgressBar
+                android:id="@+id/pbLoading"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/white"
+                android:visibility="gone" />
+        </FrameLayout>
 
     </LinearLayout>
 </ScrollView>

@@ -1,5 +1,7 @@
 package com.pirmaph.mobile.ui.auth
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +10,14 @@ import androidx.viewpager2.widget.ViewPager2
 import com.pirmaph.mobile.R
 
 class AuthActivity : AppCompatActivity() {
+
+    companion object {
+        fun start(context: Context) {
+            val intent = Intent(context, AuthActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            context.startActivity(intent)
+        }
+    }
 
     private lateinit var tabLogin: TextView
     private lateinit var tabRegister: TextView

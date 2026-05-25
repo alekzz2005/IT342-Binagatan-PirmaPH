@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -23,6 +24,7 @@ class LoginFragment : Fragment() {
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var btnLogin: Button
+    private lateinit var pbLoading: ProgressBar
     private lateinit var tvForgotPassword: TextView
     private lateinit var authRepository: AuthRepository
 
@@ -35,6 +37,7 @@ class LoginFragment : Fragment() {
         etEmail = view.findViewById(R.id.etEmail)
         etPassword = view.findViewById(R.id.etPassword)
         btnLogin = view.findViewById(R.id.btnLogin)
+        pbLoading = view.findViewById(R.id.pbLoading)
         tvForgotPassword = view.findViewById(R.id.tvForgotPassword)
 
         val tokenManager = TokenManager(requireContext())
@@ -44,6 +47,18 @@ class LoginFragment : Fragment() {
         setupListeners()
 
         return view
+    }
+
+    private fun setLoading(isLoading: Boolean) {
+        if (isLoading) {
+            btnLogin.text = ""
+            btnLogin.isEnabled = false
+            pbLoading.visibility = View.VISIBLE
+        } else {
+            btnLogin.text = "Log In"
+            btnLogin.isEnabled = true
+            pbLoading.visibility = View.GONE
+        }
     }
 
     private fun setupListeners() {
@@ -60,17 +75,21 @@ class LoginFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            setLoading(true)
+
             lifecycleScope.launch {
                 try {
                     val resp = authRepository.login(email, pass)
                     if (!resp.token.isNullOrEmpty()) {
-                        com.pirmaph.mobile.ui.resident.dashboard.ResidentDashboardActivity.start(requireContext())
+                        com.pirmaph.mobile.ui.resident.ResidentHostActivity.start(requireContext())
                         requireActivity().finish()
                     } else {
                         Toast.makeText(requireContext(), "Login failed", Toast.LENGTH_SHORT).show()
                     }
                 } catch (ex: Exception) {
                     Toast.makeText(requireContext(), "Error: ${ex.message}", Toast.LENGTH_SHORT).show()
+                } finally {
+                    setLoading(false)
                 }
             }
         }

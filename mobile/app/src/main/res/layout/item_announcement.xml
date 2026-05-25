@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/tvAnnouncementBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_btn_primary"
+        android:backgroundTint="#2196F3"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="3dp"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:text="Info" />
+
+    <TextView
+        android:id="@+id/tvAnnouncementTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/pirma_text_dark"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:text="Barangay Clearance Pending" />
+
+    <TextView
+        android:id="@+id/tvAnnouncementBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/pirma_text_muted"
+        android:textSize="12sp"
+        android:lineSpacingExtra="2dp"
+        android:text="Your document is currently being reviewed by an officer." />
+
+    <TextView
+        android:id="@+id/tvAnnouncementDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="#A0AABF"
+        android:textSize="10sp"
+        android:text="Updated 2 hours ago" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/pirma_border" />
+</LinearLayout>

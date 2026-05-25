@@ -54,10 +54,9 @@
         <Spinner
             android:id="@+id/spinnerRole"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_input_field"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:paddingHorizontal="14dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- Username -->
@@ -80,7 +79,7 @@
             android:inputType="text"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="16dp"/>
 
@@ -104,7 +103,7 @@
             android:inputType="textEmailAddress"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="16dp"/>
 
@@ -128,7 +127,7 @@
             android:inputType="textPassword"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="16dp"/>
 
@@ -152,7 +151,7 @@
             android:inputType="textPassword"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="24dp"/>
 
@@ -188,7 +187,7 @@
             android:inputType="textPersonName"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="16dp"/>
 
@@ -212,7 +211,7 @@
             android:inputType="textPersonName"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="16dp"/>
 
@@ -236,7 +235,7 @@
             android:inputType="textPersonName"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="16dp"/>
 
@@ -259,7 +258,7 @@
             android:hint="YYYY-MM-DD"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="16dp"/>
 
@@ -277,10 +276,9 @@
         <Spinner
             android:id="@+id/spinnerSex"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_input_field"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:paddingHorizontal="14dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- Phone Number -->
@@ -303,7 +301,7 @@
             android:inputType="phone"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="24dp"/>
 
@@ -339,7 +337,7 @@
             android:inputType="textPostalAddress"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="16dp"/>
 
@@ -357,10 +355,9 @@
         <Spinner
             android:id="@+id/spinnerRegion"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_input_field"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:paddingHorizontal="14dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- Province -->
@@ -377,10 +374,9 @@
         <Spinner
             android:id="@+id/spinnerProvince"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_input_field"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:paddingHorizontal="14dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- City/Municipality -->
@@ -397,10 +393,9 @@
         <Spinner
             android:id="@+id/spinnerCity"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_input_field"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:paddingHorizontal="14dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- Barangay -->
@@ -417,10 +412,9 @@
         <Spinner
             android:id="@+id/spinnerBarangay"
             android:layout_width="match_parent"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:background="@drawable/bg_input_field"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
+            android:paddingHorizontal="14dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- ZIP Code -->
@@ -443,7 +437,7 @@
             android:inputType="number"
             android:padding="14dp"
             android:textColor="@color/pirma_text_dark"
-            android:textColorHint="#C0CCE0"
+            android:textColorHint="@color/pirma_placeholder"
             android:textSize="15sp"
             android:layout_marginBottom="24dp"/>
 

@@ -3,76 +3,66 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical">
+
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_btn_secondary"
+        android:backgroundTint="#1A1C3C6B"> <!-- pirma_blue with 10% opacity -->
+
+        <ImageView
+            android:id="@+id/ivDocumentIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_assignment"
+            app:tint="@color/pirma_blue" />
+    </FrameLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="12dp">
-
-        <FrameLayout
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/bg_input_field"
-            android:backgroundTint="@color/pirma_blue_light">
-
-            <ImageView
-                android:id="@+id/ivRequestIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_document"
-                app:tint="@color/pirma_blue" />
-        </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tvRequestName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:text="Barangay Clearance"
-                android:textColor="@color/pirma_text_dark"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvRequestDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="Feb 25, 2026 · Employment"
-                android:textColor="@color/pirma_text_muted"
-                android:textSize="11sp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvRequestBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_input_field"
-            android:backgroundTint="#2E10B981"
-            android:paddingHorizontal="8dp"
-            android:paddingVertical="4dp"
-            android:text="APPROVED"
-            android:textColor="#059669"
-            android:textSize="10sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
+        android:layout_weight="1"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
-        android:background="@color/pirma_border" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDocumentType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/pirma_text_dark"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:text="Barangay Clearance" />
+
+        <TextView
+            android:id="@+id/tvDocumentMeta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/pirma_text_muted"
+            android:textSize="12sp"
+            android:text="Submitted May 25, 2026 · General" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvStatusBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_btn_primary"
+        android:backgroundTint="@color/pirma_gold"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:text="Pending" />
+
 </LinearLayout>

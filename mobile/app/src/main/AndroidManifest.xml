@@ -29,6 +29,18 @@
         <activity
             android:name=".ui.resident.dashboard.ResidentDashboardActivity"
             android:exported="true" />
+        <activity
+            android:name=".ui.resident.dashboard.ResidentNotificationsActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.resident.requests.ResidentRequestsActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.resident.ResidentHostActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.resident.requests.SubmitRequestActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
