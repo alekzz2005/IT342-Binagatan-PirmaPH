@@ -64,7 +64,7 @@ class LoginFragment : Fragment() {
                 try {
                     val resp = authRepository.login(email, pass)
                     if (!resp.token.isNullOrEmpty()) {
-                        startActivity(Intent(requireContext(), MainActivity::class.java))
+                        com.pirmaph.mobile.ui.resident.dashboard.ResidentDashboardActivity.start(requireContext())
                         requireActivity().finish()
                     } else {
                         Toast.makeText(requireContext(), "Login failed", Toast.LENGTH_SHORT).show()
