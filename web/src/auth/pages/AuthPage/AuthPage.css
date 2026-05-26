@@ -434,6 +434,30 @@
   cursor: not-allowed;
 }
 
+.btn-outline {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  color: var(--blue);
+  border: 1.5px solid var(--blue);
+  border-radius: 10px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover { 
+  background: rgba(0,56,168,0.05); 
+}
+
+.btn-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .forgot-link {
   display: block;
   text-align: right;
