@@ -218,7 +218,21 @@ public class DocumentRequestService {
                 .toList();
         Payment payment = payMongoService.getLatestPaymentForRequest(request.getId());
         PaymentInfoResponse paymentInfo = PaymentInfoResponse.from(payment);
-        return DocumentRequestResponse.from(request, files, paymentInfo);
+
+        // Enrich with resident name and email for officer/admin views
+        String residentFullName = null;
+        String residentEmail = null;
+        try {
+            User resident = userRepository.findById(request.getResidentUserId()).orElse(null);
+            if (resident != null) {
+                residentFullName = (resident.getFirstName() + " " + resident.getLastName()).trim();
+                // Show phone number as primary contact; fall back to email
+                String phone = resident.getPhoneNumber();
+                residentEmail = (phone != null && !phone.isBlank()) ? phone : resident.getEmail();
+            }
+        } catch (Exception ignored) {}
+
+        return DocumentRequestResponse.from(request, files, paymentInfo, residentFullName, residentEmail);
     }
 
     private DocumentRequestFileResponse toFileResponse(DocumentRequestFile file) {
@@ -326,10 +340,9 @@ public class DocumentRequestService {
             return;
         }
 
-        // Allow PENDING_PAYMENT to transition to SUBMITTED, APPROVED, or DECLINED
         if (current == DocumentRequestStatus.PENDING_PAYMENT &&
                 (next == DocumentRequestStatus.SUBMITTED || next == DocumentRequestStatus.APPROVED
-                 || next == DocumentRequestStatus.DECLINED)) {
+                 || next == DocumentRequestStatus.DECLINED || next == DocumentRequestStatus.READY_FOR_RELEASE)) {
             return;
         }
 

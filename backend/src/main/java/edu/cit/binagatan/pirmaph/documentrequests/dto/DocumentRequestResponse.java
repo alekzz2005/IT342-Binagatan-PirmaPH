@@ -14,6 +14,8 @@ public class DocumentRequestResponse {
 
     private UUID id;
     private UUID residentUserId;
+    private String residentFullName;
+    private String residentEmail;
     private UUID assignedOfficerUserId;
     private String barangayCode;
     private DocumentType documentType;
@@ -31,9 +33,15 @@ public class DocumentRequestResponse {
     private BigDecimal amountDue;
 
     public static DocumentRequestResponse from(DocumentRequest request, List<DocumentRequestFileResponse> files, PaymentInfoResponse paymentInfo) {
+        return from(request, files, paymentInfo, null, null);
+    }
+
+    public static DocumentRequestResponse from(DocumentRequest request, List<DocumentRequestFileResponse> files, PaymentInfoResponse paymentInfo, String residentFullName, String residentEmail) {
         DocumentRequestResponse response = new DocumentRequestResponse();
         response.setId(request.getId());
         response.setResidentUserId(request.getResidentUserId());
+        response.setResidentFullName(residentFullName);
+        response.setResidentEmail(residentEmail);
         response.setAssignedOfficerUserId(request.getAssignedOfficerUserId());
         response.setBarangayCode(request.getBarangayCode());
         response.setDocumentType(request.getDocumentType());
@@ -58,6 +66,22 @@ public class DocumentRequestResponse {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public String getResidentFullName() {
+        return residentFullName;
+    }
+
+    public void setResidentFullName(String residentFullName) {
+        this.residentFullName = residentFullName;
+    }
+
+    public String getResidentEmail() {
+        return residentEmail;
+    }
+
+    public void setResidentEmail(String residentEmail) {
+        this.residentEmail = residentEmail;
     }
 
     public UUID getResidentUserId() {

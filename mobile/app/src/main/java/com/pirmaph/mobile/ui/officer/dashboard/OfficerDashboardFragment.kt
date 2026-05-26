@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.pirmaph.mobile.R
 import com.pirmaph.mobile.data.api.RetrofitClient
+import com.pirmaph.mobile.data.cache.OfficerQueueCache
 import com.pirmaph.mobile.data.local.TokenManager
 import com.pirmaph.mobile.data.models.OfficerDocumentRequestResponse
 import com.pirmaph.mobile.ui.officer.requests.OfficerRequestDetailBottomSheet
@@ -45,18 +46,41 @@ class OfficerDashboardFragment : Fragment() {
             insets
         }
 
-        loadDashboard(view)
+        loadDashboard(view, forceRefresh = false)
     }
 
-    private fun loadDashboard(view: View) {
+    fun loadDashboard(view: View, forceRefresh: Boolean = false) {
         val overlay = view.findViewById<android.widget.FrameLayout>(R.id.dashboardLoadingOverlay)
         val scrollView = view.findViewById<ScrollView>(R.id.dashboardScrollView)
         val tvError = view.findViewById<TextView>(R.id.tvDashboardError)
 
-        overlay.visibility = View.VISIBLE
-        scrollView.visibility = View.GONE
-        tvError.visibility = View.GONE
+        if (forceRefresh) OfficerQueueCache.invalidate()
 
+        val cached = OfficerQueueCache.get()
+        if (cached != null) {
+            // Optimistic: render stale data immediately, no loading overlay
+            bindStats(view, cached)
+            bindRecentActivity(view, cached.take(5))
+            tvError.visibility = View.GONE
+            overlay.visibility = View.GONE
+            scrollView.visibility = View.VISIBLE
+            // Silently refresh in background
+            fetchDashboard(view, showOverlay = false, overlay = overlay, scrollView = scrollView, tvError = tvError)
+        } else {
+            overlay.visibility = View.VISIBLE
+            scrollView.visibility = View.GONE
+            tvError.visibility = View.GONE
+            fetchDashboard(view, showOverlay = true, overlay = overlay, scrollView = scrollView, tvError = tvError)
+        }
+    }
+
+    private fun fetchDashboard(
+        view: View,
+        showOverlay: Boolean,
+        overlay: android.widget.FrameLayout,
+        scrollView: ScrollView,
+        tvError: TextView
+    ) {
         val api = RetrofitClient.create(TokenManager(requireContext()))
 
         lifecycleScope.launch {
@@ -68,14 +92,22 @@ class OfficerDashboardFragment : Fragment() {
                 val allRequests = results.distinctBy { it.id }
                     .sortedByDescending { it.requestTimestamp }
 
+                OfficerQueueCache.set(allRequests)
                 bindStats(view, allRequests)
+                // Rebuild recent activity (clear + re-add rows)
+                val container = view.findViewById<LinearLayout>(R.id.llRecentActivity)
+                val tvEmpty = view.findViewById<TextView>(R.id.tvNoRecentActivity)
+                container.removeAllViews()
+                container.addView(tvEmpty)
                 bindRecentActivity(view, allRequests.take(5))
                 tvError.visibility = View.GONE
                 scrollView.visibility = View.VISIBLE
             } catch (e: Exception) {
                 tvError.text = "Failed to load dashboard: ${e.message}"
                 tvError.visibility = View.VISIBLE
-                Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+                if (showOverlay) {
+                    Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+                }
             } finally {
                 overlay.visibility = View.GONE
             }
@@ -106,11 +138,21 @@ class OfficerDashboardFragment : Fragment() {
         }
 
         tvEmpty.visibility = View.GONE
-        recent.forEach { request ->
+        recent.forEachIndexed { index, request ->
+            // Divider between items
+            if (index > 0) {
+                val divider = View(requireContext())
+                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
+                lp.marginStart = 16
+                lp.marginEnd = 16
+                divider.layoutParams = lp
+                divider.setBackgroundColor(Color.parseColor("#DCE4F5"))
+                container.addView(divider)
+            }
+
             val itemView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.item_officer_request, container, false)
 
-            // Bind data into item view
             val tvId = itemView.findViewById<TextView>(R.id.tvOfficerRequestId)
             val tvName = itemView.findViewById<TextView>(R.id.tvOfficerResidentName)
             val tvDoc = itemView.findViewById<TextView>(R.id.tvOfficerDocumentType)
@@ -127,20 +169,9 @@ class OfficerDashboardFragment : Fragment() {
 
             itemView.setOnClickListener {
                 val sheet = OfficerRequestDetailBottomSheet.newInstance(request.id) {
-                    view.let { v -> loadDashboard(v) }
+                    view.let { v -> loadDashboard(v, forceRefresh = true) }
                 }
                 sheet.show(parentFragmentManager, "OfficerRequestDetail")
-            }
-
-            // Add a divider between items (not after last)
-            if (recent.indexOf(request) > 0) {
-                val divider = View(requireContext())
-                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
-                lp.marginStart = 16
-                lp.marginEnd = 16
-                divider.layoutParams = lp
-                divider.setBackgroundColor(Color.parseColor("#DCE4F5"))
-                container.addView(divider)
             }
 
             container.addView(itemView)

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.pirmaph.mobile.R
 import com.pirmaph.mobile.data.api.RetrofitClient
+import com.pirmaph.mobile.data.cache.OfficerQueueCache
 import com.pirmaph.mobile.data.local.TokenManager
 import com.pirmaph.mobile.data.models.OfficerDocumentRequestResponse
 import kotlinx.coroutines.launch
@@ -51,7 +52,7 @@ class OfficerRequestsFragment : Fragment() {
 
         setupRecyclerView(view)
         setupFilterChips(view)
-        loadQueue(view)
+        loadQueue(view, forceRefresh = false)
     }
 
     private fun setupRecyclerView(view: View) {
@@ -88,7 +89,6 @@ class OfficerRequestsFragment : Fragment() {
                 chip.setTextColor(Color.WHITE)
                 chip.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#0038A8"))
             } else {
-                // Reset to default inactive style
                 when (chips[chip]) {
                     "PENDING" -> {
                         chip.setTextColor(Color.parseColor("#A07800"))
@@ -130,15 +130,32 @@ class OfficerRequestsFragment : Fragment() {
         tvEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
     }
 
-    private fun loadQueue(view: View) {
+    /**
+     * Loads the queue with caching + optimistic UI.
+     * - If valid cached data exists: show it instantly, then silently refresh in background.
+     * - If cache is stale (or forceRefresh): show spinner, fetch fresh data.
+     */
+    fun loadQueue(view: View, forceRefresh: Boolean = false) {
         val pb = view.findViewById<ProgressBar>(R.id.pbQueueLoading)
         val tvError = view.findViewById<TextView>(R.id.tvQueueError)
-        val tvEmpty = view.findViewById<TextView>(R.id.tvQueueEmpty)
 
-        pb.visibility = View.VISIBLE
-        tvError.visibility = View.GONE
-        tvEmpty.visibility = View.GONE
+        if (forceRefresh) OfficerQueueCache.invalidate()
 
+        val cached = OfficerQueueCache.get()
+        if (cached != null) {
+            // Optimistic: show stale data immediately, refresh silently
+            allRequests = cached
+            applyFilter(view)
+            tvError.visibility = View.GONE
+            fetchQueue(view, pb = null, tvError = tvError)
+        } else {
+            pb.visibility = View.VISIBLE
+            tvError.visibility = View.GONE
+            fetchQueue(view, pb = pb, tvError = tvError)
+        }
+    }
+
+    private fun fetchQueue(view: View, pb: ProgressBar?, tvError: TextView) {
         val tokenManager = TokenManager(requireContext())
         val api = RetrofitClient.create(tokenManager)
 
@@ -148,10 +165,10 @@ class OfficerRequestsFragment : Fragment() {
                     try { api.getOfficerQueue(status) } catch (e: Exception) { emptyList() }
                 }.flatten()
 
-                // Deduplicate by id
                 val deduped = results.distinctBy { it.id }
                     .sortedByDescending { it.requestTimestamp }
 
+                OfficerQueueCache.set(deduped)
                 allRequests = deduped
                 applyFilter(view)
                 tvError.visibility = View.GONE
@@ -160,15 +177,15 @@ class OfficerRequestsFragment : Fragment() {
                 tvError.visibility = View.VISIBLE
                 Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             } finally {
-                pb.visibility = View.GONE
+                pb?.visibility = View.GONE
             }
         }
     }
 
     private fun openDetail(requestId: String) {
         val sheet = OfficerRequestDetailBottomSheet.newInstance(requestId) {
-            // Refresh queue after action
-            view?.let { loadQueue(it) }
+            // Force refresh after action — cache is invalidated and data is re-fetched
+            view?.let { loadQueue(it, forceRefresh = true) }
         }
         sheet.show(parentFragmentManager, "OfficerRequestDetail")
     }
