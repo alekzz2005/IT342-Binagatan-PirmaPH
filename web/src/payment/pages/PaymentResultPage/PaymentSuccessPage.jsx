@@ -11,17 +11,18 @@ export default function PaymentSuccessPage() {
 
   const [isConfirmed, setIsConfirmed] = useState(false);
 
-  // Targeted Polling: Check request status every 3 seconds
+  // Targeted Polling: Actively verify payment status every 3 seconds
   useEffect(() => {
     if (!requestId || isConfirmed) return;
 
     const intervalId = setInterval(async () => {
       try {
-        const { default: requestApi } = await import('../../../documentrequests/api/requestApi');
-        const details = await requestApi.getRequestDetails(requestId);
+        const { default: paymentApi } = await import('../../../payment/api/paymentApi');
+        const details = await paymentApi.verifyPayment(requestId);
         
-        // If the status is no longer PENDING_PAYMENT, the webhook successfully processed it
-        if (details.status !== 'PENDING_PAYMENT') {
+        // If the backend says it's PAID, we're done. 
+        // This actively checks PayMongo and updates the DB if the webhook failed.
+        if (details.paymentStatus === 'PAID') {
           setIsConfirmed(true);
         }
       } catch (err) {

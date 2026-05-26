@@ -80,13 +80,21 @@ public class PaymentController {
      * Accessible by officers.
      */
     @PostMapping("/verify/{requestId}")
-    @PreAuthorize("hasRole('OFFICER')")
+    @PreAuthorize("hasAnyRole('OFFICER', 'RESIDENT')")
     public ResponseEntity<?> verifyPayment(
             @PathVariable UUID requestId,
             @RequestParam(value = "manual", defaultValue = "false") boolean manual) {
         try {
+            AuthenticatedUser principal = (AuthenticatedUser)
+                    SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
             PaymentInfoResponse resp;
             if (manual) {
+                boolean isOfficer = principal.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_OFFICER"));
+                if (!isOfficer) {
+                    throw new AccessDeniedException("Only officers can manually verify payments");
+                }
                 resp = payMongoService.markPaymentAsPaidManually(requestId);
             } else {
                 resp = payMongoService.verifyPaymentWithProvider(requestId);

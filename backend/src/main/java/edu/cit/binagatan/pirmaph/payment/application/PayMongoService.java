@@ -107,9 +107,24 @@ public class PayMongoService {
             throw new IllegalStateException("This request has already been paid.");
         }
 
-        // If there's a prior PENDING session, mark it CANCELLED so we can create a new one
+        // If there's a prior PENDING session, actively check its status first.
+        // It's possible the user paid but the webhook failed to reach our server.
         paymentRepository.findTopByRequestIdOrderByCreatedAtDesc(requestId).ifPresent(prior -> {
             if (prior.getPaymentStatus() == PaymentStatus.PENDING) {
+                try {
+                    PaymentInfoResponse verified = verifyPaymentWithProvider(requestId);
+                    if (verified.paymentStatus().equals("PAID")) {
+                        throw new IllegalStateException("This request has already been paid (just verified).");
+                    }
+                } catch (Exception ex) {
+                    // Ignore verification errors here so we can still cancel and recreate
+                    if (ex instanceof IllegalStateException && ex.getMessage().contains("has already been paid")) {
+                        throw ex;
+                    }
+                    log.warn("Active verification failed for requestId={}, proceeding to cancel", requestId);
+                }
+
+                // Still pending? Mark it CANCELLED so we can create a new one
                 prior.setPaymentStatus(PaymentStatus.CANCELLED);
                 paymentRepository.save(prior);
                 log.info("Prior PENDING checkout cancelled, creating fresh session for requestId={}", requestId);

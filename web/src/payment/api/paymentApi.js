@@ -12,6 +12,13 @@ class PaymentApi {
   async createCheckout(requestId) {
     return apiService.createPaymentCheckout(requestId);
   }
+
+  /**
+   * Actively verify a payment status via the backend.
+   */
+  async verifyPayment(requestId) {
+    return apiService.verifyPaymentStatus(requestId);
+  }
 }
 
 const paymentApi = new PaymentApi();

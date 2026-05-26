@@ -278,7 +278,12 @@ export default function RequestHistoryPage() {
         setError('Unable to start payment. Please try again.');
       }
     } catch (payErr) {
-      setError(payErr.message || 'Unable to start payment. Please try again.');
+      const msg = payErr.message || 'Unable to start payment. Please try again.';
+      setError(msg);
+      // If the backend actively verified it as PAID and threw an error, refresh to update UI
+      if (msg.toLowerCase().includes('already been paid')) {
+        setTimeout(() => window.location.reload(), 1500);
+      }
     } finally {
       setPayingRequestId(null);
     }
