@@ -381,6 +381,23 @@ export default function OfficerRequestQueuePage() {
     }
   };
 
+  const downloadFile = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const handleLogout = () => {
     showModal({
       context: 'confirmation',
@@ -637,7 +654,27 @@ export default function OfficerRequestQueuePage() {
                     <div className="file-name">{file.originalFileName}</div>
                     <div className="file-meta">{file.fileType} · {formatDate(file.uploadedAt)}</div>
                     {file.signedUrl && (
-                      <a href={file.signedUrl} target="_blank" rel="noreferrer" className="file-link">View File</a>
+                      <div className="file-actions" style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
+                        <a href={file.signedUrl} target="_blank" rel="noreferrer" className="file-link" style={{ marginTop: 0 }}>View File</a>
+                        <span style={{ color: 'var(--border)', fontSize: '12px' }}>|</span>
+                        <button
+                          type="button"
+                          onClick={() => downloadFile(file.signedUrl, file.originalFileName)}
+                          className="file-link"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            cursor: 'pointer',
+                            font: 'inherit',
+                            color: 'var(--blue)',
+                            marginTop: 0,
+                            textDecoration: 'none'
+                          }}
+                        >
+                          Download
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))}
