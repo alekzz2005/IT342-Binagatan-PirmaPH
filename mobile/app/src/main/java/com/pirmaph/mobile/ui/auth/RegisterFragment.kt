@@ -9,6 +9,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -46,6 +47,7 @@ class RegisterFragment : Fragment() {
     private lateinit var spinnerBarangay: Spinner
     private lateinit var etZipCode: EditText
     private lateinit var btnRegister: Button
+    private lateinit var pbRegister: ProgressBar
 
     private var regions = listOf<LocationItem>()
     private var provinces = listOf<LocationItem>()
@@ -99,6 +101,7 @@ class RegisterFragment : Fragment() {
         spinnerBarangay = view.findViewById(R.id.spinnerBarangay)
         etZipCode = view.findViewById(R.id.etZipCode)
         btnRegister = view.findViewById(R.id.btnRegister)
+        pbRegister = view.findViewById(R.id.pbRegister)
     }
 
     private fun setupStaticSpinners() {
@@ -304,6 +307,7 @@ class RegisterFragment : Fragment() {
             role = spinnerRole.selectedItem.toString()
         )
 
+        setRegisterLoading(true)
         lifecycleScope.launch {
             try {
                 val response = authRepository.register(request)
@@ -315,7 +319,15 @@ class RegisterFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            } finally {
+                setRegisterLoading(false)
             }
         }
+    }
+
+    private fun setRegisterLoading(loading: Boolean) {
+        btnRegister.isEnabled = !loading
+        btnRegister.text = if (loading) "" else "Create Account"
+        pbRegister.visibility = if (loading) View.VISIBLE else View.GONE
     }
 }

@@ -60,7 +60,7 @@ dependencies {
 // FORCE GRADLE TO USE COMPATIBLE CORE LIBRARIES FOR API 34
 configurations.all {
     resolutionStrategy {
-        force("androidx.core:core:1.15.0")
-        force("androidx.core:core-ktx:1.15.0")
+        force("androidx.core:core:1.13.1")
+        force("androidx.core:core-ktx:1.13.1")
     }
 }

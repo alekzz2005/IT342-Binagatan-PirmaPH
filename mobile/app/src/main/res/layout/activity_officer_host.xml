@@ -22,7 +22,7 @@
         android:elevation="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:weightSum="2"
+        android:weightSum="3"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <!-- Queue Tab -->
@@ -58,6 +58,42 @@
                 android:layout_height="4dp"
                 android:layout_marginTop="2dp"
                 android:background="@drawable/bg_btn_primary" />
+        </LinearLayout>
+
+        <!-- Dashboard Tab -->
+        <LinearLayout
+            android:id="@+id/navOfficerDashboard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/navOfficerDashboardIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_dashboard"
+                app:tint="@color/pirma_text_muted" />
+
+            <TextView
+                android:id="@+id/navOfficerDashboardLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Dashboard"
+                android:textColor="@color/pirma_text_muted"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <View
+                android:id="@+id/navOfficerDashboardDot"
+                android:layout_width="4dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="2dp"
+                android:background="@drawable/bg_btn_primary"
+                android:visibility="gone" />
         </LinearLayout>
 
         <!-- Profile Tab -->
@@ -99,3 +135,4 @@
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

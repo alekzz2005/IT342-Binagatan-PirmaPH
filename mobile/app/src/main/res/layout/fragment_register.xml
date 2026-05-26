@@ -441,19 +441,33 @@
             android:textSize="15sp"
             android:layout_marginBottom="24dp"/>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnRegister"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_marginTop="8dp"
-            android:background="@drawable/bg_btn_primary"
-            android:text="Create Account"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:letterSpacing="0.05"
-            android:padding="16dp" />
+            android:layout_marginBottom="24dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnRegister"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_btn_primary"
+                android:text="Create Account"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05" />
+
+            <ProgressBar
+                android:id="@+id/pbRegister"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/white"
+                android:visibility="gone" />
+
+        </FrameLayout>
 
     </LinearLayout>
 </ScrollView>

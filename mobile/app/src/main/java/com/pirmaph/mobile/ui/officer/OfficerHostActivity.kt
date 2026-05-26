@@ -12,22 +12,27 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.pirmaph.mobile.R
+import com.pirmaph.mobile.ui.officer.dashboard.OfficerDashboardFragment
 import com.pirmaph.mobile.ui.officer.profile.OfficerProfileFragment
 import com.pirmaph.mobile.ui.officer.requests.OfficerRequestsFragment
 
 class OfficerHostActivity : AppCompatActivity() {
 
-    enum class Tab { QUEUE, PROFILE }
+    enum class Tab { QUEUE, DASHBOARD, PROFILE }
 
     private var currentTab = Tab.QUEUE
 
     private lateinit var navQueue: LinearLayout
+    private lateinit var navDashboard: LinearLayout
     private lateinit var navProfile: LinearLayout
     private lateinit var navQueueIcon: ImageView
+    private lateinit var navDashboardIcon: ImageView
     private lateinit var navProfileIcon: ImageView
     private lateinit var navQueueLabel: TextView
+    private lateinit var navDashboardLabel: TextView
     private lateinit var navProfileLabel: TextView
     private lateinit var navQueueDot: View
+    private lateinit var navDashboardDot: View
     private lateinit var navProfileDot: View
 
     companion object {
@@ -69,17 +74,22 @@ class OfficerHostActivity : AppCompatActivity() {
 
     private fun bindViews() {
         navQueue = findViewById(R.id.navOfficerQueue)
+        navDashboard = findViewById(R.id.navOfficerDashboard)
         navProfile = findViewById(R.id.navOfficerProfile)
         navQueueIcon = findViewById(R.id.navQueueIcon)
+        navDashboardIcon = findViewById(R.id.navOfficerDashboardIcon)
         navProfileIcon = findViewById(R.id.navOfficerProfileIcon)
         navQueueLabel = findViewById(R.id.navQueueLabel)
+        navDashboardLabel = findViewById(R.id.navOfficerDashboardLabel)
         navProfileLabel = findViewById(R.id.navOfficerProfileLabel)
         navQueueDot = findViewById(R.id.navQueueDot)
+        navDashboardDot = findViewById(R.id.navOfficerDashboardDot)
         navProfileDot = findViewById(R.id.navOfficerProfileDot)
     }
 
     private fun setupNavigation() {
         navQueue.setOnClickListener { switchTab(Tab.QUEUE) }
+        navDashboard.setOnClickListener { switchTab(Tab.DASHBOARD) }
         navProfile.setOnClickListener { switchTab(Tab.PROFILE) }
     }
 
@@ -89,6 +99,7 @@ class OfficerHostActivity : AppCompatActivity() {
 
         val fragment: Fragment = when (tab) {
             Tab.QUEUE -> getOrCreate(OfficerRequestsFragment.TAG) { OfficerRequestsFragment() }
+            Tab.DASHBOARD -> getOrCreate(OfficerDashboardFragment.TAG) { OfficerDashboardFragment() }
             Tab.PROFILE -> getOrCreate(OfficerProfileFragment.TAG) { OfficerProfileFragment() }
         }
 
@@ -107,22 +118,31 @@ class OfficerHostActivity : AppCompatActivity() {
     private fun updateNavIndicator(activeTab: Tab) {
         val blue = ContextCompat.getColor(this, R.color.pirma_blue)
         val muted = ContextCompat.getColor(this, R.color.pirma_text_muted)
+        val mutedList = android.content.res.ColorStateList.valueOf(muted)
+        val blueList = android.content.res.ColorStateList.valueOf(blue)
 
-        listOf(navQueueIcon, navProfileIcon)
-            .forEach { it.imageTintList = android.content.res.ColorStateList.valueOf(muted) }
-        listOf(navQueueLabel, navProfileLabel)
+        // Reset all to muted
+        listOf(navQueueIcon, navDashboardIcon, navProfileIcon)
+            .forEach { it.imageTintList = mutedList }
+        listOf(navQueueLabel, navDashboardLabel, navProfileLabel)
             .forEach { it.setTextColor(muted) }
-        listOf(navQueueDot, navProfileDot)
+        listOf(navQueueDot, navDashboardDot, navProfileDot)
             .forEach { it.visibility = View.GONE }
 
+        // Highlight active tab
         when (activeTab) {
             Tab.QUEUE -> {
-                navQueueIcon.imageTintList = android.content.res.ColorStateList.valueOf(blue)
+                navQueueIcon.imageTintList = blueList
                 navQueueLabel.setTextColor(blue)
                 navQueueDot.visibility = View.VISIBLE
             }
+            Tab.DASHBOARD -> {
+                navDashboardIcon.imageTintList = blueList
+                navDashboardLabel.setTextColor(blue)
+                navDashboardDot.visibility = View.VISIBLE
+            }
             Tab.PROFILE -> {
-                navProfileIcon.imageTintList = android.content.res.ColorStateList.valueOf(blue)
+                navProfileIcon.imageTintList = blueList
                 navProfileLabel.setTextColor(blue)
                 navProfileDot.visibility = View.VISIBLE
             }

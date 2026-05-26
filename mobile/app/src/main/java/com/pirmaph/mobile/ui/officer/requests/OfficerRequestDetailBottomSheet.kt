@@ -151,6 +151,34 @@ class OfficerRequestDetailBottomSheet : BottomSheetDialogFragment() {
         val pbApprove = view.findViewById<ProgressBar>(R.id.pbApprove)
         val pbReject = view.findViewById<ProgressBar>(R.id.pbReject)
         val pbReady = view.findViewById<ProgressBar>(R.id.pbMarkReady)
+        val actionsRow = view.findViewById<LinearLayout>(R.id.actionsRow)
+        val frameReady = view.findViewById<android.widget.FrameLayout>(R.id.frameMarkReady)
+
+        // Save original text as tag for restoration during loading
+        btnApprove.tag = btnApprove.text.toString()
+        btnReject.tag = btnReject.text.toString()
+        btnReady.tag = btnReady.text.toString()
+
+        // Show/hide buttons based on valid status transitions
+        when (request.status) {
+            "SUBMITTED", "UNDER_REVIEW" -> {
+                actionsRow.visibility = View.VISIBLE
+                frameReady.visibility = View.GONE
+            }
+            "APPROVED", "PENDING_PAYMENT" -> {
+                actionsRow.visibility = View.GONE
+                frameReady.visibility = View.VISIBLE
+            }
+            "READY_FOR_RELEASE", "DECLINED" -> {
+                // Terminal states — no actions available
+                actionsRow.visibility = View.GONE
+                frameReady.visibility = View.GONE
+            }
+            else -> {
+                actionsRow.visibility = View.VISIBLE
+                frameReady.visibility = View.VISIBLE
+            }
+        }
 
         btnApprove.setOnClickListener {
             val remarks = etRemarks.text.toString().trim()
@@ -210,11 +238,13 @@ class OfficerRequestDetailBottomSheet : BottomSheetDialogFragment() {
 
     private fun setButtonLoading(button: Button, progressBar: ProgressBar, loading: Boolean) {
         button.isEnabled = !loading
-        button.text = if (loading) "" else button.tag as? String ?: button.text
-        progressBar.visibility = if (loading) View.VISIBLE else View.GONE
-        if (!loading && button.tag == null) {
-            // text will be restored on next bind; nothing to do
+        if (loading) {
+            button.tag = button.text.toString().ifEmpty { button.tag as? String ?: "" }
+            button.text = ""
+        } else {
+            button.text = button.tag as? String ?: button.text
         }
+        progressBar.visibility = if (loading) View.VISIBLE else View.GONE
     }
 
     private fun applyStatusBadge(tv: TextView, status: String?) {
