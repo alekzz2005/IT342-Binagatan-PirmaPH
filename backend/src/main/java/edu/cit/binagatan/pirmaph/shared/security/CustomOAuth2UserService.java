@@ -58,6 +58,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<User> existingUserByGoogleId = userRepository.findByGoogleId(googleId);
         if (existingUserByGoogleId.isPresent()) {
             // User already exists with this Google account
+            User user = existingUserByGoogleId.get();
+            // Fix legacy accounts that bypassed complete profile
+            if (user.getStatus() == UserStatus.PENDING_VERIFICATION && "N/A".equals(user.getBarangay())) {
+                user.setStatus(UserStatus.INCOMPLETE_PROFILE);
+                userRepository.save(user);
+            }
             return;
         }
         
