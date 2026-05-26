@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#F4F6FB">
+
+    <!-- Handle bar -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
+        android:background="#CCDCE4F5"
+        android:backgroundTint="@color/pirma_border" />
+
+    <!-- Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/pirma_blue"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tvDetailRequestId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:text="REQ-000"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnCloseDetail"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvDetailDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Oct 12, 2025"
+            android:textColor="#99FFFFFF"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnCloseDetail"
+            app:layout_constraintTop_toBottomOf="@id/tvDetailRequestId" />
+
+        <ImageView
+            android:id="@+id/btnCloseDetail"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_cancel"
+            android:padding="4dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            app:tint="#99FFFFFF"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 3-color accent strip -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/tvDetailDate">
+            <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_blue" />
+            <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_red" />
+            <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_gold" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Scrollable body -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Loading indicator -->
+            <ProgressBar
+                android:id="@+id/pbDetailLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- Resident Info Section -->
+            <LinearLayout
+                android:id="@+id/sectionResident"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_input_field"
+                android:backgroundTint="@color/white"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="RESIDENT INFO"
+                    android:textColor="@color/pirma_text_muted"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="8dp" />
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/pirma_border" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Name" android:textColor="@color/pirma_text_muted" android:textSize="11sp" android:layout_marginBottom="2dp" />
+                    <TextView android:id="@+id/tvDetailResidentName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/pirma_text_dark" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="10dp" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Contact" android:textColor="@color/pirma_text_muted" android:textSize="11sp" android:layout_marginBottom="2dp" />
+                    <TextView android:id="@+id/tvDetailResidentEmail" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/pirma_text_dark" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="10dp" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Barangay" android:textColor="@color/pirma_text_muted" android:textSize="11sp" android:layout_marginBottom="2dp" />
+                    <TextView android:id="@+id/tvDetailBarangay" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/pirma_text_dark" android:textSize="14sp" android:textStyle="bold" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Request Info Section -->
+            <LinearLayout
+                android:id="@+id/sectionRequestInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_input_field"
+                android:backgroundTint="@color/white"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="REQUEST INFO"
+                    android:textColor="@color/pirma_text_muted"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="8dp" />
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/pirma_border" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Document Type" android:textColor="@color/pirma_text_muted" android:textSize="11sp" android:layout_marginBottom="2dp" />
+                    <TextView android:id="@+id/tvDetailDocumentType" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/pirma_text_dark" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="10dp" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Purpose" android:textColor="@color/pirma_text_muted" android:textSize="11sp" android:layout_marginBottom="2dp" />
+                    <TextView android:id="@+id/tvDetailPurpose" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="—" android:textColor="@color/pirma_text_dark" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="10dp" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Status" android:textColor="@color/pirma_text_muted" android:textSize="11sp" android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvDetailStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:backgroundTint="#201E3A8A"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="5dp"
+                        android:text="Pending"
+                        android:textColor="@color/pirma_blue"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Submitted Files Section -->
+            <LinearLayout
+                android:id="@+id/sectionFiles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_input_field"
+                android:backgroundTint="@color/white"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="SUBMITTED FILES"
+                    android:textColor="@color/pirma_text_muted"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="8dp" />
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/pirma_border" />
+
+                <LinearLayout
+                    android:id="@+id/llFilesContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvNoFiles"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No files uploaded."
+                        android:textColor="@color/pirma_text_muted"
+                        android:textSize="13sp"
+                        android:visibility="visible" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Officer Remarks Section -->
+            <LinearLayout
+                android:id="@+id/sectionRemarks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_input_field"
+                android:backgroundTint="@color/white"
+                android:elevation="1dp"
+                android:orientation="vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="OFFICER REMARKS"
+                    android:textColor="@color/pirma_text_muted"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"
+                    android:paddingHorizontal="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="8dp" />
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/pirma_border" />
+
+                <EditText
+                    android:id="@+id/etOfficerRemarks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:hint="Add remarks (required when rejecting)..."
+                    android:inputType="textMultiLine"
+                    android:minLines="3"
+                    android:gravity="top"
+                    android:padding="16dp"
+                    android:textColor="@color/pirma_text_dark"
+                    android:textColorHint="@color/pirma_placeholder"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp">
+                    <Button
+                        android:id="@+id/btnDetailApprove"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Approve"
+                        android:textColor="@color/white"
+                        android:background="@drawable/bg_btn_primary"
+                        android:backgroundTint="#10B981"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+                    <ProgressBar
+                        android:id="@+id/pbApprove"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/white"
+                        android:visibility="gone" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp">
+                    <Button
+                        android:id="@+id/btnDetailReject"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Reject"
+                        android:textColor="@color/pirma_red"
+                        android:background="@drawable/bg_btn_secondary"
+                        android:backgroundTint="#1ACE1126"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+                    <ProgressBar
+                        android:id="@+id/pbReject"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/pirma_red"
+                        android:visibility="gone" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="24dp">
+                <Button
+                    android:id="@+id/btnDetailMarkReady"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Mark as Ready for Release"
+                    android:textColor="@color/white"
+                    android:background="@drawable/bg_btn_primary"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+                <ProgressBar
+                    android:id="@+id/pbMarkReady"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:indeterminateTint="@color/white"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -1,6 +1,5 @@
 package com.pirmaph.mobile.ui.auth
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,11 +11,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.pirmaph.mobile.MainActivity
 import com.pirmaph.mobile.R
 import com.pirmaph.mobile.data.api.RetrofitClient
 import com.pirmaph.mobile.data.local.TokenManager
 import com.pirmaph.mobile.data.repository.AuthRepository
+import com.pirmaph.mobile.ui.officer.OfficerHostActivity
 import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
@@ -81,7 +80,13 @@ class LoginFragment : Fragment() {
                 try {
                     val resp = authRepository.login(email, pass)
                     if (!resp.token.isNullOrEmpty()) {
-                        com.pirmaph.mobile.ui.resident.ResidentHostActivity.start(requireContext())
+                        // Route by role: officers go to OfficerHostActivity, everyone else to ResidentHostActivity
+                        val role = resp.role?.uppercase() ?: ""
+                        if (role == "OFFICER") {
+                            OfficerHostActivity.start(requireContext())
+                        } else {
+                            com.pirmaph.mobile.ui.resident.ResidentHostActivity.start(requireContext())
+                        }
                         requireActivity().finish()
                     } else {
                         Toast.makeText(requireContext(), "Login failed", Toast.LENGTH_SHORT).show()

@@ -41,6 +41,9 @@
         <activity
             android:name=".ui.resident.requests.SubmitRequestActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.officer.OfficerHostActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

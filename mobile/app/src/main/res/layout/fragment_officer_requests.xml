@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F6FB">
+
+    <!-- Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/officerQueueHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/pirma_blue"
+        android:elevation="8dp"
+        android:paddingTop="52dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvQueueTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="serif"
+            android:text="Request Queue"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvQueueSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"
+            android:text="Manage resident document requests"
+            android:textColor="#99FFFFFF"
+            android:textSize="12sp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvQueueTitle"
+            app:layout_constraintBottom_toTopOf="@id/queueHeaderAccent" />
+
+        <LinearLayout
+            android:id="@+id/queueHeaderAccent"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_blue" />
+            <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_red" />
+            <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_gold" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Filter Chips Row -->
+    <HorizontalScrollView
+        android:id="@+id/filterScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:background="@color/white"
+        android:elevation="2dp"
+        app:layout_constraintTop_toBottomOf="@id/officerQueueHeader">
+
+        <LinearLayout
+            android:id="@+id/filterChipsRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/chipAll"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="14dp"
+                android:gravity="center"
+                android:text="All"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:background="@drawable/bg_btn_primary"
+                android:backgroundTint="@color/pirma_blue" />
+
+            <TextView
+                android:id="@+id/chipPending"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="14dp"
+                android:gravity="center"
+                android:text="Pending"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#A07800"
+                android:background="@drawable/bg_btn_secondary"
+                android:backgroundTint="#1AFCD116" />
+
+            <TextView
+                android:id="@+id/chipApproved"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="14dp"
+                android:gravity="center"
+                android:text="Approved"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#059669"
+                android:background="@drawable/bg_btn_secondary"
+                android:backgroundTint="#1A10B981" />
+
+            <TextView
+                android:id="@+id/chipRejected"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="14dp"
+                android:gravity="center"
+                android:text="Rejected"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/pirma_red"
+                android:background="@drawable/bg_btn_secondary"
+                android:backgroundTint="#1ACE1126" />
+
+            <TextView
+                android:id="@+id/chipForRelease"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:paddingHorizontal="14dp"
+                android:gravity="center"
+                android:text="For Release"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#7C3AED"
+                android:background="@drawable/bg_btn_secondary"
+                android:backgroundTint="#1A8B5CF6" />
+
+            <TextView
+                android:id="@+id/chipPayment"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:paddingHorizontal="14dp"
+                android:gravity="center"
+                android:text="Payment"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#7C3AED"
+                android:background="@drawable/bg_btn_secondary"
+                android:backgroundTint="#1A8B5CF6" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Loading indicator -->
+    <ProgressBar
+        android:id="@+id/pbQueueLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filterScrollView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Error state -->
+    <TextView
+        android:id="@+id/tvQueueError"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:gravity="center"
+        android:textColor="@color/pirma_red"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filterScrollView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Empty state -->
+    <TextView
+        android:id="@+id/tvQueueEmpty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:gravity="center"
+        android:text="No requests found."
+        android:textColor="@color/pirma_text_muted"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/filterScrollView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Request List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvOfficerQueue"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/filterScrollView"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

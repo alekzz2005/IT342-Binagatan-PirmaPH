@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/bg_input_field"
+    android:backgroundTint="@color/white"
+    android:elevation="1dp"
+    android:padding="16dp">
+
+    <!-- Status color accent strip (left) -->
+    <View
+        android:id="@+id/officerStatusAccent"
+        android:layout_width="4dp"
+        android:layout_height="0dp"
+        android:background="@color/pirma_blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Request ID -->
+    <TextView
+        android:id="@+id/tvOfficerRequestId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:text="REQ-000"
+        android:textColor="@color/pirma_text_muted"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@id/officerStatusAccent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Date -->
+    <TextView
+        android:id="@+id/tvOfficerDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Oct 12, 2025"
+        android:textColor="@color/pirma_text_muted"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Resident name -->
+    <TextView
+        android:id="@+id/tvOfficerResidentName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:text="Juan Dela Cruz"
+        android:textColor="@color/pirma_text_dark"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/tvOfficerStatus"
+        app:layout_constraintStart_toEndOf="@id/officerStatusAccent"
+        app:layout_constraintTop_toBottomOf="@id/tvOfficerRequestId" />
+
+    <!-- Document type -->
+    <TextView
+        android:id="@+id/tvOfficerDocumentType"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="2dp"
+        android:text="Barangay Clearance"
+        android:textColor="@color/pirma_text_muted"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/officerStatusAccent"
+        app:layout_constraintTop_toBottomOf="@id/tvOfficerResidentName" />
+
+    <!-- Status badge -->
+    <TextView
+        android:id="@+id/tvOfficerStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_btn_secondary"
+        android:backgroundTint="#201E3A8A"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="4dp"
+        android:text="Pending"
+        android:textColor="@color/pirma_blue"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/tvOfficerResidentName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tvOfficerResidentName" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
