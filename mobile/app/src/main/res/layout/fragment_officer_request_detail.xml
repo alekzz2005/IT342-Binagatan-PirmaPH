@@ -17,70 +17,69 @@
         android:alpha="0.6" />
 
     <!-- Header -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/pirma_blue"
-        android:paddingStart="20dp"
-        android:paddingEnd="20dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="0dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tvDetailRequestId"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="serif"
-            android:text="REQ-000"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnCloseDetail"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp">
 
-        <TextView
-            android:id="@+id/tvDetailDate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="12dp"
-            android:text="Oct 12, 2025"
-            android:textColor="#99FFFFFF"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnCloseDetail"
-            app:layout_constraintTop_toBottomOf="@id/tvDetailRequestId"
-            app:layout_constraintBottom_toTopOf="@id/detailHeaderAccent" />
+            <TextView
+                android:id="@+id/tvDetailRequestId"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="serif"
+                android:text="REQ-000"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnCloseDetail"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/btnCloseDetail"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_cancel"
-            android:padding="4dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            app:tint="#99FFFFFF"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/tvDetailDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Oct 12, 2025"
+                android:textColor="#99FFFFFF"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnCloseDetail"
+                app:layout_constraintTop_toBottomOf="@id/tvDetailRequestId" />
 
-        <!-- 3-color accent strip pinned to very bottom edge of header -->
+            <ImageView
+                android:id="@+id/btnCloseDetail"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_cancel"
+                android:padding="4dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                app:tint="#99FFFFFF"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- 3-color accent strip at the very edge -->
         <LinearLayout
             android:id="@+id/detailHeaderAccent"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="3dp"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginStart="-20dp"
-            android:layout_marginEnd="-20dp">
+            android:orientation="horizontal">
             <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_blue" />
             <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_red" />
             <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@color/pirma_gold" />
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <!-- Scrollable body -->
     <ScrollView
@@ -291,14 +290,14 @@
                     android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="6dp">
-                    <Button
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnDetailApprove"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:text="Approve"
                         android:textColor="@color/white"
                         android:background="@drawable/bg_btn_primary"
-                        android:backgroundTint="#10B981"
+                        android:textAllCaps="false"
                         android:textStyle="bold"
                         android:textSize="14sp" />
                     <ProgressBar
@@ -315,14 +314,14 @@
                     android:layout_height="48dp"
                     android:layout_weight="1"
                     android:layout_marginStart="6dp">
-                    <Button
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/btnDetailReject"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:text="Reject"
                         android:textColor="@color/white"
                         android:background="@drawable/bg_btn_primary"
-                        android:backgroundTint="@color/pirma_red"
+                        android:textAllCaps="false"
                         android:textStyle="bold"
                         android:textSize="14sp" />
                     <ProgressBar
@@ -340,13 +339,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginBottom="24dp">
-                <Button
+                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/btnDetailMarkReady"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="Mark as Ready for Release"
                     android:textColor="@color/white"
                     android:background="@drawable/bg_btn_primary"
+                    android:textAllCaps="false"
                     android:textStyle="bold"
                     android:textSize="14sp" />
                 <ProgressBar
