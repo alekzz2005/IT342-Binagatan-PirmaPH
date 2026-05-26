@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.ProgressBar
+import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.ViewCompat
@@ -49,10 +49,12 @@ class OfficerDashboardFragment : Fragment() {
     }
 
     private fun loadDashboard(view: View) {
-        val pb = view.findViewById<ProgressBar>(R.id.pbDashboardLoading)
+        val overlay = view.findViewById<android.widget.FrameLayout>(R.id.dashboardLoadingOverlay)
+        val scrollView = view.findViewById<ScrollView>(R.id.dashboardScrollView)
         val tvError = view.findViewById<TextView>(R.id.tvDashboardError)
 
-        pb.visibility = View.VISIBLE
+        overlay.visibility = View.VISIBLE
+        scrollView.visibility = View.GONE
         tvError.visibility = View.GONE
 
         val api = RetrofitClient.create(TokenManager(requireContext()))
@@ -69,12 +71,13 @@ class OfficerDashboardFragment : Fragment() {
                 bindStats(view, allRequests)
                 bindRecentActivity(view, allRequests.take(5))
                 tvError.visibility = View.GONE
+                scrollView.visibility = View.VISIBLE
             } catch (e: Exception) {
                 tvError.text = "Failed to load dashboard: ${e.message}"
                 tvError.visibility = View.VISIBLE
                 Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
             } finally {
-                pb.visibility = View.GONE
+                overlay.visibility = View.GONE
             }
         }
     }

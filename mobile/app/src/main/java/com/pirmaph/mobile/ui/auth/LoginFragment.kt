@@ -83,7 +83,7 @@ class LoginFragment : Fragment() {
                         // Route by role: officers go to OfficerHostActivity, everyone else to ResidentHostActivity
                         val role = resp.role?.uppercase() ?: ""
                         if (role == "OFFICER") {
-                            OfficerHostActivity.start(requireContext())
+                            OfficerHostActivity.start(requireContext(), OfficerHostActivity.Tab.DASHBOARD)
                         } else {
                             com.pirmaph.mobile.ui.resident.ResidentHostActivity.start(requireContext())
                         }
