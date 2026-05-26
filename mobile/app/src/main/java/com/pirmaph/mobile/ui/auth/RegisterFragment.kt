@@ -272,6 +272,11 @@ class RegisterFragment : Fragment() {
             return
         }
 
+        if (spinnerRole.selectedItemPosition == 0) {
+            Toast.makeText(requireContext(), "Please select a role", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         val sexMap = mapOf(1 to "M", 2 to "F", 3 to "O")
         val selectedSexCode = sexMap[spinnerSex.selectedItemPosition] ?: "M"
 
@@ -279,6 +284,7 @@ class RegisterFragment : Fragment() {
             username = etUsername.text.toString(),
             email = etEmail.text.toString(),
             password = password,
+            confirmPassword = confirm,
             firstName = etFirstName.text.toString(),
             middleName = etMiddleName.text.toString().takeIf { it.isNotBlank() },
             lastName = etLastName.text.toString(),

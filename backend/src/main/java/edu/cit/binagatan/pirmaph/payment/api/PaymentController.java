@@ -90,8 +90,7 @@ public class PaymentController {
 
             PaymentInfoResponse resp;
             if (manual) {
-                boolean isOfficer = principal.getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_OFFICER"));
+                boolean isOfficer = principal.getRole() == edu.cit.binagatan.pirmaph.users.domain.UserRole.OFFICER;
                 if (!isOfficer) {
                     throw new AccessDeniedException("Only officers can manually verify payments");
                 }

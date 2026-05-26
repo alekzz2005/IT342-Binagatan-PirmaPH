@@ -172,7 +172,8 @@ class SubmitRequestActivity : AppCompatActivity() {
                 // 2. Upload file
                 val file = getFileFromUri(selectedFileUri!!)
                 if (file != null) {
-                    val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+                    val mimeType = contentResolver.getType(selectedFileUri!!) ?: "image/jpeg"
+                    val requestFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
                     val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
                     apiService.uploadRequestAttachment(response.id, body)
                 }

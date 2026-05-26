@@ -113,7 +113,7 @@ public class PayMongoService {
             if (prior.getPaymentStatus() == PaymentStatus.PENDING) {
                 try {
                     PaymentInfoResponse verified = verifyPaymentWithProvider(requestId);
-                    if (verified.paymentStatus().equals("PAID")) {
+                    if (verified.getPaymentStatus() == PaymentStatus.PAID) {
                         throw new IllegalStateException("This request has already been paid (just verified).");
                     }
                 } catch (Exception ex) {
