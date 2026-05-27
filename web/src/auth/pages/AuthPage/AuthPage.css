@@ -361,7 +361,7 @@
 }
 
 .select-wrap::after {
-  content: 'โ–พ';
+  content: '\25BC';
   position: absolute;
   right: 14px;
   top: 50%;
